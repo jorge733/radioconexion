@@ -1,6 +1,6 @@
 export const firebaseConfig = {
   apiKey: 'AIzaSyDn9VYTp8VfsxWQADAtozRmrCySzlETwas',
-  authDomain: 'radio-conexion-e924e.firebaseapp.com',
+  authDomain: 'auth.radioconexionweb.com',
   projectId: 'radio-conexion-e924e',
   storageBucket: 'radio-conexion-e924e.firebasestorage.app',
   messagingSenderId: '164161520710',
