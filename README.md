@@ -14,9 +14,11 @@ Los ajustes visuales compartidos están en `site.css`; las mejoras de accesibili
 
 ## Servicios externos
 
-El formulario y el espacio de suscriptores conservan el servicio de Google Apps Script original. Spotify, las fuentes de noticias y las imágenes remotas necesitan conexión a Internet. Las comprobaciones locales no envían suscripciones, mensajes ni solicitudes de canciones reales.
+El portal de suscriptores usa Firebase Authentication con Google. Las solicitudes de canciones y los mensajes pasan por rutas de Vercel que validan el token Firebase antes de reenviarlos al Apps Script; el navegador ya no conoce esa URL. Spotify, las fuentes de noticias y las imágenes remotas necesitan conexión a Internet.
 
-El acceso existente del portal usa almacenamiento del navegador. La autorización de datos privados debe aplicarse en el servicio externo; ocultar contenido en la página no constituye un control de acceso.
+Antes de publicar, completa `firebase-config.js` y configura en Vercel las variables de `.env.example`. Activa Google como proveedor de Firebase Authentication y añade el dominio publicado en **Authorized domains**. El alta automática del boletín se delega al Apps Script de Google Workspace, que debe ejecutarse con una cuenta administradora. Configura el mismo valor aleatorio de `APPS_SCRIPT_SHARED_SECRET` como secreto de Vercel y como propiedad de script `SUSCRIPTORES_SHARED_SECRET`; así el Apps Script no acepta altas directas. Esta alternativa evita almacenar claves privadas en Vercel.
+
+Las rutas de cabina aplican un límite básico de un envío por minuto y usuario. Para una protección persistente entre instancias de Vercel, reemplaza el limitador en memoria por Redis/Upstash antes de una campaña o de aumentar la audiencia.
 
 ## Cambios de esta revisión
 

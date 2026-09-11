@@ -244,7 +244,7 @@
                 <div class="login-intro">
                     <span class="eyebrow">COMUNIDAD RADIO CONEXIÓN</span>
                     <h1 id="subscriber-title">Tu radio, más cerca.</h1>
-                    <p>Entra con el correo que usaste al suscribirte y participa en la programación.</p>
+                    <p>Inicia sesión con Firebase para participar en la programación y activar tu suscripción.</p>
                     <ul class="benefit-list" aria-label="Beneficios para suscriptores">
                         <li><span class="benefit-icon" aria-hidden="true">♫</span> Elige hasta tres canciones para el próximo episodio.</li>
                         <li><span class="benefit-icon" aria-hidden="true">✦</span> Envía ideas, saludos y sugerencias directo a cabina.</li>
@@ -254,15 +254,11 @@
 
                 <div class="login-panel">
                     <h2>Acceso de suscriptores</h2>
-                    <p>No necesitas contraseña.</p>
+                    <p>Tu cuenta de Firebase identifica de forma segura tu acceso de suscriptor.</p>
                     <div class="login-box">
-                        <form id="form-login-privado">
-                            <label for="email-privado-input">Correo de suscripción</label>
-                            <input type="email" id="email-privado-input" class="input-privado" placeholder="tu@correo.com" autocomplete="email" inputmode="email" required>
-                            <button type="submit" id="btn-entrar-privado" class="btn-custom">Entrar a mi espacio</button>
-                        </form>
-                        <p class="login-note">¿Todavía no eres parte? <a href="inicio.html#subscription-form">Suscríbete gratis</a></p>
-                        <p class="login-privacy">Usaremos tu correo solamente para comprobar que tu suscripción está activa.</p>
+                        <button type="button" id="btn-entrar-firebase" class="btn-custom">Continuar con Google</button>
+                        <p class="login-note">Al iniciar sesión te suscribes gratis y recibirás el boletín en el correo de tu cuenta.</p>
+                        <p class="login-privacy">Firebase gestiona el inicio de sesión; Radio Conexión usa tu correo únicamente para enviarte el boletín y registrar tus participaciones.</p>
                         <div id="error-login-privado" class="login-error" role="alert" aria-live="polite"></div>
                     </div>
                 </div>
@@ -282,7 +278,7 @@
                     <h1>Haz sonar tu conexión</h1>
                     <p>Elige qué quieres compartir hoy con la radio.</p>
                 </div>
-                <span class="member-badge">Suscripción activa</span>
+                <span class="member-badge">Sesión Firebase activa</span>
             </div>
 
             <div class="subscriber-grid">
@@ -367,65 +363,67 @@
         </div>
     </div>
 
-    <script>
-        const scriptBaseUrl = 'https://script.google.com/macros/s/AKfycbxZ0qhA_ksJIOE_aVV-8pfUpl-IXJXd7HQzkYW7YyXUnzREcEU0kzMolXWoizxF93X1/exec';
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+        import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+        import { firebaseConfig } from './firebase-config.js';
+
+        let auth = null;
+        let provider = null;
+        if (firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId && firebaseConfig.appId) {
+            auth = getAuth(initializeApp(firebaseConfig));
+            provider = new GoogleAuthProvider();
+        }
         let cancionesSeleccionadas = [];
         let timeoutBusqueda = null;
+        let firebaseUser = null;
 
         document.addEventListener("DOMContentLoaded", () => {
-            const sesion = localStorage.getItem("usuario_radio_conexion");
-            if (sesion) {
-                const nombre = localStorage.getItem("usuario_nombre") || "";
-                const apellido = localStorage.getItem("usuario_apellido") || "";
-                mostrarContenido(nombre, apellido);
-            }
-
             const msgForm = document.getElementById('rc-user-msg-form');
             if(msgForm) msgForm.addEventListener('submit', enviarMensajeOyente);
         });
 
-        document.getElementById('form-login-privado').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email-privado-input').value.toLowerCase().trim();
-            const btn = document.getElementById('btn-entrar-privado');
+        document.getElementById('btn-entrar-firebase').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-entrar-firebase');
             const errorBox = document.getElementById('error-login-privado');
-
             errorBox.style.display = 'none';
-            btn.innerText = 'Verificando...';
-            btn.disabled = true;
-
-            const datos = new URLSearchParams();
-            datos.append('accion', 'pedir_canciones');
-            datos.append('email', email);
-
-            fetch(scriptBaseUrl, {
-                method: 'POST',
-                body: datos,
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                btn.innerText = 'Entrar a mi espacio';
-                btn.disabled = false;
-
-                if (data.result === "suscrito_valido" || data.result === "success_canciones") {
-                    localStorage.setItem("usuario_radio_conexion", email);
-                    localStorage.setItem("usuario_nombre", data.nombre || "");
-                    localStorage.setItem("usuario_apellido", data.apellido || "");
-                    mostrarContenido(data.nombre || "", data.apellido || "");
-                } else {
-                    errorBox.innerHTML = '<strong>Aviso:</strong> El correo ingresado no figura como suscriptor activo. Regístrate primero para acceder a los beneficios exclusivos.';
-                    errorBox.style.display = 'block';
-                }
-            })
-            .catch(error => {
-                console.error(error);
-                btn.innerText = 'Entrar a mi espacio';
-                btn.disabled = false;
-                errorBox.textContent = 'No pudimos comprobar tu suscripción en este momento. Inténtalo nuevamente en unos minutos.';
+            if (!auth) {
+                errorBox.textContent = 'Firebase aún no está configurado para este sitio.';
                 errorBox.style.display = 'block';
-            });
+                return;
+            }
+            btn.innerText = 'Abriendo Firebase...';
+            btn.disabled = true;
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error(error);
+                errorBox.textContent = 'No pudimos iniciar sesión. Revisa las ventanas emergentes e inténtalo nuevamente.';
+                errorBox.style.display = 'block';
+            } finally {
+                btn.innerText = 'Continuar con Google';
+                btn.disabled = false;
+            }
         });
+
+        if (auth) onAuthStateChanged(auth, async user => {
+            firebaseUser = user;
+            if (!user) return cerrarInterfazSesion();
+            mostrarContenido(user.displayName || '', user.email || '');
+            try { await llamarApi('/api/newsletter', { action: 'subscribe' }); }
+            catch (error) { console.warn('No se pudo activar el boletín todavía.', error); }
+        });
+
+        async function llamarApi(url, payload) {
+            if (!firebaseUser) throw new Error('Debes iniciar sesión para continuar.');
+            const token = await firebaseUser.getIdToken();
+            const response = await fetch(url, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || 'No fue posible procesar tu solicitud.');
+            return response.json();
+        }
 
         function buscarCancionesGlobales() {
             const query = document.getElementById('rc-music-search').value.trim();
@@ -514,25 +512,12 @@
         }
 
         function enviarMisCanciones() {
-            const email = localStorage.getItem("usuario_radio_conexion");
             const btn = document.getElementById('rc-btn-send-music');
 
             btn.innerText = 'Enviando a cabina...';
             btn.disabled = true;
 
-            const datos = new URLSearchParams();
-            datos.append('accion', 'pedir_canciones');
-            datos.append('email', email);
-            datos.append('cancion1', cancionesSeleccionadas[0] || '');
-            datos.append('cancion2', cancionesSeleccionadas[1] || '');
-            datos.append('cancion3', cancionesSeleccionadas[2] || '');
-
-            fetch(scriptBaseUrl, {
-                method: 'POST',
-                body: datos,
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            })
+            llamarApi('/api/member-action', { action: 'songs', songs: cancionesSeleccionadas })
             .then(() => {
                 abrirModal('¡Canciones Recibidas!', 'Tus canciones elegidas fueron registradas directo en la cabina para el próximo programa.');
                 document.getElementById('rc-step-selection').style.display = 'none';
@@ -548,7 +533,6 @@
 
         function enviarMensajeOyente(e) {
             e.preventDefault();
-            const email = localStorage.getItem("usuario_radio_conexion");
             const mensaje = document.getElementById('rc-txt-mensaje').value.trim();
             const btn = document.getElementById('rc-btn-send-msg');
 
@@ -557,17 +541,7 @@
             btn.innerText = 'Enviando mensaje...';
             btn.disabled = true;
 
-            const datos = new URLSearchParams();
-            datos.append('accion', 'dejar_comentario');
-            datos.append('email', email);
-            datos.append('comentario', mensaje);
-
-            fetch(scriptBaseUrl, {
-                method: 'POST',
-                body: datos,
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            })
+            llamarApi('/api/member-action', { action: 'message', message: mensaje })
             .then(() => {
                 abrirModal('¡Mensaje Enviado!', 'Tu comentario o sugerencia ya está en poder del equipo de Radio Conexión.');
                 document.getElementById('rc-user-msg-form').style.display = 'none';
@@ -592,31 +566,25 @@
             document.getElementById('custom-modal').style.display = 'none';
         }
 
-        function mostrarContenido(nombre, apellido) {
+        function mostrarContenido(nombre) {
             const campoTexto = document.getElementById("texto-bienvenida-usuario");
-            const email = localStorage.getItem("usuario_radio_conexion") || "";
-
-            if (nombre && nombre !== "Oyente" && nombre !== "undefined") {
+            if (nombre && nombre !== "undefined") {
                 campoTexto.textContent = `✓ ¡Bienvenido(a), ${nombre}! Conectado como suscriptor activo`;
-            } else if (email) {
-                campoTexto.textContent = '✓ Conectado como suscriptor activo de Radio Conexión';
             } else {
-                campoTexto.textContent = `✓ Conectado como suscriptor activo de Radio Conexión`;
+                campoTexto.textContent = '✓ Conectado como suscriptor activo de Radio Conexión';
             }
 
             document.getElementById("portal-login").classList.add("seccion-oculta");
             document.getElementById("portal-abierto").classList.remove("seccion-oculta");
         }
 
-        function cerrarSesion() {
-            localStorage.removeItem("usuario_radio_conexion");
-            localStorage.removeItem("usuario_nombre");
-            localStorage.removeItem("usuario_apellido");
+        async function cerrarSesion() {
+            if (auth) await signOut(auth);
+        }
 
+        function cerrarInterfazSesion() {
             document.getElementById("portal-abierto").classList.add("seccion-oculta");
             document.getElementById("portal-login").classList.remove("seccion-oculta");
-            document.getElementById("email-privado-input").value = "";
-
             document.getElementById('rc-step-selection').style.display = 'block';
             document.getElementById('rc-music-desc').style.display = 'block';
             document.getElementById('rc-music-success-message').style.display = 'none';
@@ -664,6 +632,11 @@
             document.body.classList.add('dark-mode');
             themeBtn.innerText = '☀️';
         }
+        window.buscarCancionesGlobales = buscarCancionesGlobales;
+        window.removerCancion = removerCancion;
+        window.enviarMisCanciones = enviarMisCanciones;
+        window.cerrarSesion = cerrarSesion;
+        window.cerrarModal = cerrarModal;
     </script>
     <script>
 
