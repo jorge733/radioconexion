@@ -16,7 +16,12 @@
     const forecast = $('#forecast-days');
     if (!forecast) return;
     const heading = $('#forecast-heading');
-    if (heading) heading.textContent = data.forecast.length ? `Pronóstico a ${data.forecast.length} días` : 'Pronóstico no disponible';
+    if (heading) {
+      const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago' }).format(new Date());
+      const includesToday = data.forecast.some(day => day.date === today);
+      const followingDays = data.forecast.length - (includesToday ? 1 : 0);
+      heading.textContent = !data.forecast.length ? 'Pronóstico no disponible' : includesToday ? `Hoy y próximos ${followingDays} días` : `Pronóstico a ${followingDays} días`;
+    }
     forecast.innerHTML = data.forecast.map(day => `<article class="forecast-day"><time datetime="${day.date}">${dayFormat.format(new Date(`${day.date}T12:00:00`))}</time><span class="weather-icon" aria-hidden="true">☀︎</span><strong>${day.max ?? '—'}° <small>${day.min ?? '—'}°</small></strong><span>${day.humidity === null ? 'Sin datos de humedad' : `Humedad mín. ${day.humidity}%`}</span><span>${day.wind === null ? '' : `Viento máx. ${day.wind} kt`}</span></article>`).join('') || '<p>No hay proyección disponible para esta estación.</p>';
   }
   async function loadWeather() {
