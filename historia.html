@@ -181,6 +181,97 @@
             line-height: 1.3;
         }
 
+        .museum-section {
+            max-width: 1080px;
+            margin: 0 auto 40px;
+        }
+
+        .museum-intro {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            color: #4a4a4a;
+        }
+
+        .timeline {
+            position: relative;
+            display: grid;
+            gap: 34px;
+            padding: 8px 0 12px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 3px;
+            transform: translateX(-50%);
+            background: linear-gradient(to bottom, transparent, #e5a919 4%, #d99614 92%, transparent);
+        }
+
+        .timeline-card {
+            display: grid;
+            grid-template-columns: calc(50% - 52px) calc(50% - 52px);
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            min-height: 180px;
+        }
+
+        .timeline-card::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 22px;
+            height: 22px;
+            transform: translate(-50%, -50%);
+            border: 5px solid #fff;
+            border-radius: 50%;
+            background: #d99614;
+            box-shadow: 0 0 0 4px rgba(217,150,20,.18);
+            z-index: 1;
+        }
+
+        .timeline-card img {
+            display: block;
+            width: 100%;
+            max-height: 195px;
+            object-fit: contain;
+            border-radius: 16px;
+            background: #f7f8fa;
+            border: 1px solid rgba(207,216,220,.55);
+            padding: 10px;
+            box-shadow: 0 10px 26px rgba(28,34,44,.08);
+        }
+
+        .timeline-copy {
+            position: relative;
+            padding: 22px;
+            border: 1px solid rgba(207,216,220,.6);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 10px 26px rgba(28,34,44,.06);
+        }
+        .timeline-period {
+            color: #a96500;
+            font-size: 1.35rem;
+            margin-bottom: 10px;
+        }
+
+        .timeline-card p { color: #4a4a4a; }
+        .timeline-card img { grid-column: 1; }
+        .timeline-card .timeline-copy { grid-column: 2; }
+        .timeline-card:nth-child(even) img { grid-column: 2; }
+        .timeline-card:nth-child(even) .timeline-copy { grid-column: 1; grid-row: 1; text-align: right; }
+
+        body.dark-mode .museum-intro, body.dark-mode .timeline-card p { color: #d1d5db !important; }
+        body.dark-mode .timeline-copy { background: rgba(28,28,28,.85); border-color: rgba(255,255,255,.1); }
+        body.dark-mode .timeline-card img { background: #17191d; }
+        body.dark-mode .timeline-card::before { border-color: #1c1c1c; }
+
         .sticky-player-bar {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 30px); max-width: 600px;
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
@@ -224,6 +315,12 @@
             .signature-block {
                 text-align: center;
             }
+            .timeline { gap: 24px; padding-left: 0; }
+            .timeline::before { left: 24px; transform: none; }
+            .timeline-card, .timeline-card:nth-child(even) { grid-template-columns: 1fr; gap: 14px; padding-left: 58px; min-height: 0; }
+            .timeline-card::before { left: 24px; top: 28px; transform: translate(-50%, 0); }
+            .timeline-card img, .timeline-card:nth-child(even) img { grid-column: 1; grid-row: 1; max-height: 180px; }
+            .timeline-card .timeline-copy, .timeline-card:nth-child(even) .timeline-copy { grid-column: 1; grid-row: 2; text-align: left; }
         }
     </style>
 <style>
@@ -499,35 +596,31 @@
             <h1>Nuestra Historia</h1>
 
             <div class="history-content">
-                <p>
-                    Radio Conexión nació con un propósito claro: ser un faro de luz en medio de la saturación informativa actual. Convencidos de que el mundo está lleno de acciones inspiradoras que merecen ser contadas, decidimos crear un espacio dedicado exclusivamente al periodismo positivo.
-                </p>
+                <p>Radio Conexión nació en marzo de 2020, en plena cuarentena, cuando comenzaron las primeras grabaciones desde casa. Lo que partió como un experimento para compartir música con la familia se convirtió, con el tiempo, en una radio y una comunidad que sigue creciendo.</p>
 
                 <div class="highlight-quote">
-                    "Conectados con tus sentidos: Queremos dejar de lado la oscuridad del mundo para darle luz a su lado bueno."
+                    "Conectados con tus sentidos: una comunidad que acompaña, informa y lleva buena energía hasta tu hogar."
                 </div>
 
-                <p>
-                    Desde nuestros inicios, nos hemos enfocado en rescatar historias de superación, avances que mejoran vidas y proyectos comunitarios que transforman realidades. No se trata de ignorar los problemas, sino de enfocar la mirada en las soluciones y en la resiliencia humana.
-                </p>
+                <p>Desde entonces, la radio ha sumado nuevos formatos, contenidos y una identidad visual propia. La música nos sigue uniendo, pero también las noticias, el clima, las historias y cada momento compartido con nuestra audiencia.</p>
             </div>
         </section>
 
         <section class="founder-section">
-            <h2>Palabras de su fundador</h2>
+            <h2>Seis años conectados</h2>
 
             <div class="founder-content">
                 <p>
-                    Marzo es un mes muy especial para la radio, ¿por qué?, porque en este mes comencé a grabar los primeros episodios de Radio Conexión.
+                    Marzo es un mes muy especial para la radio: fue entonces cuando comencé a grabar los primeros episodios de Radio Conexión.
                 </p>
                 <p>
-                    Todo inició en plena cuarentena, durante la pandemia (año 2020), cuando un día como cualquiera, prendo mi computador, abro la grabadora de voz y me doy cuenta que puedo poner música y se escuchaba "bien". Primero, compartí los primeros episodios a mi familia más cercana. Pero habían algunos problemas; primero, mientras ponía las canciones se escuchaba todo el ruido de fondo, lo cual era bastante desagradable, más aún cuando estabamos todos encerrados.
+                    Todo inició en plena cuarentena, durante la pandemia de 2020. Un día encendí el computador, abrí la grabadora de voz y descubrí que podía poner música. Los primeros episodios los compartí con mi familia, aunque todavía se escuchaba mucho ruido de fondo.
                 </p>
                 <p>
-                    Resulta que una persona muy generosa me recomendó el programa "Audacity" y solucionó ese problema. Dejé de usar la grabadora y comencé a usar Audacity para poder colocar música de mucha, pero mucha mejor calidad y sin ruido externo de fondo. Además, evolucionamos en cuanto a música de fondo, después de varios meses, descubrí cómo hacerlo, y desde ese día los episodios son mucho más entretenidos y alegres.
+                    Una persona muy generosa me recomendó Audacity y eso cambió todo. Dejé la grabadora, mejoré la calidad de la música y, después de varios meses, aprendí a crear fondos que hicieron los episodios más entretenidos y alegres.
                 </p>
                 <p>
-                    La siguiente evolución fue el abrir la página web, para que puedas estar más conectado junto a tu radio. Modificaciones en el logo y lema de Radio Conexión. Eso y más cambios, ha tenido la radio. Me enorgullece un montón que Radio Conexión ha perdurado durante seis años y ha evolucionado un montón.
+                    Después llegó la página web para estar aún más conectados. También evolucionaron el logo y el lema de Radio Conexión. Me enorgullece profundamente que la radio haya perdurado seis años y continúe creciendo.
                 </p>
                 <p>
                     Gracias querida audiencia por ser parte de no solo una radio, sino una gran comunidad. Gracias por escuchar los episodios de principio a fin.
@@ -540,6 +633,40 @@
                         <strong>Radio Conexión - Conectados Con Tus Sentidos</strong>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <section class="museum-section" aria-labelledby="museo-title">
+            <div class="history-section">
+                <h2 id="museo-title">Museo Radio Conexión</h2>
+                <p class="museum-intro">Un recorrido por los logos y los lemas que han acompañado cada etapa de la radio.</p>
+            </div>
+
+            <div class="timeline">
+                <article class="timeline-card">
+                    <img src="assets/historia/unnamed(1).png" alt="Primer logo de Radio Conexión de 2020">
+                    <div class="timeline-copy"><h3 class="timeline-period">2020</h3><p>El primer lema fue “Donde tus sentidos se conectan con la música”. Ese año se amplió el audífono, cambió la tipografía y se mejoró la visibilidad del lema.</p></div>
+                </article>
+                <article class="timeline-card">
+                    <img src="assets/historia/unnamed(3).png" alt="Logo de transición de Radio Conexión entre 2020 y 2021">
+                    <div class="timeline-copy"><h3 class="timeline-period">Finales de 2020 · Inicios de 2021</h3><p>El logo se renovó por completo: el audífono con ondas de colores dio paso a la estrella con corbata y micrófono. El lema original se mantuvo.</p></div>
+                </article>
+                <article class="timeline-card">
+                    <img src="assets/historia/unnamed(5).png" alt="Logo de Radio Conexión usado entre 2022 y 2024">
+                    <div class="timeline-copy"><h3 class="timeline-period">2022 · 2024</h3><p>La radio utilizó versiones verticales y horizontales. El lema se simplificó a “Tus sentidos se conectan con la música”.</p></div>
+                </article>
+                <article class="timeline-card">
+                    <img src="assets/historia/unnamed(7).png" alt="Identidad visual de Radio Conexión de finales de 2024 e inicios de 2025">
+                    <div class="timeline-copy"><h3 class="timeline-period">Finales de 2024 · Inicios de 2025</h3><p>Se mantuvo la estructura y se quitaron las cuadrículas del fondo. El lema se hizo más directo para reflejar una conexión que va más allá de la música.</p></div>
+                </article>
+                <article class="timeline-card">
+                    <img src="assets/historia/unnamed(8).png" alt="Logo actual en tres dimensiones de Radio Conexión">
+                    <div class="timeline-copy"><h3 class="timeline-period">Finales de 2025 · Actualidad</h3><p>La identidad dio el salto al formato 3D: una imagen moderna, luminosa y clara que conserva la tipografía iniciada en 2021. La estrella con corbata representa al locutor en acción.</p></div>
+                </article>
+                <article class="timeline-card">
+                    <img src="assets/historia/unnamed(9).png" alt="Logo especial del sexto aniversario de Radio Conexión">
+                    <div class="timeline-copy"><h3 class="timeline-period">Especial aniversario · Marzo de 2026</h3><p>Este logo se creó para conmemorar el sexto aniversario de Radio Conexión y celebrar una historia construida junto a su audiencia.</p></div>
+                </article>
             </div>
         </section>
 
