@@ -14,11 +14,21 @@ Los ajustes visuales compartidos están en `site.css`; las mejoras de accesibili
 
 ## Servicios externos
 
-El portal de suscriptores usa Firebase Authentication con Google. Las solicitudes de canciones y los mensajes pasan por rutas de Vercel que validan el token Firebase antes de reenviarlos al Apps Script; el navegador ya no conoce esa URL. Spotify, las fuentes de noticias y las imágenes remotas necesitan conexión a Internet.
+El portal de suscriptores usa Firebase Authentication con Google. Las solicitudes de canciones y los mensajes pasan por rutas de Vercel que validan el token Firebase antes de reenviarlos al Apps Script; el navegador ya no conoce esa URL. Spotify, las fuentes de noticias y las imágenes remotas necesitan conexión a Internet.ss
 
 Antes de publicar, completa `firebase-config.js` y configura en Vercel las variables de `.env.example`. Activa Google como proveedor de Firebase Authentication y añade el dominio publicado en **Authorized domains**. El alta automática del boletín se delega al Apps Script de Google Workspace, que debe ejecutarse con una cuenta administradora. Configura el mismo valor aleatorio de `APPS_SCRIPT_SHARED_SECRET` como secreto de Vercel y como propiedad de script `SUSCRIPTORES_SHARED_SECRET`; así el Apps Script no acepta altas directas. Esta alternativa evita almacenar claves privadas en Vercel.
 
 Las rutas de cabina aplican un límite básico de un envío por minuto y usuario. Para una protección persistente entre instancias de Vercel, reemplaza el limitador en memoria por Redis/Upstash antes de una campaña o de aumentar la audiencia.
+
+## Notificaciones del navegador
+
+Las personas suscritas pueden activar avisos de nuevos episodios y del boletín desde `suscriptores.html`. La primera vez se solicita permiso de forma voluntaria y el dispositivo queda registrado en Firestore. Para activarlo en producción:
+
+1. En Firebase Console, crea una base de datos **Firestore** en modo producción y crea una clave de **Web Push** en Cloud Messaging. Copia esa clave pública en `firebaseMessagingVapidKey` de `firebase-config.js`.
+2. En Firebase Console > Configuración del proyecto > Cuentas de servicio, crea una clave privada. Configura `FIREBASE_SERVICE_ACCOUNT_EMAIL` y `FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY` en Vercel; no copies esa clave a ningún archivo público.
+3. Configura `RADIO_ADMIN_EMAIL` con el correo de quien publica. Tras iniciar sesión con esa cuenta, aparece la tarjeta para enviar un aviso; permite elegir entre episodio, boletín o ambos.
+
+Los avisos requieren HTTPS. En iPhone/iPad, la persona debe añadir Radio Conexión a la pantalla de inicio antes de poder activarlos.
 
 ## Tiempo oficial
 

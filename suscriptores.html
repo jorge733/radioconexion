@@ -169,6 +169,13 @@
         .member-card--library .card-kicker { color: #efc35f; }
         .member-card--library .rc-subtitle { color: #ced3cd; margin: 0; max-width: 620px; }
         .member-card--library .btn-custom { white-space: nowrap; }
+        .notification-status { min-height: 22px; color: #62685e; font-size: 13px; margin-top: 14px; }
+        .notification-status[data-state="ok"] { color: #38643e; font-weight: 600; }
+        .notification-status[data-state="error"] { color: #a61b18; font-weight: 600; }
+        .notification-options { display: grid; gap: 10px; margin: 18px 0; }
+        .notification-options label { display: flex; gap: 9px; align-items: flex-start; color: #394038; font-size: 14px; cursor: pointer; }
+        .notification-options input { margin-top: 4px; accent-color: #c77f0d; }
+        .publisher-card { grid-column: 1 / -1; border-color: #e5d2a8; background: #fff9ed; }
         .form-group label { color: #394038; font-size: 14px; }
         .form-group input[type="text"], .message-input { min-height: 48px; padding: 12px 14px; border: 1px solid #cfd3ca; border-radius: 10px; background: #fff; font: 16px/1.5 Inter, sans-serif; }
         .message-input { width: 100%; min-height: 128px; resize: vertical; }
@@ -332,6 +339,19 @@
                     </div>
             </section>
 
+            <section class="member-card">
+                <p class="card-kicker"><span>Avisos del navegador</span><span class="card-number">03</span></p>
+                <h2>No te pierdas nada</h2>
+                <p class="rc-subtitle">Recibe un aviso en este dispositivo cuando haya un episodio nuevo o se publique el boletín.</p>
+                <div class="notification-options" aria-label="Tipos de avisos">
+                    <label><input type="checkbox" checked disabled> Nuevos episodios</label>
+                    <label><input type="checkbox" checked disabled> Boletín y noticias</label>
+                </div>
+                <button type="button" class="btn-custom" id="btn-activar-avisos" onclick="activarAvisos()">Activar avisos en este dispositivo</button>
+                <button type="button" class="btn-logout" id="btn-desactivar-avisos" onclick="desactivarAvisos()" hidden style="margin:14px 0 0;">Dejar de recibir avisos aquí</button>
+                <p class="notification-status" id="estado-avisos" role="status" aria-live="polite"></p>
+            </section>
+
             <section class="member-card member-card--library">
                 <div>
                     <p class="card-kicker">Fonoteca · 03</p>
@@ -339,6 +359,17 @@
                     <p class="rc-subtitle">Escucha o descarga el catálogo completo de Radio Conexión cuando quieras.</p>
                 </div>
                 <a class="btn-custom" href="https://drive.google.com/drive/folders/1IBhmKNoRWbFchAWPRr_tiHGqgczcGu1Y?usp=drive_link" target="_blank" rel="noopener noreferrer">Abrir fonoteca <span aria-hidden="true">↗</span></a>
+            </section>
+
+            <section class="member-card publisher-card seccion-oculta" id="panel-publicar-aviso">
+                <p class="card-kicker"><span>Publicar aviso</span><span class="card-number">Equipo Radio Conexión</span></p>
+                <h2>Enviar una notificación</h2>
+                <p class="rc-subtitle">Este aviso se enviará a los dispositivos que hayan activado las notificaciones.</p>
+                <div class="form-group"><label for="tipo-aviso">Tipo de publicación</label><select id="tipo-aviso" class="input-privado" style="margin:0;"><option value="episodio">Nuevo episodio</option><option value="boletin">Boletín y noticias</option></select></div>
+                <div class="form-group"><label for="titulo-aviso">Título</label><input id="titulo-aviso" type="text" maxlength="90" placeholder="Ej.: Ya está disponible el episodio 98"></div>
+                <div class="form-group"><label for="mensaje-aviso">Mensaje</label><textarea id="mensaje-aviso" class="message-input" rows="3" maxlength="180" placeholder="Escribe una invitación breve para escuchar o leer."></textarea></div>
+                <button type="button" class="btn-custom" id="btn-enviar-aviso" onclick="enviarAviso()">Enviar aviso</button>
+                <p class="notification-status" id="estado-publicacion" role="status" aria-live="polite"></p>
             </section>
             </div>
 
@@ -370,7 +401,8 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
         import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-        import { firebaseConfig } from './firebase-config.js';
+        import { getMessaging, getToken, deleteToken } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js';
+        import { firebaseConfig, firebaseMessagingVapidKey } from './firebase-config.js';
 
         let auth = null;
         let provider = null;
@@ -381,6 +413,10 @@
         let cancionesSeleccionadas = [];
         let timeoutBusqueda = null;
         let firebaseUser = null;
+        let messaging = null;
+        let currentPushToken = localStorage.getItem('radioConexionPushToken') || '';
+        const ADMIN_EMAIL = 'sabenedettoa@radioconexionweb.com';
+        if ('serviceWorker' in navigator && firebaseMessagingVapidKey) messaging = getMessaging();
 
         document.addEventListener("DOMContentLoaded", () => {
             const msgForm = document.getElementById('rc-user-msg-form');
@@ -414,6 +450,8 @@
             firebaseUser = user;
             if (!user) return cerrarInterfazSesion();
             mostrarContenido(user.displayName || '', user.email || '');
+            actualizarEstadoAvisos();
+            if (user.email?.toLowerCase() === ADMIN_EMAIL) document.getElementById('panel-publicar-aviso').classList.remove('seccion-oculta');
             try { await llamarApi('/api/newsletter', { action: 'subscribe' }); }
             catch (error) { console.warn('No se pudo activar el boletín todavía.', error); }
         });
@@ -427,6 +465,72 @@
             });
             if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || 'No fue posible procesar tu solicitud.');
             return response.json();
+        }
+
+        function estadoAvisos(texto, state = '') {
+            const status = document.getElementById('estado-avisos');
+            status.textContent = texto; status.dataset.state = state;
+        }
+
+        function actualizarEstadoAvisos() {
+            const button = document.getElementById('btn-activar-avisos');
+            const stop = document.getElementById('btn-desactivar-avisos');
+            if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+                button.disabled = true; estadoAvisos('Este navegador no admite avisos.', 'error'); return;
+            }
+            if (!firebaseMessagingVapidKey) {
+                button.disabled = true; estadoAvisos('Los avisos estarán disponibles pronto.'); return;
+            }
+            if (Notification.permission === 'denied') {
+                button.disabled = true; estadoAvisos('Los avisos están bloqueados en la configuración de tu navegador.', 'error'); return;
+            }
+            if (currentPushToken) {
+                button.hidden = true; stop.hidden = false; estadoAvisos('Los avisos están activos en este dispositivo.', 'ok');
+            } else {
+                button.hidden = false; stop.hidden = true; estadoAvisos('Actívalos solo si quieres recibir novedades.');
+            }
+        }
+
+        async function activarAvisos() {
+            const button = document.getElementById('btn-activar-avisos');
+            if (!messaging) return estadoAvisos('Los avisos aún no están configurados.', 'error');
+            button.disabled = true; estadoAvisos('Solicitando permiso…');
+            try {
+                const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') throw new Error('No aceptaste los avisos.');
+                const token = await getToken(messaging, { vapidKey: firebaseMessagingVapidKey, serviceWorkerRegistration: registration });
+                if (!token) throw new Error('No pudimos activar los avisos en este navegador.');
+                await llamarApi('/api/push-subscription', { action: 'save', token });
+                currentPushToken = token; localStorage.setItem('radioConexionPushToken', token);
+                actualizarEstadoAvisos();
+            } catch (error) {
+                estadoAvisos(error.message || 'No pudimos activar los avisos.', 'error');
+            } finally { button.disabled = false; }
+        }
+
+        async function desactivarAvisos() {
+            try {
+                if (currentPushToken) await llamarApi('/api/push-subscription', { action: 'remove', token: currentPushToken });
+                if (messaging) await deleteToken(messaging);
+                currentPushToken = ''; localStorage.removeItem('radioConexionPushToken'); actualizarEstadoAvisos();
+            } catch (error) { estadoAvisos(error.message || 'No pudimos quitar los avisos.', 'error'); }
+        }
+
+        async function enviarAviso() {
+            const button = document.getElementById('btn-enviar-aviso');
+            const status = document.getElementById('estado-publicacion');
+            const kind = document.getElementById('tipo-aviso').value;
+            const title = document.getElementById('titulo-aviso').value.trim();
+            const body = document.getElementById('mensaje-aviso').value.trim();
+            if (!title || !body) { status.textContent = 'Escribe un título y un mensaje.'; status.dataset.state = 'error'; return; }
+            button.disabled = true; status.textContent = 'Enviando aviso…'; status.dataset.state = '';
+            try {
+                const result = await llamarApi('/api/send-push', { kind, title, body });
+                status.textContent = `Aviso enviado a ${result.sent} dispositivo(s).`; status.dataset.state = 'ok';
+                document.getElementById('titulo-aviso').value = ''; document.getElementById('mensaje-aviso').value = '';
+            } catch (error) { status.textContent = error.message || 'No pudimos enviar el aviso.'; status.dataset.state = 'error'; }
+            finally { button.disabled = false; }
         }
 
         function buscarCancionesGlobales() {
@@ -587,6 +691,7 @@
         }
 
         function cerrarInterfazSesion() {
+            document.getElementById('panel-publicar-aviso').classList.add('seccion-oculta');
             document.getElementById("portal-abierto").classList.add("seccion-oculta");
             document.getElementById("portal-login").classList.remove("seccion-oculta");
             document.getElementById('rc-step-selection').style.display = 'block';
@@ -641,6 +746,9 @@
         window.enviarMisCanciones = enviarMisCanciones;
         window.cerrarSesion = cerrarSesion;
         window.cerrarModal = cerrarModal;
+        window.activarAvisos = activarAvisos;
+        window.desactivarAvisos = desactivarAvisos;
+        window.enviarAviso = enviarAviso;
     </script>
     <script>
 
