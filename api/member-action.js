@@ -18,7 +18,14 @@ module.exports = async (request, response) => {
     form.set('accion', 'dejar_comentario'); form.set('comentario', message.trim());
   } else return send(response, 400, { error: 'Solicitud inválida.' });
   if (!allow(`${user.uid}:${action}`, 60 * 1000)) return send(response, 429, { error: 'Espera un minuto antes de enviar otra solicitud.' });
-  const upstream = await fetch(scriptUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: form });
-  if (!upstream.ok) return send(response, 502, { error: 'La cabina no pudo recibir tu solicitud.' });
+  const upstream = await fetch(scriptUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: form,
+    // Apps Script redirects after accepting a web-app POST.
+    redirect: 'manual'
+  });
+  const received = upstream.ok || (upstream.status >= 300 && upstream.status < 400);
+  if (!received) return send(response, 502, { error: 'La cabina no pudo recibir tu solicitud.' });
   return send(response, 200, { ok: true });
 };
