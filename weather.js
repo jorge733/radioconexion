@@ -38,6 +38,17 @@
     }
   }
   document.addEventListener('DOMContentLoaded', () => {
+    const menuToggle = $('#menu-toggle');
+    const menu = $('#nav-menu');
+    menuToggle?.addEventListener('click', () => {
+      const open = menu?.classList.toggle('nav-open');
+      menuToggle.textContent = open ? '✕' : '☰';
+      menuToggle.setAttribute('aria-expanded', String(open));
+    });
+    menu?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+      menu.classList.remove('nav-open');
+      if (menuToggle) { menuToggle.textContent = '☰'; menuToggle.setAttribute('aria-expanded', 'false'); }
+    }));
     loadWeather();
     $('#share-weather')?.addEventListener('click', async () => {
       const title = 'Pronóstico del tiempo · Radio Conexión';
