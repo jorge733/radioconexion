@@ -9,7 +9,7 @@
   }
   function renderCurrent(data) {
     document.querySelectorAll('[data-weather-current]').forEach(card => {
-      card.innerHTML = `<span class="weather-kicker">Ahora · ${data.station}</span><strong>${data.current.temperature ?? '—'}°</strong><span>${data.current.humidity === null ? '' : `${data.current.humidity}% de humedad`}</span><a href="tiempo.html">Ver pronóstico <span aria-hidden="true">→</span></a>`;
+      card.innerHTML = `<span class="weather-kicker">Ahora · ${data.station}</span><strong>${data.current.temperature ?? '—'}°</strong><span>${data.current.humidity === null ? '' : `${data.current.humidity}% de humedad`}</span><a href="tiempo.html">Ver pronóstico <span aria-hidden="true">→</span></a><p data-weather-message></p>`;
     });
   }
   function renderForecast(data) {
