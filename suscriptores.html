@@ -517,15 +517,15 @@
             btn.innerText = 'Enviando a cabina...';
             btn.disabled = true;
 
-            llamarApi('/api/member-action', { action: 'songs', songs: cancionesSeleccionadas })
+            llamarApi('/api/song-request', { songs: cancionesSeleccionadas })
             .then(() => {
                 abrirModal('¡Canciones Recibidas!', 'Tus canciones elegidas fueron registradas directo en la cabina para el próximo programa.');
                 document.getElementById('rc-step-selection').style.display = 'none';
                 document.getElementById('rc-music-desc').style.display = 'none';
                 document.getElementById('rc-music-success-message').style.display = 'block';
             })
-            .catch(() => {
-                abrirModal('No pudimos enviar tu selección', 'Revisa tu conexión e inténtalo nuevamente.');
+            .catch((error) => {
+                abrirModal('No pudimos enviar tu selección', error.message || 'Revisa tu conexión e inténtalo nuevamente.');
                 btn.innerText = 'Enviar mis canciones favoritas';
                 btn.disabled = false;
             });
@@ -541,15 +541,15 @@
             btn.innerText = 'Enviando mensaje...';
             btn.disabled = true;
 
-            llamarApi('/api/member-action', { action: 'message', message: mensaje })
+            llamarApi('/api/listener-message', { message: mensaje })
             .then(() => {
                 abrirModal('¡Mensaje Enviado!', 'Tu comentario o sugerencia ya está en poder del equipo de Radio Conexión.');
                 document.getElementById('rc-user-msg-form').style.display = 'none';
                 document.getElementById('rc-msg-desc').style.display = 'none';
                 document.getElementById('rc-msg-success-box').style.display = 'block';
             })
-            .catch(() => {
-                alert('Error al registrar tu mensaje.');
+            .catch((error) => {
+                abrirModal('No pudimos enviar tu mensaje', error.message || 'Revisa tu conexión e inténtalo nuevamente.');
                 btn.innerText = 'Enviar mi mensaje';
                 btn.disabled = false;
             });

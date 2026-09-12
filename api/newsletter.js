@@ -15,9 +15,12 @@ module.exports = async (request, response) => {
     const upstream = await fetch(scriptUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: form
+      body: form,
+      // Apps Script redirects after it receives a web-app POST.
+      redirect: 'manual'
     });
-    if (!upstream.ok) throw new Error(`Apps Script respondió ${upstream.status}`);
+    const accepted = upstream.ok || (upstream.status >= 300 && upstream.status < 400);
+    if (!accepted) throw new Error(`Apps Script respondió ${upstream.status}`);
     return response.status(200).json({ ok: true });
   } catch (error) {
     console.error('Newsletter enrollment failed:', error.message);
