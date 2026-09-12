@@ -17,9 +17,12 @@ function forecastDays(model) {
   for (const element of list) {
     const definition = element?.elemento || element;
     const name = String(definition?.nombre || definition?.campo || definition?.sigla || '').toLowerCase();
-    // La DMC entrega varias corridas. La primera es la corrida vigente y evita
-    // mezclar proyecciones de horas distintas para un mismo momento.
-    const runs = Object.values(element || {}).filter(value => value && typeof value === 'object' && Array.isArray(value.valorPronosticado)).slice(0, 1);
+    // La DMC entrega varias corridas del modelo. Elegimos la más extensa para
+    // conservar el horizonte completo de cinco días sin combinar corridas.
+    const runs = Object.values(element || {})
+      .filter(value => value && typeof value === 'object' && Array.isArray(value.valorPronosticado))
+      .sort((a, b) => b.valorPronosticado.length - a.valorPronosticado.length)
+      .slice(0, 1);
     for (const run of runs) {
       for (const point of run.valorPronosticado) {
         const date = new Date(point.fecha?.replace(' ', 'T') + 'Z');
