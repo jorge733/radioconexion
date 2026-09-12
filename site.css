@@ -72,6 +72,7 @@ h1, h2, h3 { text-wrap: balance; }
 .profile-card h3 { font-size: 28px; }
 .instagram-btn { background: #222f29; border-radius: 10px; box-shadow: none; }
 .explore-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-bottom: 56px; }
+.home-weather { display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:16px 28px; margin:0 0 32px; padding:22px 26px; border:1px solid #deded3; border-radius:16px; background:#fffdfa; }.home-weather .weather-kicker { color:#6b7168; font-size:11px; grid-column:1; }.home-weather strong { grid-column:2; grid-row:1 / span 2; font:600 42px/1 Inter,sans-serif; color:#263329; letter-spacing:-2px; }.home-weather > span:not(.weather-kicker) { grid-column:1; color:#62685e; font-size:13px; }.home-weather a { grid-column:3; grid-row:1 / span 2; font-size:14px; font-weight:600; color:var(--accent); }
 .explore-grid > a { display: block; padding: 26px; border: 1px solid #deded3; border-radius: 16px; background: #fffdfa; }
 .explore-grid > a:hover { border-color: #9b6309; transform: translateY(-3px); }
 .explore-grid h2 { font: 600 20px/1.4 Inter, sans-serif; color: #263329; margin: 18px 0 10px; }
@@ -92,6 +93,7 @@ body.dark-mode { background-image: none; }
 body.dark-mode .welcome-section h1, body.dark-mode .explore-grid h2 { color: #f6f3eb; }
 body.dark-mode .eyebrow, body.dark-mode h1 em { color: #e8b850; }
 body.dark-mode .explore-grid > a { background: #202520; border-color: #42483e; }
+body.dark-mode .home-weather { background:#202520; border-color:#42483e; } body.dark-mode .home-weather strong { color:#f6f3eb; } body.dark-mode .home-weather .weather-kicker, body.dark-mode .home-weather > span:not(.weather-kicker) { color:#c8ccc4; }
 body.dark-mode nav ul li a.active { background: #353024; }
 body.dark-mode input, body.dark-mode textarea { background: #232923 !important; color: #f6f3eb !important; border-color: #71776a !important; }
 body.dark-mode input::placeholder, body.dark-mode textarea::placeholder { color: #b9bdb3; }
@@ -106,6 +108,7 @@ body.dark-mode label { color: #d7dacf !important; }
  .welcome-section h1 { letter-spacing: -2px; font-size: clamp(42px, 10vw, 66px); }
  .profile-card { max-width: none; padding: 28px; }
  .explore-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 32px; }
+ .home-weather { grid-template-columns:1fr auto; gap:8px 16px; padding:20px; }.home-weather strong { grid-column:2; grid-row:1 / span 2; }.home-weather a { grid-column:1 / -1; grid-row:auto; margin-top:8px; }
  .explore-grid > a { padding: 22px; }
  .explore-grid h2 { margin: 10px 0 8px; }
  .page-title-section, .music-section { padding: 26px 18px; }

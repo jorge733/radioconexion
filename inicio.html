@@ -380,6 +380,7 @@
     <link rel="stylesheet" href="site.css">
     <link rel="manifest" href="manifest.json">
     <script src="site.js" defer></script>
+    <script src="weather.js" defer></script>
 </head>
 <body dir="ltr">
 
@@ -400,6 +401,7 @@
                     <li><a href="inicio.html" class="active" aria-current="page">Inicio</a></li>
                     <li><a href="episodios.html">Episodios</a></li>
                     <li><a href="noticias.html">Noticias</a></li>
+                    <li><a href="tiempo.html">Tiempo</a></li>
                     <li><a href="suscriptores.html">Suscriptores</a></li>
                     <li><a href="historia.html">Historia</a></li>
                     <li><button type="button" id="dark-mode-toggle" class="dark-btn" aria-label="Cambiar modo de color" title="Cambiar modo claro/oscuro">🌙</button></li>
@@ -423,6 +425,8 @@
                 <a href="https://www.instagram.com/radioconexionweb" target="_blank" class="instagram-btn" rel="noopener noreferrer">Seguir en Instagram</a>
             </div>
         </section>
+
+        <section class="home-weather" data-weather-current aria-live="polite"><span class="weather-kicker">Ahora · Cargando tiempo oficial</span><strong>—°</strong><span>Datos de la Dirección Meteorológica de Chile</span><a href="tiempo.html">Ver pronóstico <span aria-hidden="true">→</span></a></section>
 
         <div class="explore-grid"><a href="episodios.html"><span class="eyebrow">01 / ESCUCHA</span><h2>Tu próxima conexión <span aria-hidden="true">↗</span></h2><p>Explora nuestros episodios y dale play a una nueva historia.</p></a><a href="noticias.html"><span class="eyebrow">02 / DESCUBRE</span><h2>Mantente al día <span aria-hidden="true">↗</span></h2><p>Revisa los titulares de actualidad en un solo lugar.</p></a><a href="suscriptores.html"><span class="eyebrow">03 / PARTICIPA</span><h2>La radio la hacemos juntos <span aria-hidden="true">↗</span></h2><p>Pide tus canciones y comparte un mensaje con la cabina.</p></a></div>
 

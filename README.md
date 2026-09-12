@@ -20,6 +20,10 @@ Antes de publicar, completa `firebase-config.js` y configura en Vercel las varia
 
 Las rutas de cabina aplican un límite básico de un envío por minuto y usuario. Para una protección persistente entre instancias de Vercel, reemplaza el limitador en memoria por Redis/Upstash antes de una campaña o de aumentar la audiencia.
 
+## Tiempo oficial
+
+La página `tiempo.html` y la tarjeta de Inicio obtienen condiciones actuales y proyecciones de hasta cinco días desde la Dirección Meteorológica de Chile (DMC). Registra una credencial personal en el Portal de Servicios Climáticos de la DMC y configura `DMC_API_USER`, `DMC_API_TOKEN` y, si hace falta, `DMC_STATION_CODE` en las variables de entorno de Vercel. Las credenciales se consumen únicamente en `/api/weather`.
+
 ## Cambios de esta revisión
 
 Portada renovada con los colores de la marca, accesos directos, ajustes para móviles y modo oscuro, navegación con teclado, etiquetas accesibles, portada raíz y mensajes de suscripción que no anuncian éxito ante una respuesta desconocida. La zona de suscriptores presenta mejor sus beneficios, organiza las acciones en un panel adaptable y ya no concede acceso si falla la verificación externa. Se eliminó la encuesta, el envío de votos y sus referencias al cerrar sesión. Se retiró la dependencia de animaciones AOS para que el contenido permanezca visible si falla un servicio externo.
