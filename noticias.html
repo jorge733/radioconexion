@@ -954,9 +954,18 @@
             });
 
             function abrirNoticiaDesdeEnlace() {
-                var coincidencia = window.location.hash.match(/^#noticia-(\d+)$/);
-                if (!coincidencia) return;
-                var boton = document.querySelectorAll(".read-news-btn")[Number(coincidencia[1]) - 1];
+                var id = window.location.hash.slice(1);
+                var coincidencia = id.match(/^noticia-(\d+)$/);
+                var boton;
+
+                if (noticias[id]) {
+                    document.querySelectorAll(".read-news-btn").forEach(function (candidato) {
+                        if (candidato.getAttribute("data-news-id") === id) boton = candidato;
+                    });
+                } else if (coincidencia) {
+                    boton = document.querySelectorAll(".read-news-btn")[Number(coincidencia[1]) - 1];
+                }
+
                 if (boton) abrirNoticia(boton.getAttribute("data-news-id"), boton);
             }
 
