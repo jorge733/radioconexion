@@ -977,6 +977,16 @@
                 });
             });
 
+            function abrirNoticiaDesdeEnlace() {
+                var coincidencia = window.location.hash.match(/^#noticia-(\d+)$/);
+                if (!coincidencia) return;
+                var boton = document.querySelectorAll(".read-news-btn")[Number(coincidencia[1]) - 1];
+                if (boton) abrirNoticia(boton.getAttribute("data-news-id"), boton);
+            }
+
+            abrirNoticiaDesdeEnlace();
+            window.addEventListener("hashchange", abrirNoticiaDesdeEnlace);
+
             if (cerrarNoticia && dialogoNoticia) {
                 cerrarNoticia.addEventListener("click", function () { dialogoNoticia.close(); });
                 dialogoNoticia.addEventListener("click", function (event) {
