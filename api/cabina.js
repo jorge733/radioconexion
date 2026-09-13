@@ -1,5 +1,7 @@
+const crypto = require('crypto');
 const { requireFirebaseUser } = require('./firebase-auth');
 const { allow } = require('./rate-limit');
+const { firestore, documentFields } = require('./firebase-admin');
 const { notifyRadioAdmin } = require('./notify-radio-admin');
 
 function respond(response, status, body) {
@@ -20,30 +22,35 @@ async function receiveAtCabina(request, response, action, fields) {
     return respond(response, 429, { error: 'Espera 15 segundos antes de enviar otra solicitud.' });
   }
 
-  const scriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL;
-  const sharedSecret = process.env.APPS_SCRIPT_SHARED_SECRET;
-  if (!scriptUrl || !sharedSecret) return respond(response, 503, { error: 'La cabina aún no está configurada.' });
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const record = {
+    type: action,
+    status: 'nueva',
+    uid: user.uid,
+    email: user.email || '',
+    name: user.name || '',
+    createdAt: now,
+    updatedAt: now,
+    ...fields
+  };
 
-  const form = new URLSearchParams({ accion: action, email: user.email, nombre: user.name, secreto: sharedSecret, ...fields });
   try {
-    // Apps Script executes doPost before redirecting its response. Sending the
-    // encoded form body here is what records the request in the spreadsheet.
-    const upstream = await fetch(scriptUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-      body: form.toString(),
-      redirect: 'manual'
+    await firestore(`cabinaRequests/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(documentFields(record))
     });
-    // A successful Apps Script ContentService response is a 302 redirect. The
-    // script has already processed the POST at this point.
-    if (![200, 302].includes(upstream.status)) throw new Error(`La cabina respondió ${upstream.status}.`);
-    const summary = action === 'pedir_canciones' ? `${user.name || user.email} envió una solicitud de canciones.` : `${user.name || user.email} dejó un mensaje.`;
-    notifyRadioAdmin(action === 'pedir_canciones' ? 'Nueva solicitud de canción' : 'Nuevo mensaje para la radio', summary);
-    return respond(response, 200, { ok: true });
   } catch (error) {
     console.error(`Cabina ${action} failed:`, error.message);
-    return respond(response, 502, { error: 'No pudimos entregar tu solicitud a la cabina. Inténtalo nuevamente.' });
+    return respond(response, 503, { error: 'La cabina no está disponible por ahora. Inténtalo nuevamente.' });
   }
+
+  const isSongRequest = action === 'pedir_canciones';
+  const summary = isSongRequest
+    ? `${user.name || user.email} envió una solicitud de canción.`
+    : `${user.name || user.email} dejó un mensaje.`;
+  notifyRadioAdmin(isSongRequest ? 'Nueva solicitud de canción' : 'Nuevo mensaje para la radio', summary).catch(() => {});
+  return respond(response, 200, { ok: true, id, status: 'nueva' });
 }
 
 module.exports = { receiveAtCabina, respond };

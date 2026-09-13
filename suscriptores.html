@@ -363,8 +363,11 @@
             <section class="member-card publisher-card seccion-oculta" id="panel-cabina">
                 <p class="card-kicker"><span>Cabina privada</span><span class="card-number">Equipo Radio Conexión</span></p>
                 <h2>Solicitudes y mensajes</h2>
-                <p class="rc-subtitle">Revisa la base de datos y activa alertas solo para este dispositivo.</p>
-                <a class="btn-custom" href="https://docs.google.com/spreadsheets/d/150j6o1kynAwduyr5hUGdAyBQu21gZeMoIXtRpYUbf-Y/edit" target="_blank" rel="noopener noreferrer">Abrir base de datos</a>
+                <p class="rc-subtitle">Bandeja privada de Firebase. Marca cada solicitud según su avance.</p>
+                <div class="form-group"><label for="filtro-cabina">Mostrar</label><select id="filtro-cabina" class="input-privado" style="margin:0;" onchange="renderizarSolicitudesCabina()"><option value="todas">Todas</option><option value="nueva">Nuevas</option><option value="atendida">Atendidas</option><option value="reproducida">Reproducidas</option><option value="descartada">Descartadas</option></select></div>
+                <button type="button" class="btn-custom" id="btn-recargar-cabina" onclick="cargarSolicitudesCabina()">Actualizar bandeja</button>
+                <p class="notification-status" id="estado-lista-cabina" role="status" aria-live="polite"></p>
+                <div id="lista-cabina" style="display:grid; gap:10px; margin-top:14px;"></div>
                 <button type="button" class="btn-logout" id="btn-activar-alertas-cabina" onclick="activarAvisos()" style="margin:14px 0 0;">Activar alertas de cabina</button>
                 <p class="notification-status" id="estado-cabina" role="status" aria-live="polite"></p>
             </section>
@@ -451,17 +454,18 @@
             if (user.email?.toLowerCase() === ADMIN_EMAIL) {
                 document.getElementById('panel-publicar-aviso').classList.remove('seccion-oculta');
                 document.getElementById('panel-cabina').classList.remove('seccion-oculta');
+                cargarSolicitudesCabina();
             }
             try { await llamarApi('/api/newsletter', { action: 'subscribe' }); }
             catch (error) { console.warn('No se pudo activar el boletín todavía.', error); }
         });
 
-        async function llamarApi(url, payload) {
+        async function llamarApi(url, payload, method = 'POST') {
             if (!firebaseUser) throw new Error('Debes iniciar sesión para continuar.');
             const token = await firebaseUser.getIdToken();
             const response = await fetch(url, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify(payload)
+                method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                ...(method === 'GET' ? {} : { body: JSON.stringify(payload) })
             });
             if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || 'No fue posible procesar tu solicitud.');
             return response.json();
@@ -620,6 +624,72 @@
             btnEnviar.disabled = false;
         }
 
+        let solicitudesCabina = [];
+
+        function textoSolicitud(item) {
+            if (item.type === 'pedir_canciones') return [item.cancion1, item.cancion2, item.cancion3].filter(Boolean).join(' · ');
+            return item.comentario || '';
+        }
+
+        function renderizarSolicitudesCabina() {
+            const container = document.getElementById('lista-cabina');
+            const filter = document.getElementById('filtro-cabina')?.value || 'todas';
+            if (!container) return;
+            container.replaceChildren();
+            const records = solicitudesCabina.filter((item) => filter === 'todas' || item.status === filter);
+            if (!records.length) {
+                const empty = document.createElement('p'); empty.className = 'rc-empty-msg';
+                empty.textContent = filter === 'todas' ? 'Aún no hay solicitudes en la bandeja.' : 'No hay solicitudes con este estado.';
+                container.appendChild(empty); return;
+            }
+            records.forEach((item) => {
+                const card = document.createElement('article');
+                card.style.cssText = 'border:1px solid #eadfca; border-radius:12px; padding:13px; background:#fffdf8;';
+                const title = document.createElement('strong');
+                title.textContent = item.type === 'pedir_canciones' ? '🎵 Solicitud de canción' : '💬 Mensaje de oyente';
+                const meta = document.createElement('p'); meta.style.cssText = 'margin:6px 0; font-size:13px;';
+                const when = item.createdAt ? new Date(item.createdAt).toLocaleString('es-CL') : '';
+                meta.textContent = `${item.name || 'Oyente'}${item.email ? ` · ${item.email}` : ''}${when ? ` · ${when}` : ''}`;
+                const content = document.createElement('p'); content.style.cssText = 'margin:6px 0 12px; white-space:pre-wrap;'; content.textContent = textoSolicitud(item);
+                const controls = document.createElement('div'); controls.style.cssText = 'display:flex; align-items:center; gap:8px; flex-wrap:wrap;';
+                const label = document.createElement('span'); label.textContent = `Estado: ${item.status || 'nueva'}`; label.style.fontSize = '13px';
+                const select = document.createElement('select'); select.className = 'input-privado'; select.style.cssText = 'margin:0; width:auto; padding:7px;';
+                ['nueva', 'atendida', 'reproducida', 'descartada'].forEach((status) => {
+                    const option = document.createElement('option'); option.value = status; option.textContent = status[0].toUpperCase() + status.slice(1); option.selected = status === (item.status || 'nueva'); select.appendChild(option);
+                });
+                const save = document.createElement('button'); save.type = 'button'; save.className = 'btn-logout'; save.style.cssText = 'margin:0; padding:7px 11px;'; save.textContent = 'Guardar';
+                save.addEventListener('click', () => actualizarSolicitudCabina(item.id, select.value, save));
+                controls.append(label, select, save); card.append(title, meta, content, controls); container.appendChild(card);
+            });
+        }
+
+        async function cargarSolicitudesCabina() {
+            const status = document.getElementById('estado-lista-cabina');
+            const button = document.getElementById('btn-recargar-cabina');
+            if (!status || !button) return;
+            button.disabled = true; status.textContent = 'Cargando bandeja…'; status.dataset.state = '';
+            try {
+                const result = await llamarApi('/api/cabina-requests', null, 'GET');
+                solicitudesCabina = result.requests || []; renderizarSolicitudesCabina();
+                status.textContent = `${solicitudesCabina.length} solicitud(es) en la bandeja.`; status.dataset.state = 'ok';
+            } catch (error) {
+                status.textContent = error.message || 'No pudimos cargar la bandeja.'; status.dataset.state = 'error';
+            } finally { button.disabled = false; }
+        }
+
+        async function actualizarSolicitudCabina(id, status, button) {
+            button.disabled = true; button.textContent = 'Guardando…';
+            try {
+                await llamarApi('/api/cabina-requests', { id, status }, 'PATCH');
+                const record = solicitudesCabina.find((item) => item.id === id); if (record) record.status = status;
+                renderizarSolicitudesCabina();
+                const message = document.getElementById('estado-lista-cabina'); message.textContent = 'Estado actualizado.'; message.dataset.state = 'ok';
+            } catch (error) {
+                button.disabled = false; button.textContent = 'Guardar';
+                const message = document.getElementById('estado-lista-cabina'); message.textContent = error.message || 'No pudimos guardar el estado.'; message.dataset.state = 'error';
+            }
+        }
+
         function enviarMisCanciones() {
             const btn = document.getElementById('rc-btn-send-music');
 
@@ -744,6 +814,8 @@
         window.buscarCancionesGlobales = buscarCancionesGlobales;
         window.removerCancion = removerCancion;
         window.enviarMisCanciones = enviarMisCanciones;
+        window.cargarSolicitudesCabina = cargarSolicitudesCabina;
+        window.renderizarSolicitudesCabina = renderizarSolicitudesCabina;
         window.cerrarSesion = cerrarSesion;
         window.cerrarModal = cerrarModal;
         window.activarAvisos = activarAvisos;
