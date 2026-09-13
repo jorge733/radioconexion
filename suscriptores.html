@@ -360,6 +360,14 @@
                 <button type="button" class="btn-custom" id="btn-enviar-aviso" onclick="enviarAviso()">Enviar aviso</button>
                 <p class="notification-status" id="estado-publicacion" role="status" aria-live="polite"></p>
             </section>
+            <section class="member-card publisher-card seccion-oculta" id="panel-cabina">
+                <p class="card-kicker"><span>Cabina privada</span><span class="card-number">Equipo Radio Conexión</span></p>
+                <h2>Solicitudes y mensajes</h2>
+                <p class="rc-subtitle">Revisa la base de datos y activa alertas solo para este dispositivo.</p>
+                <a class="btn-custom" href="https://docs.google.com/spreadsheets/d/150j6o1kynAwduyr5hUGdAyBQu21gZeMoIXtRpYUbf-Y/edit" target="_blank" rel="noopener noreferrer">Abrir base de datos</a>
+                <button type="button" class="btn-logout" id="btn-activar-alertas-cabina" onclick="activarAvisos()" style="margin:14px 0 0;">Activar alertas de cabina</button>
+                <p class="notification-status" id="estado-cabina" role="status" aria-live="polite"></p>
+            </section>
             </div>
 
         </div>
@@ -440,7 +448,10 @@
             if (!user) return cerrarInterfazSesion();
             mostrarContenido(user.displayName || '', user.email || '');
             actualizarEstadoAvisos();
-            if (user.email?.toLowerCase() === ADMIN_EMAIL) document.getElementById('panel-publicar-aviso').classList.remove('seccion-oculta');
+            if (user.email?.toLowerCase() === ADMIN_EMAIL) {
+                document.getElementById('panel-publicar-aviso').classList.remove('seccion-oculta');
+                document.getElementById('panel-cabina').classList.remove('seccion-oculta');
+            }
             try { await llamarApi('/api/newsletter', { action: 'subscribe' }); }
             catch (error) { console.warn('No se pudo activar el boletín todavía.', error); }
         });
@@ -475,6 +486,7 @@
             }
             if (currentPushToken) {
                 button.hidden = true; stop.hidden = false; estadoAvisos('Los avisos están activos en este dispositivo.', 'ok');
+                const cabina = document.getElementById('estado-cabina'); if (cabina) { cabina.textContent = 'Las alertas de cabina están activas en este dispositivo.'; cabina.dataset.state = 'ok'; }
             } else {
                 button.hidden = false; stop.hidden = true; estadoAvisos('Actívalos solo si quieres recibir novedades.');
             }
@@ -681,6 +693,7 @@
 
         function cerrarInterfazSesion() {
             document.getElementById('panel-publicar-aviso').classList.add('seccion-oculta');
+            document.getElementById('panel-cabina').classList.add('seccion-oculta');
             document.getElementById("portal-abierto").classList.add("seccion-oculta");
             document.getElementById("portal-login").classList.remove("seccion-oculta");
             document.getElementById('rc-step-selection').style.display = 'block';

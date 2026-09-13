@@ -1,7 +1,6 @@
 function doPost(e) {
   var params = (e && e.parameter) || {};
   var accion = params.accion || '';
-  var salto = String.fromCharCode(10);
 
   if (accion === 'pedir_canciones' || accion === 'dejar_comentario') {
     var secretoCabina = PropertiesService.getScriptProperties().getProperty('SUSCRIPTORES_SHARED_SECRET');
@@ -10,15 +9,11 @@ function doPost(e) {
 
   if (accion === 'pedir_canciones') {
     registrarCanciones_(params);
-    MailApp.sendEmail('sabenedettoa@radioconexionweb.com', 'Nueva solicitud de canciones · Radio Conexión', 'De: ' + (params.nombre || 'Suscriptor') + ' <' + (params.email || 'sin correo') + '>' + salto + salto + '1. ' + (params.cancion1 || '') + salto + '2. ' + (params.cancion2 || '') + salto + '3. ' + (params.cancion3 || ''));
     return responderJSON({ result: 'success_canciones' });
   }
 
   if (accion === 'dejar_comentario') {
-    var correo = params.email || 'Suscriptor sin correo';
-    var comentario = params.comentario || '';
     registrarMensaje_(params);
-    MailApp.sendEmail('sabenedettoa@radioconexionweb.com', 'Nuevo mensaje · Radio Conexión', 'De: ' + (params.nombre || 'Suscriptor') + ' <' + correo + '>' + salto + salto + comentario);
     return responderJSON({ result: 'success_comentario' });
   }
 

@@ -1,5 +1,6 @@
 const { requireFirebaseUser } = require('./firebase-auth');
 const { allow } = require('./rate-limit');
+const { notifyRadioAdmin } = require('./notify-radio-admin');
 
 function respond(response, status, body) {
   return response.status(status).json(body);
@@ -33,10 +34,12 @@ async function receiveAtCabina(request, response, action, fields) {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: '',
-      redirect: 'manual'
+      redirect: 'follow'
     });
-    const accepted = upstream.ok || (upstream.status >= 300 && upstream.status < 400);
-    if (!accepted) throw new Error(`La cabina respondió ${upstream.status}.`);
+    const result = await upstream.json().catch(() => ({}));
+    if (!upstream.ok || result.error) throw new Error(result.error || `La cabina respondió ${upstream.status}.`);
+    const summary = action === 'pedir_canciones' ? `${user.name || user.email} envió una solicitud de canciones.` : `${user.name || user.email} dejó un mensaje.`;
+    notifyRadioAdmin(action === 'pedir_canciones' ? 'Nueva solicitud de canción' : 'Nuevo mensaje para la radio', summary);
     return respond(response, 200, { ok: true });
   } catch (error) {
     console.error(`Cabina ${action} failed:`, error.message);
