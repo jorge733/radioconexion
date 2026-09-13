@@ -1,9 +1,20 @@
 function doPost(e) {
-  return procesarSolicitud_((e && e.parameter) || {});
+  return procesarSolicitud_(obtenerParametros_(e));
 }
 
 function doGet(e) {
-  return procesarSolicitud_((e && e.parameter) || {});
+  return procesarSolicitud_(obtenerParametros_(e));
+}
+
+function obtenerParametros_(e) {
+  var params = (e && e.parameter) || {};
+  if (params.accion || !e || !e.postData || !e.postData.contents) return params;
+  return e.postData.contents.split('&').reduce(function(resultado, par) {
+    var partes = par.split('=');
+    var clave = decodeURIComponent((partes.shift() || '').replace(/\+/g, ' '));
+    resultado[clave] = decodeURIComponent(partes.join('=').replace(/\+/g, ' '));
+    return resultado;
+  }, {});
 }
 
 function procesarSolicitud_(params) {

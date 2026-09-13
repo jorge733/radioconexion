@@ -32,10 +32,11 @@ async function receiveAtCabina(request, response, action, fields) {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
       body: form.toString(),
-      redirect: 'follow'
+      redirect: 'manual'
     });
-    const result = await upstream.json().catch(() => ({}));
-    if (!upstream.ok || result.error) throw new Error(result.error || `La cabina respondió ${upstream.status}.`);
+    // A successful Apps Script ContentService response is a 302 redirect. The
+    // script has already processed the POST at this point.
+    if (![200, 302].includes(upstream.status)) throw new Error(`La cabina respondió ${upstream.status}.`);
     const summary = action === 'pedir_canciones' ? `${user.name || user.email} envió una solicitud de canciones.` : `${user.name || user.email} dejó un mensaje.`;
     notifyRadioAdmin(action === 'pedir_canciones' ? 'Nueva solicitud de canción' : 'Nuevo mensaje para la radio', summary);
     return respond(response, 200, { ok: true });
