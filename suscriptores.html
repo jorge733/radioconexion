@@ -416,6 +416,10 @@
         let messaging = null;
         let currentPushToken = localStorage.getItem('radioConexionPushToken') || '';
         const ADMIN_EMAIL = 'sabenedettoa@radioconexionweb.com';
+        const esCuentaRadio = (email) => {
+            const normalized = (email || '').toLowerCase();
+            return normalized === ADMIN_EMAIL || normalized.endsWith('@radioconexionweb.com');
+        };
         if ('serviceWorker' in navigator && firebaseMessagingVapidKey) messaging = getMessaging();
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -451,7 +455,7 @@
             if (!user) return cerrarInterfazSesion();
             mostrarContenido(user.displayName || '', user.email || '');
             actualizarEstadoAvisos();
-            if (user.email?.toLowerCase() === ADMIN_EMAIL) {
+            if (esCuentaRadio(user.email)) {
                 document.getElementById('panel-publicar-aviso').classList.remove('seccion-oculta');
                 document.getElementById('panel-cabina').classList.remove('seccion-oculta');
                 cargarSolicitudesCabina();
