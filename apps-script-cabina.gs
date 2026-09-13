@@ -40,13 +40,15 @@ function procesarSolicitud_(params) {
 }
 
 function registrarCanciones_(params) {
-  var hoja = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Canciones Solicitadas');
+  var libro = SpreadsheetApp.openById('150j6o1kynAwduyr5hUGdAyBQu21gZeMoIXtRpYUbf-Y');
+  var hoja = libro.getSheetByName('Canciones Solicitadas');
   if (!hoja) throw new Error('No existe la hoja Canciones Solicitadas.');
   hoja.appendRow([new Date(), params.email || '', params.nombre || '', params.cancion1 || '', params.cancion2 || '', params.cancion3 || '', 'Nueva', '']);
 }
 
 function registrarMensaje_(params) {
-  var hoja = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Mensajes');
+  var libro = SpreadsheetApp.openById('150j6o1kynAwduyr5hUGdAyBQu21gZeMoIXtRpYUbf-Y');
+  var hoja = libro.getSheetByName('Mensajes');
   if (!hoja) throw new Error('No existe la hoja Mensajes.');
   hoja.appendRow([new Date(), params.email || '', params.nombre || '', params.comentario || '', 'Nuevo', '']);
 }
