@@ -20,9 +20,10 @@ async function receiveAtCabina(request, response, action, fields) {
   }
 
   const scriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL;
-  if (!scriptUrl) return respond(response, 503, { error: 'La cabina aún no está configurada.' });
+  const sharedSecret = process.env.APPS_SCRIPT_SHARED_SECRET;
+  if (!scriptUrl || !sharedSecret) return respond(response, 503, { error: 'La cabina aún no está configurada.' });
 
-  const form = new URLSearchParams({ accion: action, email: user.email, ...fields });
+  const form = new URLSearchParams({ accion: action, email: user.email, nombre: user.name, secreto: sharedSecret, ...fields });
   // Apps Script reliably exposes query parameters through e.parameter.
   const target = new URL(scriptUrl);
   form.forEach((value, key) => target.searchParams.set(key, value));

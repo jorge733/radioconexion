@@ -296,15 +296,36 @@
             <section class="member-card">
                 <p class="card-kicker"><span>Programación musical</span><span class="card-number">01</span></p>
                 <h2>Pide tus canciones</h2>
-                <p class="rc-subtitle">Estamos renovando este espacio para recibir tus solicitudes de forma confiable.</p>
-                <p class="rc-empty-msg">La solicitud de canciones volverá a estar disponible próximamente.</p>
+                <p class="rc-subtitle" id="rc-music-desc">Busca hasta tres canciones en el catálogo de Apple Music y envíalas a cabina.</p>
+                <div id="rc-step-selection">
+                    <div class="form-group search-container">
+                        <label for="rc-music-search">Busca una canción o artista</label>
+                        <input type="text" id="rc-music-search" placeholder="Ej.: Los Prisioneros o Coldplay" autocomplete="off" oninput="buscarCancionesGlobales()">
+                        <div id="rc-search-results" class="rc-search-results-box" role="listbox" aria-label="Resultados de canciones"></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 25px;">
+                        <div class="selection-label"><label>Tu selección</label><span class="selection-limit">Máximo 3</span></div>
+                        <div id="rc-selected-list" class="rc-selected-list-container"><p class="rc-empty-msg">No has seleccionado ninguna canción aún.</p></div>
+                    </div>
+                    <button type="button" class="btn-custom" id="rc-btn-send-music" style="width: 100%;" onclick="enviarMisCanciones()" disabled>Enviar solicitud a cabina</button>
+                </div>
+                <div id="rc-music-success-message" class="success-state" role="status">
+                    <strong>¡Canciones recibidas!</strong><p>Tu selección ya está en la lista de cabina.</p>
+                </div>
             </section>
 
             <section class="member-card">
                 <p class="card-kicker"><span>Directo a cabina</span><span class="card-number">02</span></p>
                 <h2>Déjanos un mensaje</h2>
-                <p class="rc-subtitle">Estamos mejorando esta vía de comunicación con cabina.</p>
-                <p class="rc-empty-msg">El envío de mensajes volverá a estar disponible próximamente.</p>
+                <p class="rc-subtitle" id="rc-msg-desc">Comparte un saludo, una sugerencia o un tema para próximos programas.</p>
+                <form id="rc-user-msg-form" class="form-group">
+                    <label for="rc-txt-mensaje">Tu mensaje para Radio Conexión</label>
+                    <textarea id="rc-txt-mensaje" class="message-input" rows="5" maxlength="600" placeholder="Escribe aquí lo que quieras compartir..." required></textarea>
+                    <button type="submit" id="rc-btn-send-msg" class="btn-custom" style="width: 100%; margin-top: 8px;">Enviar mi mensaje</button>
+                </form>
+                <div id="rc-msg-success-box" class="success-state" role="status">
+                    <strong>¡Mensaje enviado!</strong><p>Gracias por ser parte de Radio Conexión.</p>
+                </div>
             </section>
 
             <section class="member-card">
@@ -662,6 +683,15 @@
             document.getElementById('panel-publicar-aviso').classList.add('seccion-oculta');
             document.getElementById("portal-abierto").classList.add("seccion-oculta");
             document.getElementById("portal-login").classList.remove("seccion-oculta");
+            document.getElementById('rc-step-selection').style.display = 'block';
+            document.getElementById('rc-music-desc').style.display = 'block';
+            document.getElementById('rc-music-success-message').style.display = 'none';
+            cancionesSeleccionadas = [];
+            actualizarListaSeleccionada();
+            document.getElementById('rc-user-msg-form').style.display = 'block';
+            document.getElementById('rc-msg-desc').style.display = 'block';
+            document.getElementById('rc-msg-success-box').style.display = 'none';
+            document.getElementById('rc-txt-mensaje').value = '';
         }
 
         const menuToggleBtn = document.getElementById('menu-toggle');
