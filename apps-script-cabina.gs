@@ -1,5 +1,12 @@
 function doPost(e) {
-  var params = (e && e.parameter) || {};
+  return procesarSolicitud_((e && e.parameter) || {});
+}
+
+function doGet(e) {
+  return procesarSolicitud_((e && e.parameter) || {});
+}
+
+function procesarSolicitud_(params) {
   var accion = params.accion || '';
 
   if (accion === 'pedir_canciones' || accion === 'dejar_comentario') {
