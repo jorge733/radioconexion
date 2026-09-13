@@ -25,13 +25,13 @@ async function receiveAtCabina(request, response, action, fields) {
   if (!scriptUrl || !sharedSecret) return respond(response, 503, { error: 'La cabina aún no está configurada.' });
 
   const form = new URLSearchParams({ accion: action, email: user.email, nombre: user.name, secreto: sharedSecret, ...fields });
-  // Apps Script redirects POST requests to googleusercontent.com. The redirect
-  // converts them to GET and discards the body, so send parameters in the URL.
-  const target = new URL(scriptUrl);
-  form.forEach((value, key) => target.searchParams.set(key, value));
   try {
-    const upstream = await fetch(target, {
-      method: 'GET',
+    // Apps Script executes doPost before redirecting its response. Sending the
+    // encoded form body here is what records the request in the spreadsheet.
+    const upstream = await fetch(scriptUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: form.toString(),
       redirect: 'follow'
     });
     const result = await upstream.json().catch(() => ({}));
