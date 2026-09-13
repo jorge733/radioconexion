@@ -263,6 +263,37 @@
             font-size: 0.96rem;
         }
 
+        .instagram-section {
+            max-width: 1120px;
+            margin: 42px auto 0;
+            text-align: left;
+        }
+
+        .instagram-section h2 {
+            margin-bottom: 8px;
+            color: #1c1c1c;
+            font-size: clamp(1.35rem, 3vw, 1.7rem);
+        }
+
+        .instagram-section > p {
+            margin-bottom: 20px;
+            color: #5d5a53;
+        }
+
+        .instagram-feed {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            justify-items: center;
+            gap: 20px;
+        }
+
+        .instagram-feed .instagram-media {
+            width: 100% !important;
+            max-width: 540px !important;
+            min-width: 0 !important;
+            margin: 0 !important;
+        }
+
         .news-toolbar {
             display: flex;
             align-items: center;
@@ -705,6 +736,14 @@
             color: #d5d0c4;
         }
 
+        body.dark-mode .instagram-section h2 {
+            color: #f5f7f8;
+        }
+
+        body.dark-mode .instagram-section > p {
+            color: #d5d0c4;
+        }
+
         body.dark-mode .brand-tagline {
             color: #e5a919;
         }
@@ -775,6 +814,10 @@
 
             .news-refresh-btn {
                 width: 100%;
+            }
+
+            .instagram-feed {
+                grid-template-columns: 1fr;
             }
 
             .sticky-player-bar {
@@ -850,8 +893,21 @@
             <section class="blog-maintenance" aria-labelledby="maintenance-title">
                 <span class="blog-maintenance-label">Blog en mantención</span>
                 <h2 id="maintenance-title">Muy pronto, nuevas conexiones.</h2>
-                <p>Estamos renovando esta sección e incorporando una selección de publicaciones de nuestro Instagram. Mientras tanto, puedes seguir las novedades directamente en nuestra cuenta.</p>
+                <p>Estamos renovando esta sección e incorporando una selección de publicaciones de nuestro Instagram. Seguiremos sumando novedades durante la mantención.</p>
                 <a class="btn-custom" href="https://www.instagram.com/radioconexionweb/" target="_blank" rel="noopener noreferrer">Ver Instagram de Radio Conexión</a>
+            </section>
+
+            <section class="instagram-section" aria-labelledby="instagram-title">
+                <h2 id="instagram-title">Desde Instagram</h2>
+                <p>Una selección de las últimas publicaciones de Radio Conexión.</p>
+                <div class="instagram-feed">
+                    <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="https://www.instagram.com/p/DZ54KPonYja/" data-instgrm-version="14">
+                        <a href="https://www.instagram.com/p/DZ54KPonYja/" target="_blank" rel="noopener noreferrer">Ver publicación de Radio Conexión en Instagram</a>
+                    </blockquote>
+                    <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="https://www.instagram.com/p/DZ-BJXJFXGW/" data-instgrm-version="14">
+                        <a href="https://www.instagram.com/p/DZ-BJXJFXGW/" target="_blank" rel="noopener noreferrer">Ver publicación de Radio Conexión en Instagram</a>
+                    </blockquote>
+                </div>
             </section>
         </section>
     </main>
@@ -1132,5 +1188,6 @@
         }());
     </script>
 <script type="module" src="profile-avatar.js"></script>
+<script async src="https://www.instagram.com/embed.js"></script>
 </body>
 </html>
