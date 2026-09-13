@@ -215,6 +215,7 @@ html body #main-header .profile-link {
   box-shadow: 0 3px 10px rgba(103,68,7,.2);
 }
 html body #main-header .profile-link:hover { transform: translateY(-1px) scale(1.05); }
+html body #main-header .profile-link svg { width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 html body #main-header .dark-btn {
   width: 38px;
   min-width: 38px;
