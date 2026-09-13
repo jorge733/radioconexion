@@ -357,6 +357,89 @@
             box-shadow: 0 8px 22px rgba(199, 127, 13, 0.20);
         }
 
+        .news-dialog {
+            width: min(calc(100% - 28px), 780px);
+            max-height: min(760px, calc(100% - 28px));
+            padding: 0;
+            border: 0;
+            border-radius: 22px;
+            color: var(--ink);
+            background: var(--card);
+            box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+        }
+
+        .news-dialog::backdrop {
+            background: rgba(16, 18, 22, 0.68);
+            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+        }
+
+        .news-dialog-content {
+            max-height: min(760px, calc(100vh - 28px));
+            overflow-y: auto;
+            padding: clamp(24px, 5vw, 48px);
+        }
+
+        .news-dialog-close {
+            float: right;
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: #575d63;
+            background: transparent;
+            font-size: 23px;
+            cursor: pointer;
+        }
+
+        .news-dialog-source {
+            display: block;
+            margin: 12px 48px 12px 0;
+            color: #c77f0d;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .news-dialog h2 {
+            margin-bottom: 18px;
+            font-family: "Unica One", sans-serif;
+            color: #a96500;
+            font-size: clamp(1.7rem, 4vw, 2.45rem);
+            line-height: 1.16;
+        }
+
+        .news-dialog-summary {
+            margin-bottom: 22px;
+            color: #50565c;
+            font-size: 1.04rem;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        .news-dialog-body p {
+            margin: 0 0 16px;
+            color: #34383d;
+            font-size: 1rem;
+            line-height: 1.75;
+        }
+
+        .news-dialog-footer {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .news-dialog-footer small {
+            color: #6b7177;
+        }
+
         .news-skeleton {
             min-height: 185px;
             background: linear-gradient(100deg, #ffffff 30%, #f3f4f6 50%, #ffffff 70%);
@@ -471,8 +554,20 @@
         }
 
         body.dark-mode .news-status strong,
-        body.dark-mode .news-card h2 {
+        body.dark-mode .news-card h2,
+        body.dark-mode .news-dialog-body p {
             color: #f5f7f8;
+        }
+
+        body.dark-mode .news-dialog,
+        body.dark-mode .news-dialog-close {
+            border-color: rgba(255, 255, 255, 0.12);
+            background: #191c21;
+        }
+
+        body.dark-mode .news-dialog-summary,
+        body.dark-mode .news-dialog-footer small {
+            color: #b8bdc3;
         }
 
         body.dark-mode .news-refresh-btn {
@@ -640,7 +735,7 @@
                         <h2>Circulación de virus respiratorios alcanza su nivel más alto en tres años</h2>
                         <p class="news-summary">La positividad de las muestras llegó al 57,9%, mientras aumentaron las hospitalizaciones y las atenciones respiratorias en la población infantil.</p>
                     </div>
-                    <a class="btn-custom" href="https://www.minsal.cl/reporte-semanal-campana-de-invierno-2026-positividad-alcanza-un-579-en-la-se-34-la-mas-alta-registrada-en-los-ultimos-tres-anos/" target="_blank" rel="noopener noreferrer">Leer noticia</a>
+                    <button type="button" class="btn-custom read-news-btn" data-news-id="virus-respiratorios">Leer noticia completa</button>
                 </article>
 
                 <article class="news-card" data-published="2026-09-04">
@@ -649,7 +744,7 @@
                         <h2>Estudiantes chilenos convierten plumavit residual en material de construcción</h2>
                         <p class="news-summary">Alumnos de la PUCV desarrollaron un fragüe técnico con plumavit reciclado, caucho y polvo de hormigón, pensado para resistir sismos y humedad.</p>
                     </div>
-                    <a class="btn-custom" href="https://www.biobiochile.cl/noticias/ciencia-y-tecnologia/ciencia/2026/09/04/estudiantes-chilenos-logran-transformar-el-plumavit-residual-en-importante-material-de-construccion.shtml" target="_blank" rel="noopener noreferrer">Leer noticia</a>
+                    <button type="button" class="btn-custom read-news-btn" data-news-id="plumavit">Leer noticia completa</button>
                 </article>
 
                 <article class="news-card" data-published="2026-09-06">
@@ -658,7 +753,7 @@
                         <h2>El Desierto Florido podría alcanzar una intensidad no vista desde 1997</h2>
                         <p class="news-summary">Las lluvias activaron semillas y bulbos en Atacama y Coquimbo. La floración comenzaría en septiembre y alcanzaría su punto máximo durante octubre.</p>
                     </div>
-                    <a class="btn-custom" href="https://www.biobiochile.cl/noticias/ciencia-y-tecnologia/medio-ambiente-cyt/2026/09/06/desierto-florido-podria-repetirse-con-una-intensidad-no-vista-desde-1997.shtml" target="_blank" rel="noopener noreferrer">Leer noticia</a>
+                    <button type="button" class="btn-custom read-news-btn" data-news-id="desierto-florido">Leer noticia completa</button>
                 </article>
 
                 <article class="news-card" data-published="2026-09-02">
@@ -667,7 +762,7 @@
                         <h2>Salud impulsa siete proyectos para modernizar la atención</h2>
                         <p class="news-summary">La hoja de ruta incluye receta digital, historia clínica compartida, apoyo tecnológico para listas de espera y un nuevo portal ciudadano de salud.</p>
                     </div>
-                    <a class="btn-custom" href="https://www.minsal.cl/minsal-inicia-nueva-etapa-de-transformacion-digital-con-siete-proyectos-estrategicos-para-modernizar-la-atencion-de-salud/" target="_blank" rel="noopener noreferrer">Leer noticia</a>
+                    <button type="button" class="btn-custom read-news-btn" data-news-id="salud-digital">Leer noticia completa</button>
                 </article>
 
                 <article class="news-card" data-published="2026-09-02">
@@ -676,7 +771,7 @@
                         <h2>Fotógrafo chileno gana el Gran Premio de los Audubon Photography Awards</h2>
                         <p class="news-summary">Francisco Castro fue reconocido por una imagen de un tucúquere captada en Paposo, Región de Antofagasta. El premio incluye US$5.000 y un viaje a la Antártica.</p>
                     </div>
-                    <a class="btn-custom" href="https://www.biobiochile.cl/noticias/sociedad/animales/2026/09/02/chileno-obtiene-el-gran-premio-de-los-audubon-photography-awards-por-foto-de-imponente-buho.shtml" target="_blank" rel="noopener noreferrer">Leer noticia</a>
+                    <button type="button" class="btn-custom read-news-btn" data-news-id="audubon">Leer noticia completa</button>
                 </article>
 
                 <article class="news-card" data-published="2026-09-05">
@@ -685,11 +780,24 @@
                         <h2>Premio Nacional de Innovación Avonni anuncia 36 finalistas</h2>
                         <p class="news-summary">La edición 2026 recibió más de 1.200 postulaciones: la mitad provino de regiones y el 42% correspondió a iniciativas lideradas por mujeres.</p>
                     </div>
-                    <a class="btn-custom" href="https://www.tourinnovacion.cl/actualidad/con-record-de-postulaciones-el-premio-nacional-de-innovacion-avonni-anuncia-a-sus-finalistas-2026-en-el-ano-en-que-celebra-dos-decadas-impulsando-la-innovacion-en-chile/" target="_blank" rel="noopener noreferrer">Leer noticia</a>
+                    <button type="button" class="btn-custom read-news-btn" data-news-id="avonni">Leer noticia completa</button>
                 </article>
             </div>
         </section>
     </main>
+    <dialog class="news-dialog" id="news-dialog" aria-labelledby="news-dialog-title">
+        <div class="news-dialog-content">
+            <button type="button" class="news-dialog-close" id="news-dialog-close" aria-label="Cerrar noticia">×</button>
+            <span class="news-dialog-source" id="news-dialog-source"></span>
+            <h2 id="news-dialog-title"></h2>
+            <p class="news-dialog-summary" id="news-dialog-summary"></p>
+            <div class="news-dialog-body" id="news-dialog-body"></div>
+            <div class="news-dialog-footer">
+                <a class="btn-custom" id="news-dialog-source-link" href="#" target="_blank" rel="noopener noreferrer">Ver fuente original</a>
+                <small>Nota elaborada por Radio Conexión a partir de la fuente indicada.</small>
+            </div>
+        </div>
+    </dialog>
     <footer class="site-footer"><a href="inicio.html">Radio Conexión</a><p>Conectados con tus sentidos.</p><a href="historia.html">Nuestra historia</a><span aria-hidden="true"> · </span><a href="inicio.html#subscription-form">Recibe el boletín</a></footer>
 
     <div class="sticky-player-bar">
@@ -776,6 +884,106 @@
                     } catch (error) {
                         console.warn("No se pudo guardar el tema.", error);
                     }
+                });
+            }
+
+            var noticias = {
+                "virus-respiratorios": {
+                    fuente: "MINISTERIO DE SALUD",
+                    titulo: "Circulación de virus respiratorios alcanza su nivel más alto en tres años",
+                    resumen: "La positividad de las muestras llegó al 57,9%, mientras aumentaron las hospitalizaciones y las atenciones respiratorias en la población infantil.",
+                    texto: [
+                        "El último reporte de la Campaña de Invierno informó que la positividad de las muestras analizadas llegó a 57,9% durante la semana epidemiológica 34. La cifra representa el nivel más alto registrado en los últimos tres años para este período.",
+                        "El escenario coincide con un aumento de hospitalizaciones y consultas por causas respiratorias, especialmente entre niños y niñas. La autoridad sanitaria mantiene el llamado a reconocer síntomas a tiempo, utilizar la red asistencial según la gravedad y reforzar las medidas de prevención habituales."
+                    ],
+                    enlace: "https://www.minsal.cl/reporte-semanal-campana-de-invierno-2026-positividad-alcanza-un-579-en-la-se-34-la-mas-alta-registrada-en-los-ultimos-tres-anos/"
+                },
+                "plumavit": {
+                    fuente: "BIOBIOCHILE",
+                    titulo: "Estudiantes chilenos convierten plumavit residual en material de construcción",
+                    resumen: "Alumnos de la PUCV desarrollaron un fragüe técnico con plumavit reciclado, caucho y polvo de hormigón, pensado para resistir sismos y humedad.",
+                    texto: [
+                        "Un grupo de estudiantes de la Pontificia Universidad Católica de Valparaíso desarrolló un fragüe técnico que aprovecha plumavit residual. La propuesta incorpora además caucho y polvo de hormigón, materiales que normalmente pueden terminar desechados.",
+                        "El desarrollo apunta a un uso constructivo capaz de responder a condiciones relevantes para el país, como sismos y humedad. La iniciativa muestra una alternativa para dar nuevo valor a residuos y reducir el impacto de materiales de difícil gestión."
+                    ],
+                    enlace: "https://www.biobiochile.cl/noticias/ciencia-y-tecnologia/ciencia/2026/09/04/estudiantes-chilenos-logran-transformar-el-plumavit-residual-en-importante-material-de-construccion.shtml"
+                },
+                "desierto-florido": {
+                    fuente: "BIOBIOCHILE",
+                    titulo: "El Desierto Florido podría alcanzar una intensidad no vista desde 1997",
+                    resumen: "Las lluvias activaron semillas y bulbos en Atacama y Coquimbo. La floración comenzaría en septiembre y alcanzaría su punto máximo durante octubre.",
+                    texto: [
+                        "Las precipitaciones registradas en el norte del país activaron semillas y bulbos presentes en zonas de Atacama y Coquimbo. Esto abre la posibilidad de una temporada de Desierto Florido especialmente intensa.",
+                        "La floración comenzaría durante septiembre y se espera que su punto máximo ocurra en octubre. Las proyecciones plantean una intensidad que podría no haberse visto desde 1997, un fenómeno que transforma temporalmente el paisaje desértico con especies nativas."
+                    ],
+                    enlace: "https://www.biobiochile.cl/noticias/ciencia-y-tecnologia/medio-ambiente-cyt/2026/09/06/desierto-florido-podria-repetirse-con-una-intensidad-no-vista-desde-1997.shtml"
+                },
+                "salud-digital": {
+                    fuente: "MINISTERIO DE SALUD",
+                    titulo: "Salud impulsa siete proyectos para modernizar la atención",
+                    resumen: "La hoja de ruta incluye receta digital, historia clínica compartida, apoyo tecnológico para listas de espera y un nuevo portal ciudadano de salud.",
+                    texto: [
+                        "El Ministerio de Salud inició una nueva etapa de transformación digital con siete proyectos estratégicos orientados a modernizar la atención. La planificación considera herramientas para facilitar la relación de las personas con la red de salud.",
+                        "Entre las iniciativas se encuentran la receta digital, la historia clínica compartida, soluciones tecnológicas para las listas de espera y un portal ciudadano. La meta es integrar información y procesos para apoyar una atención más oportuna."
+                    ],
+                    enlace: "https://www.minsal.cl/minsal-inicia-nueva-etapa-de-transformacion-digital-con-siete-proyectos-estrategicos-para-modernizar-la-atencion-de-salud/"
+                },
+                "audubon": {
+                    fuente: "BIOBIOCHILE",
+                    titulo: "Fotógrafo chileno gana el Gran Premio de los Audubon Photography Awards",
+                    resumen: "Francisco Castro fue reconocido por una imagen de un tucúquere captada en Paposo, Región de Antofagasta. El premio incluye US$5.000 y un viaje a la Antártica.",
+                    texto: [
+                        "El fotógrafo chileno Francisco Castro obtuvo el Gran Premio de los Audubon Photography Awards por una imagen de un tucúquere. La fotografía fue tomada en Paposo, en la Región de Antofagasta.",
+                        "El reconocimiento considera un premio de US$5.000 y un viaje a la Antártica. La distinción pone en valor la observación y registro de la fauna del norte de Chile en una competencia internacional dedicada a la fotografía de aves."
+                    ],
+                    enlace: "https://www.biobiochile.cl/noticias/sociedad/animales/2026/09/02/chileno-obtiene-el-gran-premio-de-los-audubon-photography-awards-por-foto-de-imponente-buho.shtml"
+                },
+                "avonni": {
+                    fuente: "PREMIO AVONNI",
+                    titulo: "Premio Nacional de Innovación Avonni anuncia 36 finalistas",
+                    resumen: "La edición 2026 recibió más de 1.200 postulaciones: la mitad provino de regiones y el 42% correspondió a iniciativas lideradas por mujeres.",
+                    texto: [
+                        "El Premio Nacional de Innovación Avonni dio a conocer a sus 36 finalistas para la edición 2026. La convocatoria superó las 1.200 postulaciones, en un año en que el reconocimiento celebra dos décadas impulsando la innovación en Chile.",
+                        "La mitad de las postulaciones provino de regiones y el 42% correspondió a iniciativas lideradas por mujeres. Las cifras reflejan una participación amplia de proyectos que buscan resolver desafíos mediante nuevas ideas, tecnologías y modelos de trabajo."
+                    ],
+                    enlace: "https://www.tourinnovacion.cl/actualidad/con-record-de-postulaciones-el-premio-nacional-de-innovacion-avonni-anuncia-a-sus-finalistas-2026-en-el-ano-en-que-celebra-dos-decadas-impulsando-la-innovacion-en-chile/"
+                }
+            };
+
+            var dialogoNoticia = document.getElementById("news-dialog");
+            var cerrarNoticia = document.getElementById("news-dialog-close");
+            var ultimaTarjeta;
+
+            function abrirNoticia(id, disparador) {
+                var noticia = noticias[id];
+                if (!noticia || !dialogoNoticia) return;
+                ultimaTarjeta = disparador;
+                document.getElementById("news-dialog-source").textContent = "● " + noticia.fuente;
+                document.getElementById("news-dialog-title").textContent = noticia.titulo;
+                document.getElementById("news-dialog-summary").textContent = noticia.resumen;
+                document.getElementById("news-dialog-body").replaceChildren.apply(document.getElementById("news-dialog-body"), noticia.texto.map(function (parrafo) {
+                    var elemento = document.createElement("p");
+                    elemento.textContent = parrafo;
+                    return elemento;
+                }));
+                document.getElementById("news-dialog-source-link").href = noticia.enlace;
+                dialogoNoticia.showModal();
+                cerrarNoticia.focus();
+            }
+
+            document.querySelectorAll(".read-news-btn").forEach(function (boton) {
+                boton.addEventListener("click", function () {
+                    abrirNoticia(boton.getAttribute("data-news-id"), boton);
+                });
+            });
+
+            if (cerrarNoticia && dialogoNoticia) {
+                cerrarNoticia.addEventListener("click", function () { dialogoNoticia.close(); });
+                dialogoNoticia.addEventListener("click", function (event) {
+                    if (event.target === dialogoNoticia) dialogoNoticia.close();
+                });
+                dialogoNoticia.addEventListener("close", function () {
+                    if (ultimaTarjeta) ultimaTarjeta.focus();
                 });
             }
 
