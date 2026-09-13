@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="theme-color" content="#d99614">
-    <title>Radio Conexión - Conectados Con Tus Sentidos</title>
+    <title>Blog | Radio Conexión</title>
 
     <link rel="icon" type="image/png" href="https://www.dropbox.com/scl/fi/7h2pubomnn102d1rap4dr/Sin-Texto-versi-n-3D.png?rlkey=nd66shyykgea25m8c6sl2pp5d&st=dg874wjl&raw=1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -217,6 +217,50 @@
             margin: 0 auto 26px;
             color: #4a4a4a;
             font-size: 15px;
+        }
+
+        .blog-maintenance {
+            max-width: 690px;
+            margin: 28px auto 0;
+            padding: clamp(24px, 5vw, 38px);
+            border: 1px solid rgba(199, 127, 13, 0.24);
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(255, 252, 244, 0.98), rgba(255, 245, 220, 0.92));
+            text-align: left;
+        }
+
+        .blog-maintenance-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            color: #8a5704;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .blog-maintenance-label::before {
+            content: "";
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--gold);
+            box-shadow: 0 0 0 5px rgba(217, 150, 20, 0.14);
+        }
+
+        .blog-maintenance h2 {
+            margin-bottom: 10px;
+            color: #1c1c1c;
+            font-size: clamp(1.35rem, 3vw, 1.7rem);
+            line-height: 1.25;
+        }
+
+        .blog-maintenance p {
+            margin-bottom: 20px;
+            color: #5d5a53;
+            font-size: 0.96rem;
         }
 
         .news-toolbar {
@@ -648,6 +692,19 @@
             color: #e5a919;
         }
 
+        body.dark-mode .blog-maintenance {
+            border-color: rgba(229, 169, 25, 0.28);
+            background: linear-gradient(135deg, rgba(39, 35, 27, 0.98), rgba(49, 40, 23, 0.94));
+        }
+
+        body.dark-mode .blog-maintenance h2 {
+            color: #f5f7f8;
+        }
+
+        body.dark-mode .blog-maintenance p {
+            color: #d5d0c4;
+        }
+
         body.dark-mode .brand-tagline {
             color: #e5a919;
         }
@@ -751,8 +808,8 @@
             }
         }
     </style>
-    <meta name="description" content="Consulta los titulares de actualidad de Chile y el mundo en Radio Conexión.">
-    <meta property="og:description" content="Consulta los titulares de actualidad de Chile y el mundo en Radio Conexión.">
+    <meta name="description" content="Blog de Radio Conexión: una selección editorial de actualidad, cultura y comunidad.">
+    <meta property="og:description" content="Blog de Radio Conexión: una selección editorial de actualidad, cultura y comunidad.">
     <link rel="stylesheet" href="site.css">
     <link rel="manifest" href="manifest.json">
     <script src="site.js" defer></script>
@@ -775,7 +832,7 @@
                 <ul>
                     <li><a href="inicio.html">Inicio</a></li>
                     <li><a href="episodios.html">Episodios</a></li>
-                    <li><a href="noticias.html" class="active" aria-current="page">Noticias</a></li>
+                    <li><a href="noticias.html" class="active" aria-current="page">Blog</a></li>
                     <li><a href="tiempo.html">Tiempo</a></li>
                     <li><a href="historia.html">Historia</a></li>
                     <li><a class="profile-link" id="profile-link" href="suscriptores.html" aria-label="Abrir acceso de suscriptores" title="Suscriptores"><span id="profile-avatar-fallback" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 21c.5-4.1 3.2-6.3 7.5-6.3s7 2.2 7.5 6.3"></path></svg></span><img id="profile-avatar" class="profile-avatar" alt="Foto de perfil" hidden></a></li>
@@ -787,59 +844,14 @@
 
     <main class="container" id="contenido" tabindex="-1">
         <section class="page-title-section">
-            <h1>Noticias seleccionadas</h1>
-            <p>Una selección editorial de Radio Conexión para cerrar la semana, con información de fuentes directas.</p>
+            <h1>Blog</h1>
+            <p>Estamos preparando un espacio para compartir historias, actualidad y publicaciones de nuestra comunidad.</p>
 
-            <div class="news-toolbar">
-                <div class="news-status-wrap">
-                    <span class="news-live-dot" aria-hidden="true"></span>
-                    <div class="news-status">
-                        <strong>Selección de Radio Conexión</strong><br>
-                        Actualizada el 13 de septiembre de 2026 · Las noticias se retiran después de 14 días.
-                    </div>
-                </div>
-            </div>
-
-            <div class="news-grid">
-                <article class="news-card" id="noticia-1" data-published="2026-09-13">
-                    <div>
-                        <span class="news-source">● 24 HORAS</span>
-                        <h2>Bomberos de Chile incorporará un robot para incendios de alto riesgo</h2>
-                        <p class="news-summary">El robot RTE puede intervenir a distancia en incendios estructurales, emergencias químicas y zonas complejas, ayudando a reducir la exposición de los equipos de rescate.</p>
-                    </div>
-                    <button type="button" class="btn-custom read-news-btn" data-news-id="robot-bomberos">Leer noticia completa</button>
-                </article>
-
-                <article class="news-card" id="noticia-2" data-published="2026-09-13">
-                    <div>
-                        <span class="news-source">● SERNAC</span>
-                        <h2>SERNAC fiscaliza tiendas en línea por información sobre garantía legal</h2>
-                        <p class="news-summary">La fiscalización revisa que las plataformas informen claramente las opciones frente a fallas: cambio, reparación gratuita o devolución del dinero durante los primeros seis meses.</p>
-                    </div>
-                    <button type="button" class="btn-custom read-news-btn" data-news-id="garantia-legal">Leer noticia completa</button>
-                </article>
-
-                <article class="news-card" id="noticia-3" data-published="2026-09-13">
-                    <div>
-                        <span class="news-source">● COPERNICUS</span>
-                        <h2>Agosto de 2026 fue el mes más cálido registrado a nivel mundial</h2>
-                        <p class="news-summary">La temperatura media global llegó a 16,96 °C: 0,85 °C por sobre el promedio de 1991–2020. El dato iguala el registro del mes más cálido medido.</p>
-                    </div>
-                    <button type="button" class="btn-custom read-news-btn" data-news-id="agosto-calido">Leer noticia completa</button>
-                </article>
-
-            </div>
-
-            <section class="news-reader" id="news-reader" hidden tabindex="-1" aria-live="polite">
-                <a class="news-reader-back" id="news-reader-back" href="noticias.html">← Volver a todas las noticias</a>
-                <span class="news-reader-source" id="news-reader-source"></span>
-                <h2 id="news-reader-title"></h2>
-                <p class="news-reader-summary" id="news-reader-summary"></p>
-                <div class="news-reader-body" id="news-reader-body"></div>
-                <div class="news-reader-footer">
-                    <a class="btn-custom" id="news-reader-source-link" href="#" target="_blank" rel="noopener noreferrer">Ver fuente original</a>
-                    <small>Nota elaborada por Radio Conexión a partir de la fuente indicada.</small>
-                </div>
+            <section class="blog-maintenance" aria-labelledby="maintenance-title">
+                <span class="blog-maintenance-label">Blog en mantención</span>
+                <h2 id="maintenance-title">Muy pronto, nuevas conexiones.</h2>
+                <p>Estamos renovando esta sección e incorporando una selección de publicaciones de nuestro Instagram. Mientras tanto, puedes seguir las novedades directamente en nuestra cuenta.</p>
+                <a class="btn-custom" href="https://www.instagram.com/radioconexionweb/" target="_blank" rel="noopener noreferrer">Ver Instagram de Radio Conexión</a>
             </section>
         </section>
     </main>
@@ -1068,9 +1080,9 @@
             }
 
             function mostrarListado() {
-                lectorNoticia.hidden = true;
-                grillaNoticias.hidden = false;
-                barraNoticias.hidden = false;
+                if (lectorNoticia) lectorNoticia.hidden = true;
+                if (grillaNoticias) grillaNoticias.hidden = false;
+                if (barraNoticias) barraNoticias.hidden = false;
             }
 
             document.querySelectorAll(".read-news-btn").forEach(function (boton) {

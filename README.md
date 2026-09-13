@@ -6,7 +6,7 @@ Sitio estático en español, compatible con GitHub Pages y Vercel. La portada es
 
 - Inicio: presentación, accesos a episodios y comunidad, suscripción y WhatsApp.
 - Episodios: reproductor de Spotify.
-- Noticias: titulares obtenidos de las fuentes configuradas.
+- Blog: selección editorial de actualidad y contenidos de Radio Conexión.
 - Suscriptores: acceso, solicitudes de canciones, mensajes y fonoteca.
 - Historia: información de la radio y su fundador.
 
