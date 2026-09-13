@@ -440,6 +440,71 @@
             color: #6b7177;
         }
 
+        .news-reader {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: clamp(26px, 5vw, 52px);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background: var(--card);
+            box-shadow: var(--shadow);
+            text-align: left;
+        }
+
+        .news-reader-back {
+            display: inline-flex;
+            margin-bottom: 28px;
+            color: #9d650b;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .news-reader-source {
+            display: block;
+            margin-bottom: 12px;
+            color: #c77f0d;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .news-reader h2 {
+            margin-bottom: 18px;
+            color: #a96500;
+            font-family: "Unica One", sans-serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.16;
+        }
+
+        .news-reader-summary {
+            margin-bottom: 26px;
+            color: #50565c;
+            font-size: 1.08rem;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        .news-reader-body p {
+            margin: 0 0 18px;
+            color: #34383d;
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        .news-reader-footer {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px;
+            margin-top: 30px;
+            padding-top: 22px;
+            border-top: 1px solid var(--border);
+        }
+
+        .news-reader-footer small {
+            color: #6b7177;
+        }
+
         .news-skeleton {
             min-height: 185px;
             background: linear-gradient(100deg, #ffffff 30%, #f3f4f6 50%, #ffffff 70%);
@@ -566,8 +631,15 @@
         }
 
         body.dark-mode .news-dialog-summary,
-        body.dark-mode .news-dialog-footer small {
+        body.dark-mode .news-dialog-footer small,
+        body.dark-mode .news-reader-summary,
+        body.dark-mode .news-reader-footer small {
             color: #b8bdc3;
+        }
+
+        body.dark-mode .news-reader,
+        body.dark-mode .news-reader-body p {
+            color: #f5f7f8;
         }
 
         body.dark-mode .news-refresh-btn {
@@ -729,7 +801,7 @@
             </div>
 
             <div class="news-grid">
-                <article class="news-card" data-published="2026-09-13">
+                <article class="news-card" id="noticia-1" data-published="2026-09-13">
                     <div>
                         <span class="news-source">● 24 HORAS</span>
                         <h2>Bomberos de Chile incorporará un robot para incendios de alto riesgo</h2>
@@ -738,7 +810,7 @@
                     <button type="button" class="btn-custom read-news-btn" data-news-id="robot-bomberos">Leer noticia completa</button>
                 </article>
 
-                <article class="news-card" data-published="2026-09-13">
+                <article class="news-card" id="noticia-2" data-published="2026-09-13">
                     <div>
                         <span class="news-source">● SERNAC</span>
                         <h2>SERNAC fiscaliza tiendas en línea por información sobre garantía legal</h2>
@@ -747,7 +819,7 @@
                     <button type="button" class="btn-custom read-news-btn" data-news-id="garantia-legal">Leer noticia completa</button>
                 </article>
 
-                <article class="news-card" data-published="2026-09-13">
+                <article class="news-card" id="noticia-3" data-published="2026-09-13">
                     <div>
                         <span class="news-source">● COPERNICUS</span>
                         <h2>Agosto de 2026 fue el mes más cálido registrado a nivel mundial</h2>
@@ -756,6 +828,18 @@
                     <button type="button" class="btn-custom read-news-btn" data-news-id="agosto-calido">Leer noticia completa</button>
                 </article>
             </div>
+
+            <section class="news-reader" id="news-reader" hidden tabindex="-1" aria-live="polite">
+                <a class="news-reader-back" id="news-reader-back" href="noticias.html">← Volver a todas las noticias</a>
+                <span class="news-reader-source" id="news-reader-source"></span>
+                <h2 id="news-reader-title"></h2>
+                <p class="news-reader-summary" id="news-reader-summary"></p>
+                <div class="news-reader-body" id="news-reader-body"></div>
+                <div class="news-reader-footer">
+                    <a class="btn-custom" id="news-reader-source-link" href="#" target="_blank" rel="noopener noreferrer">Ver fuente original</a>
+                    <small>Nota elaborada por Radio Conexión a partir de la fuente indicada.</small>
+                </div>
+            </section>
         </section>
     </main>
     <dialog class="news-dialog" id="news-dialog" aria-labelledby="news-dialog-title">
@@ -926,61 +1010,61 @@
                 }
             };
 
-            var dialogoNoticia = document.getElementById("news-dialog");
-            var cerrarNoticia = document.getElementById("news-dialog-close");
-            var ultimaTarjeta;
+            var lectorNoticia = document.getElementById("news-reader");
+            var grillaNoticias = document.querySelector(".news-grid");
+            var barraNoticias = document.querySelector(".news-toolbar");
 
-            function abrirNoticia(id, disparador) {
+            function mostrarNoticia(id) {
                 var noticia = noticias[id];
-                if (!noticia || !dialogoNoticia) return;
-                ultimaTarjeta = disparador;
-                document.getElementById("news-dialog-source").textContent = "● " + noticia.fuente;
-                document.getElementById("news-dialog-title").textContent = noticia.titulo;
-                document.getElementById("news-dialog-summary").textContent = noticia.resumen;
-                document.getElementById("news-dialog-body").replaceChildren.apply(document.getElementById("news-dialog-body"), noticia.texto.map(function (parrafo) {
+                if (!noticia || !lectorNoticia) return;
+                document.getElementById("news-reader-source").textContent = "● " + noticia.fuente;
+                document.getElementById("news-reader-title").textContent = noticia.titulo;
+                document.getElementById("news-reader-summary").textContent = noticia.resumen;
+                document.getElementById("news-reader-body").replaceChildren.apply(document.getElementById("news-reader-body"), noticia.texto.map(function (parrafo) {
                     var elemento = document.createElement("p");
                     elemento.textContent = parrafo;
                     return elemento;
                 }));
-                document.getElementById("news-dialog-source-link").href = noticia.enlace;
-                dialogoNoticia.showModal();
-                cerrarNoticia.focus();
+                document.getElementById("news-reader-source-link").href = noticia.enlace;
+                lectorNoticia.hidden = false;
+                grillaNoticias.hidden = true;
+                barraNoticias.hidden = true;
+                lectorNoticia.focus({ preventScroll: true });
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+
+            function mostrarListado() {
+                lectorNoticia.hidden = true;
+                grillaNoticias.hidden = false;
+                barraNoticias.hidden = false;
             }
 
             document.querySelectorAll(".read-news-btn").forEach(function (boton) {
                 boton.addEventListener("click", function () {
-                    abrirNoticia(boton.getAttribute("data-news-id"), boton);
+                    window.location.hash = boton.closest("article").id;
                 });
             });
 
             function abrirNoticiaDesdeEnlace() {
                 var id = window.location.hash.slice(1);
-                var coincidencia = id.match(/^noticia-(\d+)$/);
-                var boton;
+                var tarjeta = document.getElementById(id);
+                var boton = tarjeta && tarjeta.querySelector(".read-news-btn");
 
-                if (noticias[id]) {
+                if (!boton && noticias[id]) {
                     document.querySelectorAll(".read-news-btn").forEach(function (candidato) {
                         if (candidato.getAttribute("data-news-id") === id) boton = candidato;
                     });
-                } else if (coincidencia) {
-                    boton = document.querySelectorAll(".read-news-btn")[Number(coincidencia[1]) - 1];
                 }
 
-                if (boton) abrirNoticia(boton.getAttribute("data-news-id"), boton);
+                if (boton) {
+                    mostrarNoticia(boton.getAttribute("data-news-id"));
+                } else {
+                    mostrarListado();
+                }
             }
 
             abrirNoticiaDesdeEnlace();
             window.addEventListener("hashchange", abrirNoticiaDesdeEnlace);
-
-            if (cerrarNoticia && dialogoNoticia) {
-                cerrarNoticia.addEventListener("click", function () { dialogoNoticia.close(); });
-                dialogoNoticia.addEventListener("click", function (event) {
-                    if (event.target === dialogoNoticia) dialogoNoticia.close();
-                });
-                dialogoNoticia.addEventListener("close", function () {
-                    if (ultimaTarjeta) ultimaTarjeta.focus();
-                });
-            }
 
             function retirarNoticiasAntiguas() {
                 var limite = 14 * 24 * 60 * 60 * 1000;
