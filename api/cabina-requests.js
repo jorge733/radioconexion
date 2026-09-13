@@ -3,12 +3,6 @@ const { firestore, documentFields, valueOf } = require('./firebase-admin');
 
 const STATUSES = new Set(['nueva', 'atendida', 'reproducida', 'descartada']);
 
-function isRadioAdmin(email) {
-  const normalized = (email || '').toLowerCase();
-  const configuredAdmin = (process.env.RADIO_ADMIN_EMAIL || '').toLowerCase();
-  return normalized === configuredAdmin || normalized.endsWith('@radioconexionweb.com');
-}
-
 function respond(response, status, body) {
   return response.status(status).json(body);
 }
@@ -16,7 +10,8 @@ function respond(response, status, body) {
 async function adminUser(request, response) {
   try {
     const user = await requireFirebaseUser(request);
-    if (!isRadioAdmin(user.email)) {
+    const adminEmail = (process.env.RADIO_ADMIN_EMAIL || 'sabenedettoa@radioconexionweb.com').toLowerCase();
+    if ((user.email || '').toLowerCase() !== adminEmail) {
       respond(response, 403, { error: 'Este panel es solo para el equipo de Radio Conexión.' });
       return null;
     }
