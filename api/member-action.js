@@ -1,5 +1,4 @@
-const { requireFirebaseUser } = require('./firebase-auth');
-const { allow } = require('./rate-limit');
+const { requireFirebaseUser, allow } = require('./firebase-auth');
 
 function send(response, status, body) { response.status(status).json(body); }
 

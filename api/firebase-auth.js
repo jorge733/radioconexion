@@ -2,6 +2,15 @@ const crypto = require('crypto');
 
 let certificates;
 let certificatesUntil = 0;
+const attempts = new Map();
+
+function allow(key, intervalMs) {
+  const now = Date.now();
+  const previous = attempts.get(key) || 0;
+  if (now - previous < intervalMs) return false;
+  attempts.set(key, now);
+  return true;
+}
 
 async function getCertificates() {
   if (certificates && Date.now() < certificatesUntil) return certificates;
@@ -32,4 +41,4 @@ async function requireFirebaseUser(request) {
   return { uid: payload.user_id || payload.sub, email: payload.email, name: payload.name || '' };
 }
 
-module.exports = { requireFirebaseUser };
+module.exports = { requireFirebaseUser, allow };

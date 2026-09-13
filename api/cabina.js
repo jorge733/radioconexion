@@ -1,6 +1,5 @@
 const crypto = require('crypto');
-const { requireFirebaseUser } = require('./firebase-auth');
-const { allow } = require('./rate-limit');
+const { requireFirebaseUser, allow } = require('./firebase-auth');
 const { firestore, documentFields } = require('./firebase-admin');
 const { notifyRadioAdmin } = require('./notify-radio-admin');
 

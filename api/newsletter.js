@@ -1,5 +1,4 @@
-const { requireFirebaseUser } = require('./firebase-auth');
-const { allow } = require('./rate-limit');
+const { requireFirebaseUser, allow } = require('./firebase-auth');
 
 module.exports = async (request, response) => {
   if (request.method !== 'POST') return response.status(405).json({ error: 'Método no permitido.' });
