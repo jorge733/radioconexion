@@ -219,7 +219,7 @@
             font-size: 15px;
         }
 
-        .blog-maintenance {
+        .blog-intro {
             max-width: 690px;
             margin: 28px auto 0;
             padding: clamp(24px, 5vw, 38px);
@@ -229,35 +229,14 @@
             text-align: left;
         }
 
-        .blog-maintenance-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 14px;
-            color: #8a5704;
-            font-size: 12px;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        .blog-maintenance-label::before {
-            content: "";
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            background: var(--gold);
-            box-shadow: 0 0 0 5px rgba(217, 150, 20, 0.14);
-        }
-
-        .blog-maintenance h2 {
+        .blog-intro h2 {
             margin-bottom: 10px;
             color: #1c1c1c;
             font-size: clamp(1.35rem, 3vw, 1.7rem);
             line-height: 1.25;
         }
 
-        .blog-maintenance p {
+        .blog-intro p {
             margin-bottom: 20px;
             color: #5d5a53;
             font-size: 0.96rem;
@@ -723,16 +702,16 @@
             color: #e5a919;
         }
 
-        body.dark-mode .blog-maintenance {
+        body.dark-mode .blog-intro {
             border-color: rgba(229, 169, 25, 0.28);
             background: linear-gradient(135deg, rgba(39, 35, 27, 0.98), rgba(49, 40, 23, 0.94));
         }
 
-        body.dark-mode .blog-maintenance h2 {
+        body.dark-mode .blog-intro h2 {
             color: #f5f7f8;
         }
 
-        body.dark-mode .blog-maintenance p {
+        body.dark-mode .blog-intro p {
             color: #d5d0c4;
         }
 
@@ -888,12 +867,11 @@
     <main class="container" id="contenido" tabindex="-1">
         <section class="page-title-section">
             <h1>Blog</h1>
-            <p>Estamos preparando un espacio para compartir historias, actualidad y publicaciones de nuestra comunidad.</p>
+            <p>Un espacio para mirar lo que ocurre con esperanza, cercanía y ganas de seguir conectados.</p>
 
-            <section class="blog-maintenance" aria-labelledby="maintenance-title">
-                <span class="blog-maintenance-label">Blog en mantención</span>
-                <h2 id="maintenance-title">Muy pronto, nuevas conexiones.</h2>
-                <p>Estamos renovando esta sección e incorporando una selección de publicaciones de nuestro Instagram. Seguiremos sumando novedades durante la mantención.</p>
+            <section class="blog-intro" aria-labelledby="blog-intro-title">
+                <h2 id="blog-intro-title">Noticias que inspiran</h2>
+                <p>En este Blog compartimos noticias positivas, iniciativas que aportan y buenas historias de nuestra comunidad. Porque también es importante darle espacio a lo que nos une, nos mueve y nos hace bien.</p>
                 <a class="btn-custom" href="https://www.instagram.com/radioconexionweb/" target="_blank" rel="noopener noreferrer">Ver Instagram de Radio Conexión</a>
             </section>
 
