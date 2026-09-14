@@ -1,9 +1,8 @@
 (() => {
   'use strict';
 
-  // Para agregar una publicación, pega su enlace al inicio de esta lista.
-  // El Blog siempre mostrará la primera como la más reciente.
-  const instagramPosts = [
+  // Estas publicaciones se conservan como archivo histórico del Blog.
+  const historicalPosts = [
     'https://www.instagram.com/p/DdPYv1UHdBc/',
     'https://www.instagram.com/p/Da4-sbsFZmh/',
     'https://www.instagram.com/p/DaqHSPslZks/',
@@ -21,24 +20,42 @@
   const feed = document.getElementById('instagram-feed');
   if (!feed) return;
 
-  instagramPosts.forEach((url) => {
-    const post = document.createElement('blockquote');
-    post.className = 'instagram-media';
-    post.dataset.instgrmCaptioned = '';
-    post.dataset.instgrmPermalink = url;
-    post.dataset.instgrmVersion = '14';
+  const renderPosts = (posts) => {
+    posts.forEach((url) => {
+      const post = document.createElement('blockquote');
+      post.className = 'instagram-media';
+      post.dataset.instgrmCaptioned = '';
+      post.dataset.instgrmPermalink = url;
+      post.dataset.instgrmVersion = '14';
 
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.textContent = 'Ver publicación de Radio Conexión en Instagram';
-    post.appendChild(link);
-    feed.appendChild(post);
-  });
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = 'Ver publicación de Radio Conexión en Instagram';
+      post.appendChild(link);
+      feed.appendChild(post);
+    });
+  };
 
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = 'https://www.instagram.com/embed.js';
-  document.body.appendChild(script);
+  const loadPosts = async () => {
+    let newPosts = [];
+    try {
+      const response = await fetch('/api/blog-posts');
+      if (response.ok) {
+        const data = await response.json();
+        newPosts = Array.isArray(data.posts) ? data.posts.map((post) => post.url) : [];
+      }
+    } catch {
+      // El Blog sigue mostrando sus publicaciones históricas si el servicio no está disponible.
+    }
+    renderPosts([...newPosts, ...historicalPosts.filter((url) => !newPosts.includes(url))]);
+
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://www.instagram.com/embed.js';
+    document.body.appendChild(script);
+  };
+
+  loadPosts();
 })();
