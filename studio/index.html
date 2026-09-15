@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="./studio.css">
   <link rel="stylesheet" href="./soundpad.css">
   <link rel="stylesheet" href="./cabina.css">
+  <link rel="stylesheet" href="./publicar.css">
 
 
   <!-- =====================================================
@@ -1625,37 +1626,155 @@
       hidden
     >
 
-      <main class="studio-coming-container">
+      <main class="publicar-container">
 
-        <section class="panel studio-coming-card">
+        <div class="publicar-page-header">
+          <div class="publicar-page-heading">
+            <span class="section-label">COMUNICACIONES</span>
+            <h1>Publicar</h1>
+            <p>
+              Envía avisos a la audiencia y administra las publicaciones
+              de Instagram que aparecen en el Blog de Radio Conexión.
+            </p>
+          </div>
+        </div>
 
-          <span
-            class="studio-coming-icon"
-            aria-hidden="true"
-          >
-            ✦
-          </span>
+        <div class="publicar-grid">
 
+          <section class="panel publicar-card">
+            <div class="publicar-card-header">
+              <div class="publicar-card-heading">
+                <span class="section-label">NOTIFICACIONES</span>
+                <h2>Enviar aviso</h2>
+                <p>
+                  Envía una notificación a los dispositivos suscritos
+                  a Radio Conexión.
+                </p>
+              </div>
+              <span class="publicar-card-icon" aria-hidden="true">🔔</span>
+            </div>
 
-          <span class="section-label">
-            RADIO CONEXIÓN
-          </span>
+            <div class="publicar-form">
+              <div class="publicar-field">
+                <label for="studioNoticeType">TIPO DE AVISO</label>
+                <select id="studioNoticeType">
+                  <option value="episodio">Nuevo episodio</option>
+                  <option value="boletin">Boletín y noticias</option>
+                </select>
+              </div>
 
+              <div class="publicar-field">
+                <div class="publicar-field-top">
+                  <label for="studioNoticeTitle">TÍTULO</label>
+                  <span id="studioNoticeTitleCount" class="publicar-character-count">0/90</span>
+                </div>
+                <input
+                  id="studioNoticeTitle"
+                  type="text"
+                  maxlength="90"
+                  placeholder="Ej: ¡Nuevo episodio disponible!"
+                  autocomplete="off"
+                >
+              </div>
 
-          <h2>
-            Publicar
-          </h2>
+              <div class="publicar-field">
+                <div class="publicar-field-top">
+                  <label for="studioNoticeBody">MENSAJE</label>
+                  <span id="studioNoticeBodyCount" class="publicar-character-count">0/180</span>
+                </div>
+                <textarea
+                  id="studioNoticeBody"
+                  maxlength="180"
+                  placeholder="Escribe el mensaje que recibirá la audiencia..."
+                ></textarea>
+              </div>
 
+              <button
+                id="studioSendNoticeBtn"
+                class="publicar-primary-button"
+                type="button"
+              >
+                ENVIAR AVISO
+              </button>
 
-          <p>
-            Aquí trasladaremos las herramientas administrativas
-            para publicar avisos y contenidos del Blog.
-          </p>
+              <p
+                id="studioNoticeStatus"
+                class="publicar-status"
+                role="status"
+                aria-live="polite"
+              ></p>
+            </div>
+          </section>
 
-        </section>
+          <section class="panel publicar-card publicar-blog-card">
+            <div class="publicar-card-header">
+              <div class="publicar-card-heading">
+                <span class="section-label">BLOG</span>
+                <h2>Publicar desde Instagram</h2>
+                <p>
+                  Pega el enlace de una publicación de Instagram para
+                  incorporarla al Blog de Radio Conexión.
+                </p>
+              </div>
+              <span id="studioBlogCount" class="publicar-blog-count">0</span>
+            </div>
 
+            <div class="publicar-blog-top">
+              <div class="publicar-field">
+                <label for="studioBlogUrl">ENLACE DE INSTAGRAM</label>
+                <input
+                  id="studioBlogUrl"
+                  type="url"
+                  placeholder="https://www.instagram.com/p/..."
+                  autocomplete="off"
+                >
+              </div>
+
+              <button
+                id="studioPublishBlogBtn"
+                class="publicar-primary-button"
+                type="button"
+              >
+                PUBLICAR
+              </button>
+            </div>
+
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; flex-wrap:wrap;">
+              <p
+                id="studioBlogStatus"
+                class="publicar-status"
+                role="status"
+                aria-live="polite"
+              >
+                Las publicaciones se cargarán al abrir esta sección.
+              </p>
+
+              <button
+                id="studioRefreshBlogBtn"
+                class="publicar-secondary-button"
+                type="button"
+              >
+                ↻ ACTUALIZAR
+              </button>
+            </div>
+
+            <div
+              id="studioBlogList"
+              class="publicar-blog-list"
+            >
+              <div class="publicar-empty">
+                <span class="publicar-empty-icon" aria-hidden="true">◎</span>
+                <strong>Blog listo</strong>
+                <p>
+                  Las publicaciones añadidas aparecerán aquí cuando abras
+                  esta sección.
+                </p>
+              </div>
+            </div>
+          </section>
+
+        </div>
       </main>
-
     </div>
 
   </div>
@@ -1869,6 +1988,11 @@
   <script
     type="module"
     src="./cabina.js"
+  ></script>
+
+  <script
+    type="module"
+    src="./publicar.js"
   ></script>
 
 
