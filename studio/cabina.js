@@ -1,6 +1,7 @@
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   CABINA PRIVADA V1
+   CABINA PRIVADA V2
+   + CONTROL CENTRAL DE SECCIONES
 ========================================================= */
 
 import {
@@ -81,6 +82,7 @@ function getElements() {
       )
 
   };
+
 }
 
 
@@ -96,6 +98,7 @@ function escapeHTML(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+
 }
 
 
@@ -111,6 +114,7 @@ function normalizeStatus(status) {
   return validStatuses.includes(status)
     ? status
     : "nueva";
+
 }
 
 
@@ -136,6 +140,7 @@ function statusLabel(status) {
     labels[normalizeStatus(status)] ||
     "Nueva"
   );
+
 }
 
 
@@ -163,6 +168,7 @@ function formatDate(value) {
       timeStyle: "short"
     }
   );
+
 }
 
 
@@ -171,14 +177,14 @@ function formatDate(value) {
 ========================================================= */
 
 /*
-  Conservamos la misma estructura que utiliza actualmente
-  /suscriptores.
+   Conservamos la misma estructura que utiliza actualmente
+   /suscriptores.
 
-  pedir_canciones:
-  cancion1, cancion2, cancion3
+   pedir_canciones:
+   cancion1, cancion2, cancion3
 
-  mensaje:
-  comentario
+   mensaje:
+   comentario
 */
 
 function textoSolicitud(item) {
@@ -195,14 +201,15 @@ function textoSolicitud(item) {
     ]
       .filter(Boolean)
       .join(" · ");
-  }
 
+  }
 
   return (
     item.comentario ||
     item.message ||
     ""
   );
+
 }
 
 
@@ -218,14 +225,15 @@ function tipoSolicitud(item) {
       label: "Solicitud de canción",
       className: "song"
     };
-  }
 
+  }
 
   return {
     icon: "💬",
     label: "Mensaje de oyente",
     className: "message"
   };
+
 }
 
 
@@ -242,14 +250,13 @@ async function llamarApiCabina(
   const user =
     auth.currentUser;
 
-
   if (!user) {
 
     throw new Error(
       "La sesión de Studio no está activa."
     );
-  }
 
+  }
 
   if (
     !isStudioAdministrator(user)
@@ -258,12 +265,11 @@ async function llamarApiCabina(
     throw new Error(
       "Esta cuenta no tiene autorización para acceder a la Cabina."
     );
-  }
 
+  }
 
   const token =
     await user.getIdToken();
-
 
   const options = {
 
@@ -279,7 +285,6 @@ async function llamarApiCabina(
 
   };
 
-
   if (
     method !== "GET" &&
     payload !== null
@@ -287,15 +292,14 @@ async function llamarApiCabina(
 
     options.body =
       JSON.stringify(payload);
-  }
 
+  }
 
   const response =
     await fetch(
       url,
       options
     );
-
 
   if (!response.ok) {
 
@@ -310,17 +314,18 @@ async function llamarApiCabina(
     catch {
 
       data = {};
-    }
 
+    }
 
     throw new Error(
       data.error ||
       "No fue posible procesar la solicitud."
     );
+
   }
 
-
   return response.json();
+
 }
 
 
@@ -337,18 +342,16 @@ function setStatus(
     status
   } = getElements();
 
-
   if (!status) {
     return;
   }
 
-
   status.textContent =
     message;
 
-
   status.dataset.state =
     state;
+
 }
 
 
@@ -360,7 +363,6 @@ function actualizarContadores() {
 
   const elements =
     getElements();
-
 
   const counts = {
 
@@ -381,7 +383,6 @@ function actualizarContadores() {
 
   };
 
-
   solicitudesCabina.forEach(
     item => {
 
@@ -390,12 +391,10 @@ function actualizarContadores() {
           item.status
         );
 
-
       counts[status] += 1;
 
     }
   );
-
 
   if (elements.total) {
 
@@ -404,14 +403,12 @@ function actualizarContadores() {
 
   }
 
-
   if (elements.newCount) {
 
     elements.newCount.textContent =
       counts.nueva;
 
   }
-
 
   if (elements.attendedCount) {
 
@@ -420,7 +417,6 @@ function actualizarContadores() {
 
   }
 
-
   if (elements.playedCount) {
 
     elements.playedCount.textContent =
@@ -428,13 +424,13 @@ function actualizarContadores() {
 
   }
 
-
   if (elements.discardedCount) {
 
     elements.discardedCount.textContent =
       counts.descartada;
 
   }
+
 }
 
 
@@ -452,17 +448,14 @@ function establecerFiltro(filter) {
     "descartada"
   ];
 
-
   filtroActual =
     validFilters.includes(filter)
       ? filter
       : "todas";
 
-
   const {
     filterButtons
   } = getElements();
-
 
   filterButtons.forEach(
     button => {
@@ -471,12 +464,10 @@ function establecerFiltro(filter) {
         button.dataset.cabinaFilter ===
         filtroActual;
 
-
       button.classList.toggle(
         "active",
         active
       );
-
 
       button.setAttribute(
         "aria-pressed",
@@ -488,8 +479,8 @@ function establecerFiltro(filter) {
     }
   );
 
-
   renderizarSolicitudesCabina();
+
 }
 
 
@@ -504,53 +495,37 @@ function crearTarjetaSolicitud(item) {
       "article"
     );
 
-
   article.className =
     "cabina-request-card";
-
 
   article.dataset.status =
     normalizeStatus(
       item.status
     );
 
-
   const tipo =
     tipoSolicitud(item);
-
 
   const status =
     normalizeStatus(
       item.status
     );
 
-
   const when =
     formatDate(
       item.createdAt
     );
 
-
   const name =
     item.name ||
     "Oyente";
-
 
   const email =
     item.email ||
     "";
 
-
   const content =
     textoSolicitud(item);
-
-
-  const metaParts = [
-    name,
-    email,
-    when
-  ].filter(Boolean);
-
 
   article.innerHTML = `
 
@@ -578,7 +553,6 @@ function crearTarjetaSolicitud(item) {
         </div>
 
       </div>
-
 
       <span
         class="cabina-status-badge cabina-status-${escapeHTML(status)}"
@@ -696,18 +670,15 @@ function crearTarjetaSolicitud(item) {
 
   `;
 
-
   const select =
     article.querySelector(
       ".cabina-status-select"
     );
 
-
   const saveButton =
     article.querySelector(
       ".cabina-save-button"
     );
-
 
   saveButton.addEventListener(
     "click",
@@ -722,8 +693,8 @@ function crearTarjetaSolicitud(item) {
     }
   );
 
-
   return article;
+
 }
 
 
@@ -737,14 +708,11 @@ function renderizarSolicitudesCabina() {
     list
   } = getElements();
 
-
   if (!list) {
     return;
   }
 
-
   list.replaceChildren();
-
 
   const records =
     solicitudesCabina.filter(
@@ -756,8 +724,8 @@ function renderizarSolicitudesCabina() {
         ) {
 
           return true;
-        }
 
+        }
 
         return (
           normalizeStatus(
@@ -768,7 +736,6 @@ function renderizarSolicitudesCabina() {
       }
     );
 
-
   if (
     records.length === 0
   ) {
@@ -778,10 +745,8 @@ function renderizarSolicitudesCabina() {
         "div"
       );
 
-
     empty.className =
       "cabina-empty";
-
 
     empty.innerHTML = `
 
@@ -810,15 +775,13 @@ function renderizarSolicitudesCabina() {
 
     `;
 
-
     list.appendChild(
       empty
     );
 
-
     return;
-  }
 
+  }
 
   records.forEach(
     item => {
@@ -831,6 +794,7 @@ function renderizarSolicitudesCabina() {
 
     }
   );
+
 }
 
 
@@ -848,7 +812,6 @@ async function cargarSolicitudesCabina(
     return;
   }
 
-
   if (
     cabinaCargada &&
     !force
@@ -857,18 +820,16 @@ async function cargarSolicitudesCabina(
     renderizarSolicitudesCabina();
 
     return;
-  }
 
+  }
 
   const {
     refreshButton,
     list
   } = getElements();
 
-
   cargandoCabina =
     true;
-
 
   if (refreshButton) {
 
@@ -879,7 +840,6 @@ async function cargarSolicitudesCabina(
       "ACTUALIZANDO...";
 
   }
-
 
   if (list) {
 
@@ -899,11 +859,9 @@ async function cargarSolicitudesCabina(
 
   }
 
-
   setStatus(
     "Conectando con la Cabina..."
   );
-
 
   try {
 
@@ -914,14 +872,12 @@ async function cargarSolicitudesCabina(
         "GET"
       );
 
-
     solicitudesCabina =
       Array.isArray(
         result.requests
       )
         ? result.requests
         : [];
-
 
     /*
       Dejamos primero las solicitudes más recientes.
@@ -938,12 +894,10 @@ async function cargarSolicitudesCabina(
             a.createdAt || 0
           ).getTime();
 
-
         const dateB =
           new Date(
             b.createdAt || 0
           ).getTime();
-
 
         return (
           dateB -
@@ -953,15 +907,12 @@ async function cargarSolicitudesCabina(
       }
     );
 
-
     cabinaCargada =
       true;
-
 
     actualizarContadores();
 
     renderizarSolicitudesCabina();
-
 
     const nuevas =
       solicitudesCabina.filter(
@@ -970,7 +921,6 @@ async function cargarSolicitudesCabina(
             item.status
           ) === "nueva"
       ).length;
-
 
     if (
       solicitudesCabina.length === 0
@@ -1009,7 +959,6 @@ async function cargarSolicitudesCabina(
       error
     );
 
-
     if (list) {
 
       list.innerHTML = `
@@ -1033,7 +982,6 @@ async function cargarSolicitudesCabina(
 
     }
 
-
     setStatus(
       error.message ||
       "No pudimos cargar la bandeja.",
@@ -1046,7 +994,6 @@ async function cargarSolicitudesCabina(
     cargandoCabina =
       false;
 
-
     if (refreshButton) {
 
       refreshButton.disabled =
@@ -1058,6 +1005,7 @@ async function cargarSolicitudesCabina(
     }
 
   }
+
 }
 
 
@@ -1079,26 +1027,22 @@ async function actualizarSolicitudCabina(
     );
 
     return;
-  }
 
+  }
 
   const status =
     normalizeStatus(
       newStatus
     );
 
-
   const originalText =
     button.textContent;
-
 
   button.disabled =
     true;
 
-
   button.textContent =
     "GUARDANDO...";
-
 
   try {
 
@@ -1111,13 +1055,11 @@ async function actualizarSolicitudCabina(
       "PATCH"
     );
 
-
     const record =
       solicitudesCabina.find(
         item =>
           item.id === id
       );
-
 
     if (record) {
 
@@ -1126,11 +1068,9 @@ async function actualizarSolicitudCabina(
 
     }
 
-
     actualizarContadores();
 
     renderizarSolicitudesCabina();
-
 
     setStatus(
       `Solicitud marcada como ${statusLabel(status).toLowerCase()}.`,
@@ -1145,14 +1085,11 @@ async function actualizarSolicitudCabina(
       error
     );
 
-
     button.disabled =
       false;
 
-
     button.textContent =
       originalText;
-
 
     setStatus(
       error.message ||
@@ -1161,11 +1098,12 @@ async function actualizarSolicitudCabina(
     );
 
   }
+
 }
 
 
 /* =========================================================
-   CAMBIO DE SECCIÓN DEL STUDIO
+   CONTROL CENTRAL DE SECCIONES DEL STUDIO
 ========================================================= */
 
 function mostrarSeccionStudio(
@@ -1194,18 +1132,26 @@ function mostrarSeccionStudio(
         "studioSectionEpisodios"
       )
 
-  };    publicar:
-      document.getElementById(
-        "studioSectionPublicar"
-      ),
-
-    episodios:
-      document.getElementById(
-        "studioSectionEpisodios"
-      )
-
   };
 
+
+  /*
+   * Si por algún motivo recibimos una sección que no existe,
+   * volvemos a Producción para no dejar Studio en blanco.
+   */
+
+  const validSection =
+    Object.prototype.hasOwnProperty.call(
+      sections,
+      sectionName
+    )
+      ? sectionName
+      : "produccion";
+
+
+  /*
+   * Mostramos exclusivamente la sección seleccionada.
+   */
 
   Object.entries(
     sections
@@ -1216,13 +1162,16 @@ function mostrarSeccionStudio(
         return;
       }
 
-
       section.hidden =
-        name !== sectionName;
+        name !== validSection;
 
     }
   );
 
+
+  /*
+   * Actualizamos visualmente la pestaña activa.
+   */
 
   document
     .querySelectorAll(
@@ -1231,24 +1180,60 @@ function mostrarSeccionStudio(
     .forEach(
       button => {
 
+        const active =
+          button.dataset.studioSection ===
+          validSection;
+
         button.classList.toggle(
           "active",
-          button.dataset.studioSection ===
-            sectionName
+          active
+        );
+
+        button.setAttribute(
+          "aria-pressed",
+          active
+            ? "true"
+            : "false"
         );
 
       }
     );
 
 
+  /*
+   * Cabina necesita cargar sus datos al entrar.
+   */
+
   if (
-    sectionName ===
+    validSection ===
     "cabina"
   ) {
 
     cargarSolicitudesCabina();
 
   }
+
+
+  /*
+   * Avisamos al resto de módulos qué sección
+   * acaba de abrirse.
+
+   * Esto permite que Episodios actualice su historial
+   * sin volver a controlar la navegación.
+   */
+
+  document.dispatchEvent(
+    new CustomEvent(
+      "studio:sectionchange",
+      {
+        detail: {
+          section:
+            validSection
+        }
+      }
+    )
+  );
+
 }
 
 
@@ -1266,6 +1251,10 @@ document.addEventListener(
     } = getElements();
 
 
+    /*
+     * Actualizar Cabina
+     */
+
     if (refreshButton) {
 
       refreshButton.addEventListener(
@@ -1281,6 +1270,10 @@ document.addEventListener(
 
     }
 
+
+    /*
+     * Filtros de Cabina
+     */
 
     filterButtons.forEach(
       button => {
@@ -1299,6 +1292,13 @@ document.addEventListener(
       }
     );
 
+
+    /*
+     * NAVEGACIÓN CENTRAL DEL STUDIO
+
+     * Este es el único controlador que debe decidir
+     * qué sección se muestra.
+     */
 
     document
       .querySelectorAll(
