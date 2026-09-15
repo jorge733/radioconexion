@@ -1,6 +1,6 @@
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   EPISODIOS UI V1.1
+   EPISODIOS UI V1.2
 ========================================================= */
 
 import {
@@ -125,15 +125,12 @@ function setStatus(
     status
   } = getElements();
 
-
   if (!status) {
     return;
   }
 
-
   status.textContent =
     message;
-
 
   status.dataset.state =
     state;
@@ -150,10 +147,8 @@ function renderSummary() {
   const elements =
     getElements();
 
-
   const summary =
     getEpisodesSummary();
-
 
   if (elements.total) {
 
@@ -162,7 +157,6 @@ function renderSummary() {
 
   }
 
-
   if (elements.finished) {
 
     elements.finished.textContent =
@@ -170,14 +164,12 @@ function renderSummary() {
 
   }
 
-
   if (elements.progress) {
 
     elements.progress.textContent =
       summary.inProgress;
 
   }
-
 
   if (elements.drafts) {
 
@@ -198,19 +190,16 @@ function getFilteredEpisodes() {
   const episodes =
     getEpisodesSorted();
 
-
   const term =
     normalizeSearch(
       searchTerm
     );
-
 
   if (!term) {
 
     return episodes;
 
   }
-
 
   return episodes.filter(
     episode => {
@@ -224,7 +213,6 @@ function getFilteredEpisodes() {
         ]
           .join(" ")
           .toLocaleLowerCase("es-CL");
-
 
       return searchable.includes(
         term
@@ -249,14 +237,12 @@ function createMetadata(episode) {
       ? episode.marks.length
       : 0;
 
-
   const blocks =
     Array.isArray(
       episode.blocks
     )
       ? episode.blocks.length
       : 0;
-
 
   const values = [
 
@@ -282,7 +268,6 @@ function createMetadata(episode) {
 
   ];
 
-
   if (
     episode.updatedAt
   ) {
@@ -291,7 +276,6 @@ function createMetadata(episode) {
       formatSavedDate(
         episode.updatedAt
       );
-
 
     if (saved) {
 
@@ -302,7 +286,6 @@ function createMetadata(episode) {
     }
 
   }
-
 
   return values;
 
@@ -320,7 +303,6 @@ function handleOpenEpisode(
   const currentArchive =
     archiveCurrentSession();
 
-
   if (
     currentArchive.reason ===
     "storage-error"
@@ -335,12 +317,10 @@ function handleOpenEpisode(
 
   }
 
-
   const opened =
     openEpisode(
       episode.id
     );
-
 
   if (!opened) {
 
@@ -352,7 +332,6 @@ function handleOpenEpisode(
     return;
 
   }
-
 
   /*
    * studio.js reconstruye la sesión activa
@@ -377,18 +356,15 @@ function handleDeleteEpisode(
       ? ` ${episode.episodeNumber}`
       : "";
 
-
   const title =
     episode.title
       ? ` — ${episode.title}`
       : "";
 
-
   const confirmed =
     window.confirm(
       `¿Quieres eliminar el episodio${number}${title} del historial?\n\nEsta acción no se puede deshacer.`
     );
-
 
   if (!confirmed) {
 
@@ -396,12 +372,10 @@ function handleDeleteEpisode(
 
   }
 
-
   const deleted =
     deleteEpisode(
       episode.id
     );
-
 
   if (!deleted) {
 
@@ -414,9 +388,7 @@ function handleDeleteEpisode(
 
   }
 
-
   renderEpisodes();
-
 
   setStatus(
     "Episodio eliminado del historial.",
@@ -439,16 +411,13 @@ function createEpisodeCard(
       "article"
     );
 
-
   article.className =
     "episode-history-card";
-
 
   const status =
     getEpisodeStatus(
       episode
     );
-
 
   const episodeNumber =
     String(
@@ -456,19 +425,16 @@ function createEpisodeCard(
       "—"
     );
 
-
   const title =
     String(
       episode.title ||
       "Episodio sin título"
     );
 
-
   const metadata =
     createMetadata(
       episode
     );
-
 
   article.innerHTML = `
 
@@ -480,7 +446,6 @@ function createEpisodeCard(
         )}
       </div>
 
-
       <div class="episode-history-info">
 
         <div class="episode-history-title-row">
@@ -490,7 +455,6 @@ function createEpisodeCard(
               title
             )}
           </strong>
-
 
           <span
             class="episode-history-status ${escapeHTML(
@@ -503,7 +467,6 @@ function createEpisodeCard(
           </span>
 
         </div>
-
 
         <div class="episode-history-meta">
 
@@ -523,7 +486,6 @@ function createEpisodeCard(
 
     </div>
 
-
     <div class="episode-history-actions">
 
       <button
@@ -532,7 +494,6 @@ function createEpisodeCard(
       >
         ABRIR EN PRODUCCIÓN
       </button>
-
 
       <button
         class="episode-history-delete"
@@ -547,18 +508,15 @@ function createEpisodeCard(
 
   `;
 
-
   const openButton =
     article.querySelector(
       ".episode-history-open"
     );
 
-
   const deleteButton =
     article.querySelector(
       ".episode-history-delete"
     );
-
 
   openButton.addEventListener(
     "click",
@@ -571,7 +529,6 @@ function createEpisodeCard(
     }
   );
 
-
   deleteButton.addEventListener(
     "click",
     () => {
@@ -582,7 +539,6 @@ function createEpisodeCard(
 
     }
   );
-
 
   return article;
 
@@ -601,23 +557,19 @@ function renderEmptyState(
     list
   } = getElements();
 
-
   if (!list) {
 
     return;
 
   }
 
-
   const empty =
     document.createElement(
       "div"
     );
 
-
   empty.className =
     "episodes-empty";
-
 
   if (searching) {
 
@@ -667,7 +619,6 @@ function renderEmptyState(
 
   }
 
-
   list.appendChild(
     empty
   );
@@ -683,10 +634,8 @@ function renderEpisodes() {
 
   loadEpisodes();
 
-
   const elements =
     getElements();
-
 
   if (!elements.list) {
 
@@ -694,22 +643,17 @@ function renderEpisodes() {
 
   }
 
-
   renderSummary();
-
 
   const episodes =
     getFilteredEpisodes();
 
-
   elements.list.replaceChildren();
-
 
   if (elements.count) {
 
     const total =
       getEpisodesSorted().length;
-
 
     if (
       searchTerm.trim()
@@ -728,7 +672,6 @@ function renderEpisodes() {
 
   }
 
-
   if (
     episodes.length === 0
   ) {
@@ -742,7 +685,6 @@ function renderEpisodes() {
     return;
 
   }
-
 
   episodes.forEach(
     episode => {
@@ -770,9 +712,7 @@ function archiveCurrentProduction(
   const result =
     archiveCurrentSession();
 
-
   renderEpisodes();
-
 
   if (!showMessage) {
 
@@ -780,14 +720,12 @@ function archiveCurrentProduction(
 
   }
 
-
   if (result.ok) {
 
     const number =
       result.episode?.episodeNumber
         ? ` ${result.episode.episodeNumber}`
         : "";
-
 
     setStatus(
       `Episodio${number} guardado en el historial.`,
@@ -814,7 +752,6 @@ function archiveCurrentProduction(
 
   }
 
-
   return result;
 
 }
@@ -831,13 +768,11 @@ function createNewEpisode() {
       "¿Quieres comenzar un episodio nuevo?\n\nLa producción actual se guardará en el historial antes de crear la nueva sesión."
     );
 
-
   if (!confirmed) {
 
     return;
 
   }
-
 
   /*
    * Primero guardamos la producción actual.
@@ -847,7 +782,6 @@ function createNewEpisode() {
     archiveCurrentProduction(
       false
     );
-
 
   if (
     result.reason ===
@@ -863,7 +797,6 @@ function createNewEpisode() {
 
   }
 
-
   /*
    * Eliminamos únicamente la sesión activa.
    * El historial permanece intacto.
@@ -873,30 +806,27 @@ function createNewEpisode() {
     "radioConexionStudioV2"
   );
 
-
   window.location.reload();
 
 }
 
 
 /* =========================================================
-   ACTIVAR SECCIÓN EPISODIOS
+   PREPARAR SECCIÓN EPISODIOS
 ========================================================= */
 
 function prepareEpisodesSection() {
 
   /*
-   * Cada vez que abrimos Historial,
-   * archivamos la sesión actual.
+   * Cada vez que Cabina.js abre Episodios,
+   * archivamos primero la producción actual.
    */
 
   archiveCurrentProduction(
     false
   );
 
-
   renderEpisodes();
-
 
   setStatus(
     "Historial actualizado.",
@@ -907,146 +837,44 @@ function prepareEpisodesSection() {
 
 
 /* =========================================================
-   OCULTAR EPISODIOS
+   CAMBIO DE SECCIÓN
 ========================================================= */
 
-function hideEpisodesSection() {
+/*
+ * IMPORTANTE:
+ *
+ * Este archivo ya NO controla la navegación del Studio.
+ *
+ * cabina.js es el único responsable de mostrar u ocultar:
+ *
+ * - Producción
+ * - Cabina
+ * - Publicar
+ * - Episodios
+ *
+ * Cuando cambia de sección, cabina.js emite
+ * el evento "studio:sectionchange".
+ *
+ * Episodios únicamente escucha ese evento.
+ */
 
-  const episodes =
-    document.getElementById(
-      "studioSectionEpisodios"
-    );
-
-
-  if (episodes) {
-
-    episodes.hidden = true;
-
-  }
-
-}
-
-
-/* =========================================================
-   MOSTRAR EPISODIOS
-========================================================= */
-
-function showEpisodesSection() {
-
-  const production =
-    document.getElementById(
-      "studioSectionProduccion"
-    );
-
-
-  const cabina =
-    document.getElementById(
-      "studioSectionCabina"
-    );
-
-
-  const publicar =
-    document.getElementById(
-      "studioSectionPublicar"
-    );
-
-
-  const episodes =
-    document.getElementById(
-      "studioSectionEpisodios"
-    );
-
-
-  if (!episodes) {
-
-    return;
-
-  }
-
-
-  if (production) {
-
-    production.hidden = true;
-
-  }
-
-
-  if (cabina) {
-
-    cabina.hidden = true;
-
-  }
-
-
-  if (publicar) {
-
-    publicar.hidden = true;
-
-  }
-
-
-  episodes.hidden = false;
-
-
-  document
-    .querySelectorAll(
-      "[data-studio-section]"
-    )
-    .forEach(
-      button => {
-
-        button.classList.toggle(
-          "active",
-          button.dataset.studioSection ===
-          "episodios"
-        );
-
-      }
-    );
-
-
-  prepareEpisodesSection();
-
-}
-
-
-/* =========================================================
-   NAVEGACIÓN
-========================================================= */
-
-function handleNavigationButton(
-  button
+function handleStudioSectionChange(
+  event
 ) {
 
   const sectionName =
-    button.dataset.studioSection;
-
-
-  /*
-   * Episodios administra su propia apertura.
-   */
+    event.detail?.section;
 
   if (
-    sectionName ===
+    sectionName !==
     "episodios"
   ) {
-
-    showEpisodesSection();
 
     return;
 
   }
 
-
-  /*
-   * Cabina.js y Publicar.js continúan administrando
-   * sus secciones como hasta ahora.
-   *
-   * Nosotros únicamente garantizamos que Episodios
-   * quede oculto al abandonar el historial.
-   */
-
-  hideEpisodesSection();
+  prepareEpisodesSection();
 
 }
 
@@ -1062,7 +890,6 @@ document.addEventListener(
     const elements =
       getElements();
 
-
     if (elements.search) {
 
       elements.search.addEventListener(
@@ -1072,14 +899,12 @@ document.addEventListener(
           searchTerm =
             event.target.value;
 
-
           renderEpisodes();
 
         }
       );
 
     }
-
 
     if (
       elements.newEpisodeButton
@@ -1092,32 +917,28 @@ document.addEventListener(
 
     }
 
-
-    document
-      .querySelectorAll(
-        "[data-studio-section]"
-      )
-      .forEach(
-        button => {
-
-          button.addEventListener(
-            "click",
-            () => {
-
-              handleNavigationButton(
-                button
-              );
-
-            }
-          );
-
-        }
-      );
-
+    /*
+     * Render inicial del historial.
+     *
+     * No muestra la sección.
+     * Solo deja sus datos preparados.
+     */
 
     renderEpisodes();
 
   }
+);
+
+
+/*
+ * ÚNICO vínculo con la navegación.
+ *
+ * No agregamos listeners a los botones.
+ */
+
+document.addEventListener(
+  "studio:sectionchange",
+  handleStudioSectionChange
 );
 
 
@@ -1126,15 +947,7 @@ document.addEventListener(
 ========================================================= */
 
 export {
-
   renderEpisodes,
-
   archiveCurrentProduction,
-
-  prepareEpisodesSection,
-
-  showEpisodesSection,
-
-  hideEpisodesSection
-
+  prepareEpisodesSection
 };
