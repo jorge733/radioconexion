@@ -1,271 +1,452 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Radio Conexión Studio</title>
-  <link rel="stylesheet" href="studio.css">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Radio Conexión Studio
+  </title>
+
+  <!--
+    Ruta absoluta para asegurar que Vercel
+    cargue siempre el CSS correcto de Studio.
+  -->
+  <link
+    rel="stylesheet"
+    href="/studio/studio.css"
+  >
+
 </head>
+
 
 <body>
 
-<header class="topbar">
-  <div class="brand">
-    <span class="brand-small">RADIO CONEXIÓN</span>
-    <h1>STUDIO</h1>
-    <p>Conectados Con Tus Sentidos</p>
-  </div>
+  <!-- =====================================
+       CABECERA
+  ====================================== -->
 
-  <div class="save-status" id="saveStatus">
-    ● Guardado
-  </div>
-</header>
+  <header class="topbar">
 
-<main class="studio-container">
+    <div class="brand">
 
-  <!-- DATOS DEL EPISODIO -->
+      <span class="brand-small">
+        RADIO CONEXIÓN
+      </span>
 
-  <section class="episode-header panel">
+      <h1>
+        STUDIO
+      </h1>
 
-    <div class="field episode-number-field">
-      <label for="episodeNumber">EPISODIO</label>
-      <input
-        id="episodeNumber"
-        type="number"
-        min="1"
-        value="98"
-      >
+      <p>
+        Conectados Con Tus Sentidos
+      </p>
+
     </div>
 
-    <div class="field episode-title-field">
-      <label for="episodeTitle">TEMA / TÍTULO</label>
-      <input
-        id="episodeTitle"
-        type="text"
-        placeholder="Tema principal del episodio"
-      >
+
+    <div
+      class="save-status"
+      id="saveStatus"
+    >
+      ● Guardado
     </div>
 
-    <div class="field episode-date-field">
-      <label for="episodeDate">FECHA DE GRABACIÓN</label>
-      <input
-        id="episodeDate"
-        type="date"
-      >
-    </div>
-
-  </section>
+  </header>
 
 
-  <!-- ZONA PRINCIPAL -->
+  <!-- =====================================
+       CONTENIDO
+  ====================================== -->
 
-  <section class="main-grid">
+  <main class="studio-container">
 
-    <!-- PAUTA -->
 
-    <div class="panel pauta-panel">
+    <!-- DATOS DEL EPISODIO -->
 
-      <div class="panel-header">
-        <div>
-          <span class="section-label">PRODUCCIÓN</span>
-          <h2>Pauta</h2>
+    <section class="episode-header panel">
+
+
+      <div class="field episode-number-field">
+
+        <label for="episodeNumber">
+          EPISODIO
+        </label>
+
+        <input
+          id="episodeNumber"
+          type="number"
+          min="1"
+          value="98"
+        >
+
+      </div>
+
+
+      <div class="field episode-title-field">
+
+        <label for="episodeTitle">
+          TEMA / TÍTULO
+        </label>
+
+        <input
+          id="episodeTitle"
+          type="text"
+          placeholder="Tema principal del episodio"
+        >
+
+      </div>
+
+
+      <div class="field episode-date-field">
+
+        <label for="episodeDate">
+          FECHA DE GRABACIÓN
+        </label>
+
+        <input
+          id="episodeDate"
+          type="date"
+        >
+
+      </div>
+
+
+    </section>
+
+
+    <!-- =====================================
+         ZONA PRINCIPAL
+    ====================================== -->
+
+    <section class="main-grid">
+
+
+      <!-- PAUTA -->
+
+      <div class="panel pauta-panel">
+
+
+        <div class="panel-header">
+
+          <div>
+
+            <span class="section-label">
+              PRODUCCIÓN
+            </span>
+
+            <h2>
+              Pauta
+            </h2>
+
+          </div>
+
+
+          <button
+            id="addBlockBtn"
+            class="secondary-button"
+            type="button"
+          >
+            + Bloque
+          </button>
+
         </div>
 
-        <button id="addBlockBtn" class="secondary-button">
-          + Bloque
-        </button>
+
+        <div
+          id="pautaList"
+          class="pauta-list"
+        ></div>
+
+
       </div>
 
-      <div id="pautaList" class="pauta-list"></div>
 
-    </div>
+      <!-- =================================
+           GRABACIÓN
+      ================================== -->
+
+      <div class="panel recording-panel">
 
 
-    <!-- GRABACIÓN -->
+        <div class="recording-top">
 
-    <div class="panel recording-panel">
 
-      <div class="recording-top">
+          <span
+            id="recordingStatus"
+            class="recording-status"
+          >
+            LISTO PARA GRABAR
+          </span>
 
-        <span
-          id="recordingStatus"
-          class="recording-status"
+
+          <span
+            id="currentBlockBadge"
+            class="block-badge"
+          >
+            Apertura
+          </span>
+
+
+        </div>
+
+
+        <div
+          id="timer"
+          class="timer"
         >
-          LISTO PARA GRABAR
-        </span>
+          00:00:00
+        </div>
 
-        <span id="currentBlockBadge" class="block-badge">
-          Apertura
-        </span>
+
+        <div class="recording-controls">
+
+
+          <button
+            id="startBtn"
+            class="button start-button"
+            type="button"
+          >
+            ● INICIAR
+          </button>
+
+
+          <button
+            id="pauseBtn"
+            class="button dark-button"
+            type="button"
+            disabled
+          >
+            PAUSAR
+          </button>
+
+
+          <button
+            id="finishBtn"
+            class="button dark-button"
+            type="button"
+            disabled
+          >
+            FINALIZAR
+          </button>
+
+
+        </div>
+
+
+        <button
+          id="markBtn"
+          class="mark-button"
+          type="button"
+          disabled
+        >
+          ✂ MARCAR PARA EDICIÓN
+        </button>
+
+
+        <div class="next-area">
+
+
+          <span>
+            BLOQUE ACTUAL
+          </span>
+
+
+          <strong id="currentBlock">
+            Apertura
+          </strong>
+
+
+          <button
+            id="nextBlockBtn"
+            class="next-button"
+            type="button"
+          >
+            SIGUIENTE BLOQUE →
+          </button>
+
+
+        </div>
+
 
       </div>
 
 
-      <div id="timer" class="timer">
+      <!-- =================================
+           MARCAS
+      ================================== -->
+
+      <div class="panel marks-panel">
+
+
+        <div class="panel-header">
+
+
+          <div>
+
+            <span class="section-label">
+              POSTPRODUCCIÓN
+            </span>
+
+            <h2>
+              Marcas
+            </h2>
+
+          </div>
+
+
+          <span
+            id="markCount"
+            class="counter"
+          >
+            0
+          </span>
+
+
+        </div>
+
+
+        <div
+          id="marksList"
+          class="marks-list"
+        ></div>
+
+
+      </div>
+
+
+    </section>
+
+
+    <!-- =====================================
+         NOTAS
+    ====================================== -->
+
+    <section class="panel notes-panel">
+
+
+      <div class="panel-header">
+
+
+        <div>
+
+          <span class="section-label">
+            EPISODIO
+          </span>
+
+          <h2>
+            Notas
+          </h2>
+
+        </div>
+
+
+        <button
+          id="newSessionBtn"
+          class="danger-outline-button"
+          type="button"
+        >
+          NUEVA SESIÓN
+        </button>
+
+
+      </div>
+
+
+      <textarea
+        id="episodeNotes"
+        placeholder="Ideas, recordatorios, observaciones para edición, canciones pendientes..."
+      ></textarea>
+
+
+    </section>
+
+
+  </main>
+
+
+  <!-- =====================================
+       MODAL PARA MARCAS DE EDICIÓN
+  ====================================== -->
+
+  <div
+    id="markModal"
+    class="modal hidden"
+  >
+
+
+    <div class="modal-card">
+
+
+      <span class="section-label">
+        MARCA DE EDICIÓN
+      </span>
+
+
+      <h2 id="modalMarkTime">
         00:00:00
-      </div>
+      </h2>
 
 
-      <div class="recording-controls">
+      <p id="modalMarkBlock">
+        Apertura
+      </p>
+
+
+      <label for="markNote">
+        ¿Qué hay que revisar?
+      </label>
+
+
+      <textarea
+        id="markNote"
+        placeholder="Ej: cortar silencio, repetir frase, bajar volumen..."
+      ></textarea>
+
+
+      <div class="modal-actions">
+
 
         <button
-          id="startBtn"
+          id="cancelMarkBtn"
+          class="button dark-button"
+          type="button"
+        >
+          CANCELAR
+        </button>
+
+
+        <button
+          id="saveMarkBtn"
           class="button start-button"
+          type="button"
         >
-          ● INICIAR
+          GUARDAR MARCA
         </button>
 
-        <button
-          id="pauseBtn"
-          class="button dark-button"
-          disabled
-        >
-          PAUSAR
-        </button>
-
-        <button
-          id="finishBtn"
-          class="button dark-button"
-          disabled
-        >
-          FINALIZAR
-        </button>
 
       </div>
 
 
-      <button
-        id="markBtn"
-        class="mark-button"
-        disabled
-      >
-        ✂ MARCAR PARA EDICIÓN
-      </button>
-
-
-      <div class="next-area">
-
-        <span>BLOQUE ACTUAL</span>
-
-        <strong id="currentBlock">
-          Apertura
-        </strong>
-
-        <button
-          id="nextBlockBtn"
-          class="next-button"
-        >
-          SIGUIENTE BLOQUE →
-        </button>
-
-      </div>
-
     </div>
 
-
-    <!-- MARCAS -->
-
-    <div class="panel marks-panel">
-
-      <div class="panel-header">
-
-        <div>
-          <span class="section-label">POSTPRODUCCIÓN</span>
-          <h2>Marcas</h2>
-        </div>
-
-        <span id="markCount" class="counter">
-          0
-        </span>
-
-      </div>
-
-      <div id="marksList" class="marks-list"></div>
-
-    </div>
-
-  </section>
-
-
-  <!-- NOTAS -->
-
-  <section class="panel notes-panel">
-
-    <div class="panel-header">
-
-      <div>
-        <span class="section-label">EPISODIO</span>
-        <h2>Notas</h2>
-      </div>
-
-      <button
-        id="newSessionBtn"
-        class="danger-outline-button"
-      >
-        NUEVA SESIÓN
-      </button>
-
-    </div>
-
-    <textarea
-      id="episodeNotes"
-      placeholder="Ideas, recordatorios, observaciones para edición, canciones pendientes..."
-    ></textarea>
-
-  </section>
-
-</main>
-
-
-<!-- MODAL MARCA -->
-
-<div id="markModal" class="modal hidden">
-
-  <div class="modal-card">
-
-    <span class="section-label">
-      MARCA DE EDICIÓN
-    </span>
-
-    <h2 id="modalMarkTime">
-      00:00:00
-    </h2>
-
-    <p id="modalMarkBlock"></p>
-
-    <label for="markNote">
-      ¿Qué hay que revisar?
-    </label>
-
-    <textarea
-      id="markNote"
-      placeholder="Ej: cortar silencio, repetir frase, bajar volumen..."
-    ></textarea>
-
-    <div class="modal-actions">
-
-      <button
-        id="cancelMarkBtn"
-        class="button dark-button"
-      >
-        CANCELAR
-      </button>
-
-      <button
-        id="saveMarkBtn"
-        class="button start-button"
-      >
-        GUARDAR MARCA
-      </button>
-
-    </div>
 
   </div>
 
-</div>
 
+  <!--
+    Ruta absoluta para asegurar que Vercel
+    cargue siempre el JavaScript de Studio.
+  -->
+  <script src="/studio/studio.js"></script>
 
-<script src="studio.js"></script>
 
 </body>
+
 </html>
