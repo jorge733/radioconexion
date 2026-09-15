@@ -2,7 +2,6 @@
 <html lang="es">
 
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -15,54 +14,96 @@
     content="#f4f6f8"
   >
 
-  <title>
-    Radio Conexión Studio
-  </title>
+  <title>Radio Conexión Studio</title>
 
   <meta
     name="description"
     content="Radio Conexión Studio - Plataforma de producción de Radio Conexión."
   >
 
-  <!-- ESTILOS DE STUDIO -->
+  <!-- FAVICON OFICIAL DE RADIO CONEXIÓN -->
+  <link
+    rel="icon"
+    type="image/png"
+    href="https://www.dropbox.com/scl/fi/7h2pubomnn102d1rap4dr/Sin-Texto-versi-n-3D.png?rlkey=nd66shyykgea25m8c6sl2pp5d&st=dg874wjl&raw=1"
+  >
+
+  <!-- ESTILOS -->
   <link
     rel="stylesheet"
     href="./studio.css"
   >
-
 </head>
 
 
 <body>
 
   <!-- =====================================================
-       CABECERA
+       CABECERA RADIO CONEXIÓN STUDIO
   ====================================================== -->
 
   <header class="topbar">
 
-    <div class="brand">
+    <div class="studio-brand">
 
-      <span class="brand-small">
-        RADIO CONEXIÓN
-      </span>
+      <a
+        class="studio-logo"
+        href="/inicio.html"
+        title="Ir a Radio Conexión"
+        aria-label="Radio Conexión"
+      >
+        <img
+          src="https://www.dropbox.com/scl/fi/7h2pubomnn102d1rap4dr/Sin-Texto-versi-n-3D.png?rlkey=nd66shyykgea25m8c6sl2pp5d&raw=1"
+          alt="Radio Conexión"
+        >
+      </a>
 
-      <h1>
-        STUDIO
-      </h1>
 
-      <p>
-        Conectados Con Tus Sentidos
-      </p>
+      <div class="studio-brand-text">
+
+        <span class="brand-name">
+          Radio Conexión
+        </span>
+
+        <div class="studio-title-row">
+
+          <span class="studio-title">
+            Studio
+          </span>
+
+          <span class="studio-badge">
+            PRODUCCIÓN
+          </span>
+
+        </div>
+
+        <span class="brand-tagline">
+          Conectados Con Tus Sentidos
+        </span>
+
+      </div>
 
     </div>
 
 
-    <div
-      class="save-status"
-      id="saveStatus"
-    >
-      ● Guardado
+    <div class="topbar-actions">
+
+      <div
+        class="save-status"
+        id="saveStatus"
+      >
+        ● Guardado
+      </div>
+
+
+      <a
+        class="back-site-button"
+        href="/inicio.html"
+      >
+        <span aria-hidden="true">←</span>
+        <span>Volver a Radio Conexión</span>
+      </a>
+
     </div>
 
   </header>
@@ -80,7 +121,6 @@
     ==================================================== -->
 
     <section class="episode-header panel">
-
 
       <div class="field episode-number-field">
 
@@ -128,7 +168,6 @@
 
       </div>
 
-
     </section>
 
 
@@ -139,12 +178,9 @@
     <section class="main-grid">
 
 
-      <!-- =================================================
-           PAUTA
-      ================================================== -->
+      <!-- PAUTA -->
 
       <section class="panel pauta-panel">
-
 
         <div class="panel-header">
 
@@ -178,19 +214,14 @@
         >
         </div>
 
-
       </section>
 
 
-      <!-- =================================================
-           GRABACIÓN
-      ================================================== -->
+      <!-- GRABACIÓN -->
 
       <section class="panel recording-panel">
 
-
         <div class="recording-top">
-
 
           <span
             id="recordingStatus"
@@ -207,11 +238,8 @@
             Apertura
           </span>
 
-
         </div>
 
-
-        <!-- CRONÓMETRO -->
 
         <div
           id="timer"
@@ -222,10 +250,7 @@
         </div>
 
 
-        <!-- CONTROLES -->
-
         <div class="recording-controls">
-
 
           <button
             id="startBtn"
@@ -255,11 +280,8 @@
             FINALIZAR
           </button>
 
-
         </div>
 
-
-        <!-- MARCA DE EDICIÓN -->
 
         <button
           id="markBtn"
@@ -271,10 +293,7 @@
         </button>
 
 
-        <!-- BLOQUE ACTUAL -->
-
         <div class="next-area">
-
 
           <span>
             BLOQUE ACTUAL
@@ -294,22 +313,16 @@
             SIGUIENTE BLOQUE →
           </button>
 
-
         </div>
-
 
       </section>
 
 
-      <!-- =================================================
-           POSTPRODUCCIÓN
-      ================================================== -->
+      <!-- MARCAS -->
 
       <section class="panel marks-panel">
 
-
         <div class="panel-header">
-
 
           <div>
 
@@ -331,7 +344,6 @@
             0
           </span>
 
-
         </div>
 
 
@@ -341,22 +353,18 @@
         >
         </div>
 
-
       </section>
-
 
     </section>
 
 
     <!-- ===================================================
-         NOTAS DEL EPISODIO
+         NOTAS
     ==================================================== -->
 
     <section class="panel notes-panel">
 
-
       <div class="panel-header">
-
 
         <div>
 
@@ -379,7 +387,6 @@
           NUEVA SESIÓN
         </button>
 
-
       </div>
 
 
@@ -388,15 +395,13 @@
         placeholder="Ideas, recordatorios, observaciones para edición, canciones pendientes..."
       ></textarea>
 
-
     </section>
-
 
   </main>
 
 
   <!-- =====================================================
-       MODAL: MARCA DE EDICIÓN
+       MODAL MARCA DE EDICIÓN
   ====================================================== -->
 
   <div
@@ -407,9 +412,7 @@
     aria-labelledby="modalMarkTime"
   >
 
-
     <div class="modal-card">
-
 
       <span class="section-label">
         MARCA DE EDICIÓN
@@ -439,7 +442,6 @@
 
       <div class="modal-actions">
 
-
         <button
           id="cancelMarkBtn"
           class="button dark-button"
@@ -457,23 +459,15 @@
           GUARDAR MARCA
         </button>
 
-
       </div>
 
-
     </div>
-
 
   </div>
 
 
-  <!-- =====================================================
-       JAVASCRIPT
-  ====================================================== -->
-
+  <!-- JAVASCRIPT -->
   <script src="./studio.js"></script>
 
-
 </body>
-
 </html>

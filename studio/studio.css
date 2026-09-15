@@ -11,7 +11,6 @@
 ========================================================= */
 
 :root {
-
   --rc-gold: #d99614;
   --rc-gold-2: #f1b72b;
   --rc-gold-dark: #a96500;
@@ -23,16 +22,11 @@
   --rc-bg: #f4f6f8;
 
   --rc-card: rgba(255, 255, 255, 0.92);
-  --rc-card-solid: #ffffff;
-
   --rc-border: rgba(20, 24, 31, 0.08);
   --rc-border-strong: #d8dde3;
 
   --rc-shadow:
     0 18px 50px rgba(28, 34, 44, 0.08);
-
-  --rc-shadow-small:
-    0 8px 24px rgba(28, 34, 44, 0.06);
 
   --rc-radius: 22px;
 
@@ -42,7 +36,7 @@
 
 
 /* =========================================================
-   RESET
+   BASE
 ========================================================= */
 
 * {
@@ -54,7 +48,6 @@ html {
 }
 
 body {
-
   margin: 0;
 
   min-height: 100vh;
@@ -68,33 +61,26 @@ body {
   color: var(--rc-ink);
 
   background:
-
     radial-gradient(
       circle at 8% 0%,
       rgba(229, 169, 25, 0.11),
       transparent 27rem
     ),
-
     radial-gradient(
       circle at 100% 18%,
       rgba(199, 127, 13, 0.07),
       transparent 24rem
     ),
-
     var(--rc-bg);
 
   overflow-x: hidden;
 }
 
 
-/* CUADRÍCULA MUY SUAVE DEL SITIO */
-
 body::before {
-
   content: "";
 
   position: fixed;
-
   inset: 0;
 
   z-index: -1;
@@ -104,15 +90,13 @@ body::before {
   opacity: 0.22;
 
   background-image:
-
     linear-gradient(
-      rgba(255,255,255,.25) 1px,
+      rgba(255, 255, 255, .25) 1px,
       transparent 1px
     ),
-
     linear-gradient(
       90deg,
-      rgba(255,255,255,.25) 1px,
+      rgba(255, 255, 255, .25) 1px,
       transparent 1px
     );
 
@@ -139,13 +123,15 @@ button {
 }
 
 
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
 ::selection {
-
-  background:
-    rgba(229,169,25,.28);
-
-  color:
-    var(--rc-ink);
+  background: rgba(229, 169, 25, .28);
+  color: var(--rc-ink);
 }
 
 
@@ -154,7 +140,6 @@ button {
 ========================================================= */
 
 .topbar {
-
   position: sticky;
 
   top: 12px;
@@ -167,13 +152,13 @@ button {
       1180px
     );
 
-  min-height: 78px;
+  min-height: 86px;
 
   margin:
     12px auto 24px;
 
   padding:
-    13px 20px;
+    11px 16px;
 
   display: flex;
 
@@ -181,140 +166,263 @@ button {
 
   justify-content: space-between;
 
+  gap: 20px;
+
   background:
-    rgba(255,255,255,.78);
+    rgba(255, 255, 255, .80);
 
-  backdrop-filter:
-    blur(20px);
-
-  -webkit-backdrop-filter:
-    blur(20px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 
   border:
     1px solid
-    rgba(255,255,255,.72);
+    rgba(255, 255, 255, .72);
 
-  border-radius:
-    24px;
+  border-radius: 24px;
 
   box-shadow:
     0 12px 35px
-    rgba(20,24,31,.08);
+    rgba(20, 24, 31, .08);
 }
 
 
-.brand {
+/* MARCA */
+
+.studio-brand {
+  min-width: 0;
+
   display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+}
+
+
+.studio-logo {
+  width: 62px;
+  height: 62px;
+
+  flex: 0 0 62px;
+
+  display: grid;
+
+  place-items: center;
+}
+
+
+.studio-logo img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+}
+
+
+.studio-brand-text {
+  min-width: 0;
+
+  display: flex;
+
   flex-direction: column;
+
   justify-content: center;
 }
 
 
-.brand-small {
-
+.brand-name {
   font-family:
     "Unica One",
     sans-serif;
+
+  color: var(--rc-gold-dark);
+
+  font-size: 21px;
+
+  line-height: 1;
+
+  letter-spacing: .8px;
+}
+
+
+.studio-title-row {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 3px;
+}
+
+
+.studio-title {
+  font-family:
+    "Unica One",
+    sans-serif;
+
+  color: var(--rc-gold);
+
+  font-size: 27px;
+
+  line-height: 1;
+
+  letter-spacing: .5px;
+}
+
+
+.studio-badge {
+  padding:
+    4px 8px;
+
+  border:
+    1px solid
+    rgba(229, 169, 25, .24);
+
+  border-radius:
+    999px;
 
   color:
     var(--rc-gold-dark);
 
-  font-size:
-    23px;
-
-  line-height:
-    1;
-
-  letter-spacing:
-    1px;
-}
-
-
-.brand h1 {
-
-  margin:
-    2px 0 0;
-
-  font-family:
-    "Unica One",
-    sans-serif;
-
-  color:
-    var(--rc-gold);
+  background:
+    rgba(229, 169, 25, .08);
 
   font-size:
-    30px;
-
-  line-height:
-    1;
-
-  letter-spacing:
-    1px;
-}
-
-
-.brand p {
-
-  margin:
-    5px 0 0;
-
-  color:
-    var(--rc-muted);
-
-  font-size:
-    11px;
+    8px;
 
   font-weight:
-    500;
+    800;
+
+  letter-spacing:
+    1.1px;
+}
+
+
+.brand-tagline {
+  margin-top: 4px;
+
+  color: var(--rc-muted);
+
+  font-size: 10px;
+
+  font-weight: 500;
+}
+
+
+/* ACCIONES CABECERA */
+
+.topbar-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 9px;
 }
 
 
 .save-status {
+  display: inline-flex;
 
-  display:
-    inline-flex;
+  align-items: center;
 
-  align-items:
-    center;
+  min-height: 38px;
 
   padding:
-    8px 13px;
+    7px 12px;
 
   border:
     1px solid
-    rgba(47,143,86,.15);
+    rgba(47, 143, 86, .15);
 
   border-radius:
     999px;
 
   background:
-    rgba(47,143,86,.07);
+    rgba(47, 143, 86, .07);
 
   color:
     var(--success) !important;
+
+  white-space: nowrap;
+
+  font-size: 10px;
+
+  font-weight: 700;
+}
+
+
+.back-site-button {
+  min-height: 40px;
+
+  padding:
+    8px 15px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  border:
+    1px solid
+    rgba(229, 169, 25, .28);
+
+  border-radius:
+    999px;
+
+  color:
+    var(--rc-gold-dark);
+
+  background:
+    rgba(229, 169, 25, .08);
+
+  white-space: nowrap;
 
   font-size:
     11px;
 
   font-weight:
     700;
+
+  transition:
+    transform .2s ease,
+    background .2s ease,
+    box-shadow .2s ease;
+}
+
+
+.back-site-button:hover {
+  background:
+    rgba(229, 169, 25, .15);
+
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 6px 18px
+    rgba(199, 127, 13, .10);
 }
 
 
 /* =========================================================
-   CONTENEDOR PRINCIPAL
+   CONTENEDOR
 ========================================================= */
 
 .studio-container {
-
   width:
     min(
       calc(100% - 28px),
       1180px
     );
 
-  margin:
-    0 auto;
+  margin: 0 auto;
 
   padding:
     0 0 60px;
@@ -322,11 +430,10 @@ button {
 
 
 /* =========================================================
-   TARJETAS
+   PANELES
 ========================================================= */
 
 .panel {
-
   background:
     var(--rc-card);
 
@@ -349,51 +456,39 @@ button {
 
 
 /* =========================================================
-   DATOS DEL EPISODIO
+   EPISODIO
 ========================================================= */
 
 .episode-header {
+  position: relative;
 
-  position:
-    relative;
+  overflow: hidden;
 
-  overflow:
-    hidden;
-
-  display:
-    grid;
+  display: grid;
 
   grid-template-columns:
     125px
     minmax(300px, 1fr)
     190px;
 
-  gap:
-    18px;
+  gap: 18px;
 
-  margin-bottom:
-    18px;
+  margin-bottom: 18px;
 
-  padding:
-    22px;
+  padding: 22px;
 }
 
 
 .episode-header::before {
-
   content: "";
 
-  position:
-    absolute;
+  position: absolute;
 
   top: 0;
-
   left: 0;
-
   right: 0;
 
-  height:
-    4px;
+  height: 4px;
 
   background:
     linear-gradient(
@@ -405,61 +500,46 @@ button {
 
 
 .field {
+  display: flex;
 
-  display:
-    flex;
+  flex-direction: column;
 
-  flex-direction:
-    column;
-
-  gap:
-    7px;
+  gap: 7px;
 }
 
 
 .field label,
 .section-label {
+  color: var(--rc-muted);
 
-  color:
-    var(--rc-muted);
+  font-size: 10px;
 
-  font-size:
-    10px;
+  font-weight: 800;
 
-  font-weight:
-    800;
-
-  letter-spacing:
-    1.4px;
+  letter-spacing: 1.4px;
 }
 
 
 .field input {
+  width: 100%;
 
-  width:
-    100%;
-
-  min-height:
-    44px;
+  min-height: 44px;
 
   padding:
     0 13px;
 
-  color:
-    var(--rc-ink);
+  color: var(--rc-ink);
 
   background:
-    rgba(248,249,251,.88);
+    rgba(248, 249, 251, .88);
 
   border:
     1px solid
     var(--rc-border-strong);
 
-  border-radius:
-    12px;
+  border-radius: 12px;
 
-  outline:
-    none;
+  outline: none;
 
   transition:
     border-color .2s ease,
@@ -469,21 +549,18 @@ button {
 
 
 .field input:focus {
-
   border-color:
     var(--rc-gold);
 
-  background:
-    #fff;
+  background: #fff;
 
   box-shadow:
     0 0 0 4px
-    rgba(229,169,25,.12);
+    rgba(229, 169, 25, .12);
 }
 
 
 .episode-number-field input {
-
   color:
     var(--rc-gold-dark);
 
@@ -491,11 +568,9 @@ button {
     "Unica One",
     sans-serif;
 
-  font-size:
-    26px;
+  font-size: 26px;
 
-  font-weight:
-    700;
+  font-weight: 700;
 }
 
 
@@ -504,47 +579,37 @@ button {
 ========================================================= */
 
 .main-grid {
-
-  display:
-    grid;
+  display: grid;
 
   grid-template-columns:
     minmax(235px, .85fr)
     minmax(420px, 1.45fr)
     minmax(250px, .9fr);
 
-  gap:
-    18px;
+  gap: 18px;
 }
 
 
 .main-grid > .panel {
-
-  min-height:
-    515px;
+  min-height: 515px;
 }
 
 
 /* =========================================================
-   CABECERA DE PANELES
+   CABECERAS DE PANEL
 ========================================================= */
 
 .panel-header {
-
-  min-height:
-    82px;
+  min-height: 82px;
 
   padding:
     19px 20px;
 
-  display:
-    flex;
+  display: flex;
 
-  align-items:
-    center;
+  align-items: center;
 
-  justify-content:
-    space-between;
+  justify-content: space-between;
 
   border-bottom:
     1px solid
@@ -553,7 +618,6 @@ button {
 
 
 .panel-header h2 {
-
   margin:
     3px 0 0;
 
@@ -564,16 +628,14 @@ button {
   color:
     var(--rc-gold-dark);
 
-  font-size:
-    27px;
+  font-size: 27px;
 
-  letter-spacing:
-    .2px;
+  letter-spacing: .2px;
 }
 
 
 /* =========================================================
-   BOTONES GENERALES
+   BOTONES
 ========================================================= */
 
 .secondary-button,
@@ -581,12 +643,9 @@ button {
 .button,
 .mark-button,
 .next-button {
+  border: 0;
 
-  border:
-    0;
-
-  cursor:
-    pointer;
+  cursor: pointer;
 
   transition:
     transform .2s ease,
@@ -597,38 +656,33 @@ button {
 
 
 .secondary-button {
-
-  min-height:
-    38px;
+  min-height: 38px;
 
   padding:
     7px 14px;
 
   border:
     1px solid
-    rgba(229,169,25,.28);
+    rgba(229, 169, 25, .28);
 
   border-radius:
     999px;
 
   background:
-    rgba(229,169,25,.08);
+    rgba(229, 169, 25, .08);
 
   color:
     var(--rc-gold-dark);
 
-  font-size:
-    12px;
+  font-size: 12px;
 
-  font-weight:
-    700;
+  font-weight: 700;
 }
 
 
 .secondary-button:hover {
-
   background:
-    rgba(229,169,25,.15);
+    rgba(229, 169, 25, .15);
 
   transform:
     translateY(-1px);
@@ -636,9 +690,7 @@ button {
 
 
 .button {
-
-  min-height:
-    45px;
+  min-height: 45px;
 
   padding:
     11px 19px;
@@ -646,13 +698,11 @@ button {
   border-radius:
     999px;
 
-  font-weight:
-    700;
+  font-weight: 700;
 }
 
 
 .start-button {
-
   background:
     linear-gradient(
       135deg,
@@ -660,28 +710,25 @@ button {
       var(--rc-gold)
     );
 
-  color:
-    #1a160c;
+  color: #1a160c;
 
   box-shadow:
     0 8px 22px
-    rgba(199,127,13,.20);
+    rgba(199, 127, 13, .20);
 }
 
 
 .start-button:hover:not(:disabled) {
-
   transform:
     translateY(-2px);
 
   box-shadow:
     0 12px 28px
-    rgba(199,127,13,.28);
+    rgba(199, 127, 13, .28);
 }
 
 
 .dark-button {
-
   color:
     var(--rc-text);
 
@@ -695,7 +742,6 @@ button {
 
 
 .dark-button:hover:not(:disabled) {
-
   background:
     #e9edf1;
 }
@@ -703,18 +749,13 @@ button {
 
 .button:disabled,
 .mark-button:disabled {
+  opacity: .38;
 
-  opacity:
-    .38;
+  cursor: not-allowed;
 
-  cursor:
-    not-allowed;
+  transform: none;
 
-  transform:
-    none;
-
-  box-shadow:
-    none;
+  box-shadow: none;
 }
 
 
@@ -723,43 +764,33 @@ button {
 ========================================================= */
 
 .pauta-list {
-
-  padding:
-    12px;
+  padding: 12px;
 }
 
 
 .pauta-item {
+  width: 100%;
 
-  width:
-    100%;
-
-  min-height:
-    51px;
+  min-height: 51px;
 
   padding:
-    10px 10px;
+    10px;
 
-  display:
-    grid;
+  display: grid;
 
   grid-template-columns:
     24px
     minmax(0, 1fr)
     28px;
 
-  gap:
-    4px;
+  gap: 4px;
 
-  align-items:
-    center;
+  align-items: center;
 
-  margin-bottom:
-    5px;
+  margin-bottom: 5px;
 
   border:
-    1px solid
-    transparent;
+    1px solid transparent;
 
   border-radius:
     13px;
@@ -779,75 +810,59 @@ button {
 
 
 .pauta-item:hover {
-
   background:
-    rgba(229,169,25,.06);
+    rgba(229, 169, 25, .06);
 }
 
 
 .pauta-item.active {
-
   background:
-    rgba(229,169,25,.12);
+    rgba(229, 169, 25, .12);
 
   border-color:
-    rgba(229,169,25,.24);
+    rgba(229, 169, 25, .24);
 
   color:
     var(--rc-gold-dark);
 
-  font-weight:
-    700;
+  font-weight: 700;
 }
 
 
 .pauta-item.completed {
-
   color:
     #9299a3;
 }
 
 
 .pauta-status {
-
   color:
     #a0a6ae;
 
-  font-weight:
-    700;
+  font-weight: 700;
 }
 
 
 .pauta-item.active
 .pauta-status {
-
   color:
     var(--rc-gold);
 }
 
 
 .delete-block {
+  width: 27px;
+  height: 27px;
 
-  width:
-    27px;
+  display: grid;
 
-  height:
-    27px;
+  place-items: center;
 
-  display:
-    grid;
+  padding: 0;
 
-  place-items:
-    center;
+  border: 0;
 
-  padding:
-    0;
-
-  border:
-    0;
-
-  border-radius:
-    8px;
+  border-radius: 8px;
 
   color:
     #a3a8b0;
@@ -855,21 +870,18 @@ button {
   background:
     transparent;
 
-  cursor:
-    pointer;
+  cursor: pointer;
 
-  font-size:
-    18px;
+  font-size: 18px;
 }
 
 
 .delete-block:hover {
-
   color:
     var(--danger);
 
   background:
-    rgba(215,68,68,.08);
+    rgba(215, 68, 68, .08);
 }
 
 
@@ -878,52 +890,38 @@ button {
 ========================================================= */
 
 .recording-panel {
+  position: relative;
 
-  position:
-    relative;
+  overflow: hidden;
 
-  overflow:
-    hidden;
+  padding: 25px;
 
-  padding:
-    25px;
+  display: flex;
 
-  display:
-    flex;
+  flex-direction: column;
 
-  flex-direction:
-    column;
-
-  align-items:
-    center;
+  align-items: center;
 
   background:
-
     radial-gradient(
       circle at 50% 35%,
-      rgba(229,169,25,.09),
+      rgba(229, 169, 25, .09),
       transparent 45%
     ),
-
     var(--rc-card);
 }
 
 
 .recording-panel::before {
-
   content: "";
 
-  position:
-    absolute;
+  position: absolute;
 
   top: 0;
-
   left: 25%;
-
   right: 25%;
 
-  height:
-    3px;
+  height: 3px;
 
   background:
     linear-gradient(
@@ -936,12 +934,9 @@ button {
 
 
 .recording-top {
+  width: 100%;
 
-  width:
-    100%;
-
-  display:
-    flex;
+  display: flex;
 
   justify-content:
     space-between;
@@ -952,15 +947,11 @@ button {
 
 
 .recording-status {
+  display: inline-flex;
 
-  display:
-    inline-flex;
+  align-items: center;
 
-  align-items:
-    center;
-
-  min-height:
-    28px;
+  min-height: 28px;
 
   padding:
     5px 10px;
@@ -974,19 +965,15 @@ button {
   background:
     #f1f3f5;
 
-  font-size:
-    10px;
+  font-size: 10px;
 
-  font-weight:
-    800;
+  font-weight: 800;
 
-  letter-spacing:
-    1px;
+  letter-spacing: 1px;
 }
 
 
 .recording-status.active {
-
   color:
     #b42318;
 
@@ -996,13 +983,12 @@ button {
 
 
 .block-badge {
-
   padding:
     6px 11px;
 
   border:
     1px solid
-    rgba(229,169,25,.22);
+    rgba(229, 169, 25, .22);
 
   border-radius:
     999px;
@@ -1011,27 +997,20 @@ button {
     var(--rc-gold-dark);
 
   background:
-    rgba(229,169,25,.07);
+    rgba(229, 169, 25, .07);
 
-  font-size:
-    11px;
+  font-size: 11px;
 
-  font-weight:
-    600;
+  font-weight: 600;
 }
 
 
 .timer {
-
   margin:
     68px 0 42px;
 
   color:
     var(--rc-ink);
-
-  font-family:
-    "Inter",
-    sans-serif;
 
   font-size:
     clamp(
@@ -1040,54 +1019,43 @@ button {
       78px
     );
 
-  font-weight:
-    700;
+  font-weight: 700;
 
-  line-height:
-    1;
+  line-height: 1;
 
-  letter-spacing:
-    -5px;
+  letter-spacing: -5px;
 
   font-variant-numeric:
     tabular-nums;
 
   text-shadow:
     0 5px 25px
-    rgba(199,127,13,.08);
+    rgba(199, 127, 13, .08);
 }
 
 
 .recording-controls {
+  display: flex;
 
-  display:
-    flex;
+  flex-wrap: wrap;
 
-  flex-wrap:
-    wrap;
+  justify-content: center;
 
-  justify-content:
-    center;
-
-  gap:
-    8px;
+  gap: 8px;
 }
 
 
 .mark-button {
+  margin-top: 23px;
 
-  margin-top:
-    23px;
-
-  min-height:
-    43px;
+  min-height: 43px;
 
   padding:
     10px 18px;
 
   border:
     1px solid
-    rgba(229,169,25,.28);
+    rgba(229, 169, 25, .28);
 
   border-radius:
     999px;
@@ -1096,20 +1064,17 @@ button {
     var(--rc-gold-dark);
 
   background:
-    rgba(255,255,255,.55);
+    rgba(255, 255, 255, .55);
 
-  font-size:
-    12px;
+  font-size: 12px;
 
-  font-weight:
-    700;
+  font-weight: 700;
 }
 
 
 .mark-button:not(:disabled):hover {
-
   background:
-    rgba(229,169,25,.10);
+    rgba(229, 169, 25, .10);
 
   transform:
     translateY(-1px);
@@ -1117,28 +1082,22 @@ button {
 
 
 /* =========================================================
-   BLOQUE ACTUAL
+   SIGUIENTE BLOQUE
 ========================================================= */
 
 .next-area {
+  width: 100%;
 
-  width:
-    100%;
+  margin-top: auto;
 
-  margin-top:
-    auto;
+  padding-top: 20px;
 
-  padding-top:
-    20px;
-
-  display:
-    grid;
+  display: grid;
 
   grid-template-columns:
     1fr auto;
 
-  align-items:
-    center;
+  align-items: center;
 
   border-top:
     1px solid
@@ -1147,31 +1106,23 @@ button {
 
 
 .next-area span {
-
-  grid-column:
-    1;
+  grid-column: 1;
 
   color:
     var(--rc-muted);
 
-  font-size:
-    9px;
+  font-size: 9px;
 
-  font-weight:
-    800;
+  font-weight: 800;
 
-  letter-spacing:
-    1.4px;
+  letter-spacing: 1.4px;
 }
 
 
 .next-area strong {
+  grid-column: 1;
 
-  grid-column:
-    1;
-
-  margin-top:
-    3px;
+  margin-top: 3px;
 
   color:
     var(--rc-ink);
@@ -1179,15 +1130,11 @@ button {
 
 
 .next-button {
+  grid-column: 2;
 
-  grid-column:
-    2;
+  grid-row: 1 / 3;
 
-  grid-row:
-    1 / 3;
-
-  min-height:
-    42px;
+  min-height: 42px;
 
   padding:
     9px 16px;
@@ -1205,26 +1152,23 @@ button {
       var(--rc-gold)
     );
 
-  font-size:
-    11px;
+  font-size: 11px;
 
-  font-weight:
-    800;
+  font-weight: 800;
 
   box-shadow:
     0 7px 18px
-    rgba(199,127,13,.18);
+    rgba(199, 127, 13, .18);
 }
 
 
 .next-button:hover {
-
   transform:
     translateY(-2px);
 
   box-shadow:
     0 10px 24px
-    rgba(199,127,13,.25);
+    rgba(199, 127, 13, .25);
 }
 
 
@@ -1233,9 +1177,7 @@ button {
 ========================================================= */
 
 .counter {
-
-  min-width:
-    30px;
+  min-width: 30px;
 
   padding:
     5px 9px;
@@ -1247,98 +1189,77 @@ button {
     var(--rc-gold-dark);
 
   background:
-    rgba(229,169,25,.10);
+    rgba(229, 169, 25, .10);
 
-  text-align:
-    center;
+  text-align: center;
 
-  font-size:
-    12px;
+  font-size: 12px;
 
-  font-weight:
-    700;
+  font-weight: 700;
 }
 
 
 .marks-list {
+  max-height: 430px;
 
-  max-height:
-    430px;
+  padding: 12px;
 
-  padding:
-    12px;
-
-  overflow-y:
-    auto;
+  overflow-y: auto;
 }
 
 
 .empty-state {
-
   padding:
     70px 18px;
 
   color:
     var(--rc-muted);
 
-  text-align:
-    center;
+  text-align: center;
 
-  font-size:
-    12px;
+  font-size: 12px;
 
-  line-height:
-    1.6;
+  line-height: 1.6;
 }
 
 
 .mark-entry {
+  margin-bottom: 9px;
 
-  margin-bottom:
-    9px;
-
-  padding:
-    13px;
+  padding: 13px;
 
   border:
     1px solid
     var(--rc-border);
 
-  border-radius:
-    14px;
+  border-radius: 14px;
 
   background:
-    rgba(248,249,251,.78);
+    rgba(248, 249, 251, .78);
 
   box-shadow:
     0 5px 15px
-    rgba(28,34,44,.025);
+    rgba(28, 34, 44, .025);
 }
 
 
 .mark-entry-top {
-
-  display:
-    flex;
+  display: flex;
 
   justify-content:
     space-between;
 
-  gap:
-    8px;
+  gap: 8px;
 
-  align-items:
-    center;
+  align-items: center;
 }
 
 
 .mark-time {
-
   color:
     var(--rc-gold-dark);
 
-  font-weight:
-    800;
+  font-weight: 800;
 
   font-variant-numeric:
     tabular-nums;
@@ -1346,44 +1267,34 @@ button {
 
 
 .mark-block {
-
   color:
     var(--rc-muted);
 
-  font-size:
-    10px;
+  font-size: 10px;
 
-  font-weight:
-    600;
+  font-weight: 600;
 }
 
 
 .mark-note {
-
   margin:
     9px 0 0;
 
   color:
     var(--rc-text);
 
-  font-size:
-    12px;
+  font-size: 12px;
 
-  line-height:
-    1.5;
+  line-height: 1.5;
 }
 
 
 .delete-mark {
+  margin-top: 10px;
 
-  margin-top:
-    10px;
+  padding: 0;
 
-  padding:
-    0;
-
-  border:
-    0;
+  border: 0;
 
   color:
     #9a9fa7;
@@ -1391,16 +1302,13 @@ button {
   background:
     transparent;
 
-  font-size:
-    10px;
+  font-size: 10px;
 
-  cursor:
-    pointer;
+  cursor: pointer;
 }
 
 
 .delete-mark:hover {
-
   color:
     var(--danger);
 }
@@ -1411,37 +1319,26 @@ button {
 ========================================================= */
 
 .notes-panel {
+  margin-top: 18px;
 
-  margin-top:
-    18px;
-
-  overflow:
-    hidden;
+  overflow: hidden;
 }
 
 
 .notes-panel textarea {
+  display: block;
 
-  display:
-    block;
+  width: 100%;
 
-  width:
-    100%;
+  min-height: 135px;
 
-  min-height:
-    135px;
+  padding: 20px;
 
-  padding:
-    20px;
+  resize: vertical;
 
-  resize:
-    vertical;
+  border: 0;
 
-  border:
-    0;
-
-  outline:
-    none;
+  outline: none;
 
   color:
     var(--rc-text);
@@ -1449,25 +1346,20 @@ button {
   background:
     transparent;
 
-  font-size:
-    13px;
+  font-size: 13px;
 
-  line-height:
-    1.6;
+  line-height: 1.6;
 }
 
 
 .notes-panel textarea::placeholder {
-
   color:
     #9aa0aa;
 }
 
 
 .danger-outline-button {
-
-  min-height:
-    38px;
+  min-height: 38px;
 
   padding:
     7px 14px;
@@ -1485,24 +1377,21 @@ button {
   background:
     transparent;
 
-  font-size:
-    11px;
+  font-size: 11px;
 
-  font-weight:
-    700;
+  font-weight: 700;
 }
 
 
 .danger-outline-button:hover {
-
   color:
     var(--danger);
 
   border-color:
-    rgba(215,68,68,.35);
+    rgba(215, 68, 68, .35);
 
   background:
-    rgba(215,68,68,.05);
+    rgba(215, 68, 68, .05);
 }
 
 
@@ -1511,33 +1400,24 @@ button {
 ========================================================= */
 
 .modal {
+  position: fixed;
 
-  position:
-    fixed;
+  inset: 0;
 
-  inset:
-    0;
+  z-index: 2000;
 
-  z-index:
-    2000;
+  display: flex;
 
-  display:
-    flex;
+  align-items: center;
 
-  align-items:
-    center;
+  justify-content: center;
 
-  justify-content:
-    center;
-
-  padding:
-    20px;
+  padding: 20px;
 
   background:
-    rgba(23,25,29,.38);
+    rgba(23, 25, 29, .38);
 
-  backdrop-filter:
-    blur(9px);
+  backdrop-filter: blur(9px);
 
   -webkit-backdrop-filter:
     blur(9px);
@@ -1545,38 +1425,32 @@ button {
 
 
 .modal.hidden {
-
-  display:
-    none;
+  display: none;
 }
 
 
 .modal-card {
-
   width:
     min(500px, 100%);
 
-  padding:
-    27px;
+  padding: 27px;
 
   background:
-    rgba(255,255,255,.97);
+    rgba(255, 255, 255, .97);
 
   border:
     1px solid
-    rgba(255,255,255,.75);
+    rgba(255, 255, 255, .75);
 
-  border-radius:
-    22px;
+  border-radius: 22px;
 
   box-shadow:
     0 30px 80px
-    rgba(28,34,44,.20);
+    rgba(28, 34, 44, .20);
 }
 
 
 .modal-card h2 {
-
   margin:
     8px 0 2px;
 
@@ -1587,13 +1461,11 @@ button {
     "Unica One",
     sans-serif;
 
-  font-size:
-    40px;
+  font-size: 40px;
 }
 
 
 .modal-card p {
-
   margin:
     0 0 24px;
 
@@ -1603,47 +1475,35 @@ button {
 
 
 .modal-card label {
+  display: block;
 
-  display:
-    block;
-
-  margin-bottom:
-    7px;
+  margin-bottom: 7px;
 
   color:
     var(--rc-muted);
 
-  font-size:
-    11px;
+  font-size: 11px;
 
-  font-weight:
-    700;
+  font-weight: 700;
 }
 
 
 .modal-card textarea {
+  width: 100%;
 
-  width:
-    100%;
+  min-height: 110px;
 
-  min-height:
-    110px;
+  padding: 13px;
 
-  padding:
-    13px;
-
-  resize:
-    vertical;
+  resize: vertical;
 
   border:
     1px solid
     var(--rc-border-strong);
 
-  border-radius:
-    12px;
+  border-radius: 12px;
 
-  outline:
-    none;
+  outline: none;
 
   color:
     var(--rc-text);
@@ -1654,7 +1514,6 @@ button {
 
 
 .modal-card textarea:focus {
-
   border-color:
     var(--rc-gold);
 
@@ -1663,74 +1522,60 @@ button {
 
   box-shadow:
     0 0 0 4px
-    rgba(229,169,25,.12);
+    rgba(229, 169, 25, .12);
 }
 
 
 .modal-actions {
+  margin-top: 16px;
 
-  margin-top:
-    16px;
-
-  display:
-    flex;
+  display: flex;
 
   justify-content:
     flex-end;
 
-  gap:
-    8px;
+  gap: 8px;
 }
 
 
 /* =========================================================
-   ANIMACIÓN DE ENTRADA
+   ANIMACIONES
 ========================================================= */
 
 .episode-header,
 .main-grid,
 .notes-panel {
-
   animation:
     studioIn
     .48s
-    cubic-bezier(.2,.8,.2,1)
+    cubic-bezier(.2, .8, .2, 1)
     both;
 }
 
 
 .main-grid {
-  animation-delay:
-    .05s;
+  animation-delay: .05s;
 }
 
 
 .notes-panel {
-  animation-delay:
-    .10s;
+  animation-delay: .10s;
 }
 
 
 @keyframes studioIn {
 
   from {
-
-    opacity:
-      0;
+    opacity: 0;
 
     transform:
       translateY(8px);
-
   }
 
   to {
+    opacity: 1;
 
-    opacity:
-      1;
-
-    transform:
-      none;
-
+    transform: none;
   }
 
 }
@@ -1744,40 +1589,29 @@ button {
 (max-width: 1050px) {
 
   .main-grid {
-
     grid-template-columns:
       1fr 1fr;
-
   }
 
 
   .recording-panel {
-
     grid-column:
       1 / 3;
 
-    grid-row:
-      1;
+    grid-row: 1;
 
     min-height:
       480px !important;
-
   }
 
 
   .pauta-panel {
-
-    grid-column:
-      1;
-
+    grid-column: 1;
   }
 
 
   .marks-panel {
-
-    grid-column:
-      2;
-
+    grid-column: 2;
   }
 
 }
@@ -1791,122 +1625,116 @@ button {
 (max-width: 720px) {
 
   .topbar {
-
-    top:
-      8px;
+    top: 8px;
 
     width:
       calc(100% - 16px);
 
-    min-height:
-      68px;
+    min-height: 72px;
 
     margin:
       8px auto 18px;
 
     padding:
-      10px 14px;
+      8px 11px;
 
-    border-radius:
-      18px;
-
+    border-radius: 18px;
   }
 
 
-  .brand-small {
+  .studio-logo {
+    width: 48px;
+    height: 48px;
 
-    font-size:
-      18px;
-
+    flex-basis: 48px;
   }
 
 
-  .brand h1 {
-
-    font-size:
-      22px;
-
+  .brand-name {
+    font-size: 17px;
   }
 
 
-  .brand p {
+  .studio-title {
+    font-size: 21px;
+  }
 
-    display:
-      none;
 
+  .studio-badge {
+    display: none;
+  }
+
+
+  .brand-tagline {
+    display: none;
   }
 
 
   .save-status {
+    display: none;
+  }
 
-    padding:
-      6px 9px;
 
-    font-size:
-      9px;
+  .back-site-button {
+    width: 42px;
+    height: 42px;
 
+    min-height: 42px;
+
+    padding: 0;
+
+    font-size: 18px;
+  }
+
+
+  .back-site-button span:last-child {
+    display: none;
   }
 
 
   .studio-container {
-
     width:
       calc(100% - 16px);
-
   }
 
 
   .episode-header {
-
     grid-template-columns:
       1fr;
 
-    padding:
-      18px;
-
+    padding: 18px;
   }
 
 
   .main-grid {
-
     grid-template-columns:
       1fr;
-
   }
 
 
   .recording-panel,
   .pauta-panel,
   .marks-panel {
-
-    grid-column:
-      1;
-
+    grid-column: 1;
   }
 
 
   .recording-panel {
-
-    grid-row:
-      auto;
+    grid-row: auto;
 
     min-height:
       470px !important;
-
   }
 
 
   .pauta-panel,
   .marks-panel {
-
     min-height:
       auto !important;
-
   }
 
 
   .timer {
-
     margin:
       60px 0 38px;
 
@@ -1919,26 +1747,6 @@ button {
 
     letter-spacing:
       -4px;
-
-  }
-
-
-  .next-area {
-
-    gap:
-      12px;
-
-  }
-
-
-  .next-button {
-
-    padding:
-      8px 12px;
-
-    font-size:
-      10px;
-
   }
 
 }
@@ -1952,57 +1760,38 @@ button {
 (max-width: 430px) {
 
   .recording-controls {
-
-    width:
-      100%;
-
+    width: 100%;
   }
 
 
-  .recording-controls .button {
+  .recording-controls
+  .button {
+    flex: 1;
 
-    flex:
-      1;
+    padding: 10px;
 
-    padding:
-      10px;
-
-    font-size:
-      11px;
-
+    font-size: 11px;
   }
 
 
   .timer {
-
-    font-size:
-      48px;
-
+    font-size: 48px;
   }
 
 
   .recording-top {
-
-    gap:
-      8px;
-
+    gap: 8px;
   }
 
 
   .block-badge {
+    max-width: 45%;
 
-    max-width:
-      45%;
+    overflow: hidden;
 
-    overflow:
-      hidden;
+    white-space: nowrap;
 
-    white-space:
-      nowrap;
-
-    text-overflow:
-      ellipsis;
-
+    text-overflow: ellipsis;
   }
 
 }
@@ -2016,7 +1805,6 @@ button {
 (prefers-reduced-motion: reduce) {
 
   * {
-
     animation-duration:
       .01ms !important;
 
@@ -2025,7 +1813,6 @@ button {
 
     transition-duration:
       .01ms !important;
-
   }
 
 }
