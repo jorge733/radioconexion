@@ -32,6 +32,7 @@
   <link rel="stylesheet" href="./soundpad.css">
   <link rel="stylesheet" href="./cabina.css">
   <link rel="stylesheet" href="./publicar.css">
+  <link rel="stylesheet" href="./episodios.css">
 
 
   <!-- =====================================================
@@ -781,6 +782,15 @@
         data-studio-section="publicar"
       >
         ✦ PUBLICAR
+      </button>
+
+
+      <button
+        class="studio-nav-button"
+        type="button"
+        data-studio-section="episodios"
+      >
+        📚 EPISODIOS
       </button>
 
 
@@ -1777,6 +1787,195 @@
       </main>
     </div>
 
+
+    <!-- ===================================================
+         EPISODIOS
+    ==================================================== -->
+
+    <div
+      id="studioSectionEpisodios"
+      class="studio-section"
+      hidden
+    >
+
+      <main class="episodes-container">
+
+        <div class="episodes-header">
+
+          <div class="episodes-heading">
+
+            <span class="section-label">
+              HISTORIAL DE PRODUCCIÓN
+            </span>
+
+            <h1>
+              Episodios
+            </h1>
+
+            <p>
+              Conserva y recupera tus producciones anteriores con su pauta,
+              duración, notas y marcas de edición.
+            </p>
+
+          </div>
+
+
+          <button
+            id="studioNewEpisodeBtn"
+            class="episodes-new-button"
+            type="button"
+          >
+            + NUEVO EPISODIO
+          </button>
+
+        </div>
+
+
+        <div class="episodes-summary">
+
+          <div class="episodes-summary-card">
+
+            <span>
+              Total
+            </span>
+
+            <strong id="studioEpisodesTotal">
+              0
+            </strong>
+
+          </div>
+
+
+          <div class="episodes-summary-card finished">
+
+            <span>
+              Finalizados
+            </span>
+
+            <strong id="studioEpisodesFinished">
+              0
+            </strong>
+
+          </div>
+
+
+          <div class="episodes-summary-card progress">
+
+            <span>
+              En producción
+            </span>
+
+            <strong id="studioEpisodesProgress">
+              0
+            </strong>
+
+          </div>
+
+
+          <div class="episodes-summary-card draft">
+
+            <span>
+              Borradores
+            </span>
+
+            <strong id="studioEpisodesDrafts">
+              0
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <section class="panel episodes-panel">
+
+          <div class="episodes-toolbar">
+
+            <div class="episodes-search">
+
+              <span
+                class="episodes-search-icon"
+                aria-hidden="true"
+              >
+                ⌕
+              </span>
+
+              <input
+                id="studioEpisodesSearch"
+                type="search"
+                placeholder="Buscar por número, título, fecha o palabra..."
+                autocomplete="off"
+              >
+
+            </div>
+
+
+            <span
+              id="studioEpisodesCount"
+              class="episodes-count"
+            >
+              0 episodio(s)
+            </span>
+
+          </div>
+
+
+          <div
+            id="studioEpisodesList"
+            class="episodes-list"
+          >
+
+            <div class="episodes-empty">
+
+              <span
+                class="episodes-empty-icon"
+                aria-hidden="true"
+              >
+                📚
+              </span>
+
+              <strong>
+                Aún no hay episodios guardados
+              </strong>
+
+              <p>
+                Cuando archives una producción, aparecerá aquí con su pauta,
+                duración, notas y marcas de edición.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <p
+            id="studioEpisodesStatus"
+            class="episodes-status"
+            role="status"
+            aria-live="polite"
+          ></p>
+
+
+          <div class="episodes-local-notice">
+
+            <span aria-hidden="true">
+              ⓘ
+            </span>
+
+            <span>
+              En esta primera versión, el historial se guarda localmente
+              en este navegador. Más adelante lo conectaremos a Firebase
+              para acceder a los episodios desde cualquier computador.
+            </span>
+
+          </div>
+
+        </section>
+
+      </main>
+
+    </div>
+
   </div>
 
 
@@ -1993,6 +2192,12 @@
   <script
     type="module"
     src="./publicar.js"
+  ></script>
+
+
+  <script
+    type="module"
+    src="./episodios-ui.js"
   ></script>
 
 
