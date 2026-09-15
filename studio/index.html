@@ -10,17 +10,24 @@
     content="width=device-width, initial-scale=1.0"
   >
 
+  <meta
+    name="theme-color"
+    content="#f4f6f8"
+  >
+
   <title>
     Radio Conexión Studio
   </title>
 
-  <!--
-    Ruta absoluta para asegurar que Vercel
-    cargue siempre el CSS correcto de Studio.
-  -->
+  <meta
+    name="description"
+    content="Radio Conexión Studio - Plataforma de producción de Radio Conexión."
+  >
+
+  <!-- ESTILOS DE STUDIO -->
   <link
     rel="stylesheet"
-    href="/studio/studio.css"
+    href="./studio.css"
   >
 
 </head>
@@ -28,9 +35,9 @@
 
 <body>
 
-  <!-- =====================================
+  <!-- =====================================================
        CABECERA
-  ====================================== -->
+  ====================================================== -->
 
   <header class="topbar">
 
@@ -61,14 +68,16 @@
   </header>
 
 
-  <!-- =====================================
-       CONTENIDO
-  ====================================== -->
+  <!-- =====================================================
+       CONTENIDO PRINCIPAL
+  ====================================================== -->
 
   <main class="studio-container">
 
 
-    <!-- DATOS DEL EPISODIO -->
+    <!-- ===================================================
+         INFORMACIÓN DEL EPISODIO
+    ==================================================== -->
 
     <section class="episode-header panel">
 
@@ -84,6 +93,7 @@
           type="number"
           min="1"
           value="98"
+          autocomplete="off"
         >
 
       </div>
@@ -99,6 +109,7 @@
           id="episodeTitle"
           type="text"
           placeholder="Tema principal del episodio"
+          autocomplete="off"
         >
 
       </div>
@@ -121,16 +132,18 @@
     </section>
 
 
-    <!-- =====================================
-         ZONA PRINCIPAL
-    ====================================== -->
+    <!-- ===================================================
+         ÁREA DE PRODUCCIÓN
+    ==================================================== -->
 
     <section class="main-grid">
 
 
-      <!-- PAUTA -->
+      <!-- =================================================
+           PAUTA
+      ================================================== -->
 
-      <div class="panel pauta-panel">
+      <section class="panel pauta-panel">
 
 
         <div class="panel-header">
@@ -162,17 +175,18 @@
         <div
           id="pautaList"
           class="pauta-list"
-        ></div>
+        >
+        </div>
 
 
-      </div>
+      </section>
 
 
-      <!-- =================================
+      <!-- =================================================
            GRABACIÓN
-      ================================== -->
+      ================================================== -->
 
-      <div class="panel recording-panel">
+      <section class="panel recording-panel">
 
 
         <div class="recording-top">
@@ -197,13 +211,18 @@
         </div>
 
 
+        <!-- CRONÓMETRO -->
+
         <div
           id="timer"
           class="timer"
+          aria-live="polite"
         >
           00:00:00
         </div>
 
+
+        <!-- CONTROLES -->
 
         <div class="recording-controls">
 
@@ -240,6 +259,8 @@
         </div>
 
 
+        <!-- MARCA DE EDICIÓN -->
+
         <button
           id="markBtn"
           class="mark-button"
@@ -249,6 +270,8 @@
           ✂ MARCAR PARA EDICIÓN
         </button>
 
+
+        <!-- BLOQUE ACTUAL -->
 
         <div class="next-area">
 
@@ -275,14 +298,14 @@
         </div>
 
 
-      </div>
+      </section>
 
 
-      <!-- =================================
-           MARCAS
-      ================================== -->
+      <!-- =================================================
+           POSTPRODUCCIÓN
+      ================================================== -->
 
-      <div class="panel marks-panel">
+      <section class="panel marks-panel">
 
 
         <div class="panel-header">
@@ -315,18 +338,19 @@
         <div
           id="marksList"
           class="marks-list"
-        ></div>
+        >
+        </div>
 
 
-      </div>
+      </section>
 
 
     </section>
 
 
-    <!-- =====================================
-         NOTAS
-    ====================================== -->
+    <!-- ===================================================
+         NOTAS DEL EPISODIO
+    ==================================================== -->
 
     <section class="panel notes-panel">
 
@@ -371,13 +395,16 @@
   </main>
 
 
-  <!-- =====================================
-       MODAL PARA MARCAS DE EDICIÓN
-  ====================================== -->
+  <!-- =====================================================
+       MODAL: MARCA DE EDICIÓN
+  ====================================================== -->
 
   <div
     id="markModal"
     class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalMarkTime"
   >
 
 
@@ -440,11 +467,11 @@
   </div>
 
 
-  <!--
-    Ruta absoluta para asegurar que Vercel
-    cargue siempre el JavaScript de Studio.
-  -->
-  <script src="/studio/studio.js"></script>
+  <!-- =====================================================
+       JAVASCRIPT
+  ====================================================== -->
+
+  <script src="./studio.js"></script>
 
 
 </body>
