@@ -8,6 +8,11 @@
   ],
   "redirects": [
     {
+      "source": "/studio",
+      "destination": "/studio/",
+      "permanent": true
+    },
+    {
       "source": "/noticias.html",
       "destination": "/blog",
       "permanent": true
