@@ -18,390 +18,1431 @@
 
   <meta
     name="description"
-    content="Radio Conexión Studio - Plataforma de producción de Radio Conexión."
+    content="Radio Conexión Studio - Plataforma privada de producción de Radio Conexión."
   >
 
-  <!-- FAVICON OFICIAL DE RADIO CONEXIÓN -->
+  <!-- FAVICON -->
   <link
     rel="icon"
     type="image/png"
     href="https://www.dropbox.com/scl/fi/7h2pubomnn102d1rap4dr/Sin-Texto-versi-n-3D.png?rlkey=nd66shyykgea25m8c6sl2pp5d&st=dg874wjl&raw=1"
   >
 
-  <!-- ESTILOS -->
+  <!-- ESTILOS PRINCIPALES -->
   <link
     rel="stylesheet"
     href="./studio.css"
   >
+
+  <!-- SOUNDPAD -->
+  <link
+    rel="stylesheet"
+    href="./soundpad.css"
+  >
+
+
+  <!-- =====================================================
+       ESTILOS DEL ACCESO PRIVADO
+  ====================================================== -->
+
+  <style>
+
+    [hidden] {
+      display: none !important;
+    }
+
+
+    /* =====================================================
+       LOGIN
+    ====================================================== */
+
+    .studio-auth-gate {
+      min-height: 100vh;
+
+      display: grid;
+
+      place-items: center;
+
+      padding: 30px 18px;
+
+      background:
+        radial-gradient(
+          circle at 20% 10%,
+          rgba(241, 183, 43, .16),
+          transparent 32rem
+        ),
+        radial-gradient(
+          circle at 85% 85%,
+          rgba(217, 150, 20, .08),
+          transparent 28rem
+        ),
+        #f4f6f8;
+    }
+
+
+    .studio-auth-card {
+      width: min(440px, 100%);
+
+      padding: 42px 38px 36px;
+
+      text-align: center;
+
+      border:
+        1px solid rgba(23, 25, 29, .08);
+
+      border-radius: 26px;
+
+      background:
+        rgba(255, 255, 255, .92);
+
+      box-shadow:
+        0 28px 70px
+        rgba(28, 34, 44, .11);
+
+      backdrop-filter:
+        blur(18px);
+    }
+
+
+    .studio-auth-logo {
+      width: 92px;
+      height: 92px;
+
+      display: block;
+
+      margin:
+        0 auto 18px;
+
+      object-fit: contain;
+    }
+
+
+    .studio-auth-label {
+      display: block;
+
+      margin-bottom: 7px;
+
+      color: #a96500;
+
+      font-size: 10px;
+
+      font-weight: 800;
+
+      letter-spacing: 1.7px;
+    }
+
+
+    .studio-auth-card h1 {
+      margin: 0;
+
+      color: #17191d;
+
+      font-family:
+        "Unica One",
+        sans-serif;
+
+      font-size: 37px;
+
+      font-weight: 400;
+
+      line-height: 1;
+    }
+
+
+    .studio-auth-card h1 span {
+      color: #d99614;
+    }
+
+
+    .studio-auth-subtitle {
+      max-width: 310px;
+
+      margin:
+        14px auto 27px;
+
+      color: #667085;
+
+      font-size: 12px;
+
+      line-height: 1.55;
+    }
+
+
+    .studio-google-button {
+      width: 100%;
+
+      min-height: 50px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      gap: 11px;
+
+      padding:
+        10px 18px;
+
+      border:
+        1px solid rgba(23, 25, 29, .12);
+
+      border-radius: 14px;
+
+      color: #30343b;
+
+      background: #ffffff;
+
+      cursor: pointer;
+
+      font: inherit;
+
+      font-size: 12px;
+
+      font-weight: 750;
+
+      box-shadow:
+        0 6px 18px
+        rgba(28, 34, 44, .05);
+
+      transition:
+        transform .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
+    }
+
+
+    .studio-google-button:hover:not(:disabled) {
+      transform:
+        translateY(-1px);
+
+      border-color:
+        rgba(217, 150, 20, .38);
+
+      box-shadow:
+        0 10px 25px
+        rgba(28, 34, 44, .09);
+    }
+
+
+    .studio-google-button:disabled {
+      opacity: .55;
+
+      cursor: wait;
+    }
+
+
+    .google-mark {
+      width: 25px;
+      height: 25px;
+
+      display: grid;
+
+      place-items: center;
+
+      border-radius: 50%;
+
+      color: #ffffff;
+
+      background:
+        linear-gradient(
+          135deg,
+          #4285f4,
+          #34a853
+        );
+
+      font-family: Arial, sans-serif;
+
+      font-size: 14px;
+
+      font-weight: 800;
+    }
+
+
+    .studio-auth-security {
+      margin-top: 21px;
+
+      color: #8b9099;
+
+      font-size: 9px;
+
+      line-height: 1.5;
+    }
+
+
+    .studio-auth-error {
+      margin:
+        18px 0 0;
+
+      padding:
+        11px 13px;
+
+      border:
+        1px solid rgba(215, 68, 68, .17);
+
+      border-radius: 11px;
+
+      color: #b42318;
+
+      background:
+        rgba(215, 68, 68, .055);
+
+      font-size: 10px;
+
+      line-height: 1.5;
+    }
+
+
+    /* =====================================================
+       CARGANDO SESIÓN
+    ====================================================== */
+
+    .studio-auth-loading {
+      padding: 15px 0 5px;
+    }
+
+
+    .studio-auth-spinner {
+      width: 34px;
+      height: 34px;
+
+      margin:
+        4px auto 17px;
+
+      border:
+        3px solid
+        rgba(217, 150, 20, .14);
+
+      border-top-color:
+        #d99614;
+
+      border-radius: 50%;
+
+      animation:
+        studioAuthSpin
+        .75s
+        linear
+        infinite;
+    }
+
+
+    .studio-auth-loading p {
+      margin: 0;
+
+      color: #667085;
+
+      font-size: 11px;
+
+      font-weight: 600;
+    }
+
+
+    @keyframes studioAuthSpin {
+
+      to {
+        transform:
+          rotate(360deg);
+      }
+
+    }
+
+
+    /* =====================================================
+       NAVEGACIÓN INTERNA
+    ====================================================== */
+
+    .studio-navigation {
+      width:
+        min(1180px, calc(100% - 36px));
+
+      margin:
+        18px auto 0;
+
+      padding: 5px;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 5px;
+
+      border:
+        1px solid rgba(23, 25, 29, .07);
+
+      border-radius: 15px;
+
+      background:
+        rgba(255, 255, 255, .75);
+
+      box-shadow:
+        0 6px 20px
+        rgba(28, 34, 44, .035);
+
+      backdrop-filter:
+        blur(12px);
+    }
+
+
+    .studio-nav-button {
+      min-height: 40px;
+
+      padding:
+        8px 17px;
+
+      border: 0;
+
+      border-radius: 11px;
+
+      color: #667085;
+
+      background: transparent;
+
+      cursor: pointer;
+
+      font: inherit;
+
+      font-size: 10px;
+
+      font-weight: 800;
+
+      letter-spacing: .3px;
+
+      transition:
+        color .18s ease,
+        background .18s ease,
+        box-shadow .18s ease;
+    }
+
+
+    .studio-nav-button.active {
+      color: #8a5700;
+
+      background:
+        rgba(229, 169, 25, .11);
+
+      box-shadow:
+        inset 0 0 0 1px
+        rgba(229, 169, 25, .13);
+    }
+
+
+    .studio-nav-button:hover {
+      color: #a96500;
+
+      background:
+        rgba(229, 169, 25, .06);
+    }
+
+
+    .studio-nav-spacer {
+      flex: 1;
+    }
+
+
+    .studio-user {
+      min-width: 0;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 9px;
+
+      padding-left: 10px;
+    }
+
+
+    .studio-user-dot {
+      width: 7px;
+      height: 7px;
+
+      flex: 0 0 7px;
+
+      border-radius: 50%;
+
+      background: #2f8f56;
+
+      box-shadow:
+        0 0 0 4px
+        rgba(47, 143, 86, .09);
+    }
+
+
+    .studio-user-email {
+      max-width: 230px;
+
+      overflow: hidden;
+
+      color: #667085;
+
+      white-space: nowrap;
+
+      text-overflow: ellipsis;
+
+      font-size: 9px;
+
+      font-weight: 650;
+    }
+
+
+    .studio-logout-button {
+      min-height: 34px;
+
+      padding:
+        6px 12px;
+
+      border:
+        1px solid rgba(23, 25, 29, .09);
+
+      border-radius: 10px;
+
+      color: #667085;
+
+      background:
+        rgba(255, 255, 255, .75);
+
+      cursor: pointer;
+
+      font: inherit;
+
+      font-size: 9px;
+
+      font-weight: 750;
+    }
+
+
+    .studio-logout-button:hover {
+      color: #b42318;
+
+      border-color:
+        rgba(215, 68, 68, .18);
+
+      background:
+        rgba(215, 68, 68, .04);
+    }
+
+
+    /* =====================================================
+       MÓVIL
+    ====================================================== */
+
+    @media (max-width: 700px) {
+
+      .studio-auth-card {
+        padding:
+          34px 23px 30px;
+      }
+
+
+      .studio-navigation {
+        align-items: stretch;
+
+        flex-wrap: wrap;
+      }
+
+
+      .studio-nav-button {
+        flex: 1;
+      }
+
+
+      .studio-nav-spacer {
+        display: none;
+      }
+
+
+      .studio-user {
+        width: 100%;
+
+        padding:
+          7px 5px 3px;
+
+        justify-content: center;
+      }
+
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .studio-auth-spinner {
+        animation: none;
+      }
+
+    }
+
+  </style>
+
 </head>
 
 
 <body>
 
+
   <!-- =====================================================
-       CABECERA RADIO CONEXIÓN STUDIO
+       ACCESO PRIVADO
   ====================================================== -->
 
-  <header class="topbar">
+  <section
+    id="studioAuthGate"
+    class="studio-auth-gate"
+  >
 
-    <div class="studio-brand">
+    <div class="studio-auth-card">
 
-      <a
-        class="studio-logo"
-        href="/inicio.html"
-        title="Ir a Radio Conexión"
-        aria-label="Radio Conexión"
+      <img
+        class="studio-auth-logo"
+        src="https://www.dropbox.com/scl/fi/7h2pubomnn102d1rap4dr/Sin-Texto-versi-n-3D.png?rlkey=nd66shyykgea25m8c6sl2pp5d&raw=1"
+        alt="Radio Conexión"
       >
-        <img
-          src="https://www.dropbox.com/scl/fi/7h2pubomnn102d1rap4dr/Sin-Texto-versi-n-3D.png?rlkey=nd66shyykgea25m8c6sl2pp5d&raw=1"
-          alt="Radio Conexión"
-        >
-      </a>
 
 
-      <div class="studio-brand-text">
-
-        <span class="brand-name">
-          Radio Conexión
-        </span>
-
-        <div class="studio-title-row">
-
-          <span class="studio-title">
-            Studio
-          </span>
-
-          <span class="studio-badge">
-            PRODUCCIÓN
-          </span>
-
-        </div>
-
-        <span class="brand-tagline">
-          Conectados Con Tus Sentidos
-        </span>
-
-      </div>
-
-    </div>
+      <span class="studio-auth-label">
+        ACCESO PRIVADO
+      </span>
 
 
-    <div class="topbar-actions">
+      <h1>
+        Radio Conexión <span>Studio</span>
+      </h1>
+
+
+      <!-- COMPROBANDO SESIÓN -->
 
       <div
-        class="save-status"
-        id="saveStatus"
+        id="studioAuthLoading"
+        class="studio-auth-loading"
       >
-        ● Guardado
+
+        <div class="studio-auth-spinner"></div>
+
+        <p>
+          Comprobando acceso...
+        </p>
+
       </div>
 
 
-      <a
-        class="back-site-button"
-        href="/inicio.html"
+      <!-- LOGIN -->
+
+      <div
+        id="studioAuthLoginContent"
+        hidden
       >
-        <span aria-hidden="true">←</span>
-        <span>Volver a Radio Conexión</span>
-      </a>
+
+        <p class="studio-auth-subtitle">
+          Plataforma privada de producción, cabina y gestión
+          de Radio Conexión.
+        </p>
+
+
+        <button
+          id="studioLoginBtn"
+          class="studio-google-button"
+          type="button"
+        >
+
+          <span
+            class="google-mark"
+            aria-hidden="true"
+          >
+            G
+          </span>
+
+          <span>
+            CONTINUAR CON GOOGLE
+          </span>
+
+        </button>
+
+
+        <p
+          id="studioLoginError"
+          class="studio-auth-error"
+          hidden
+        >
+        </p>
+
+
+        <p class="studio-auth-security">
+          Acceso exclusivo para cuentas autorizadas
+          de Radio Conexión.
+        </p>
+
+      </div>
 
     </div>
 
-  </header>
+  </section>
 
 
   <!-- =====================================================
-       CONTENIDO PRINCIPAL
+       APLICACIÓN STUDIO
+       Firebase la mantiene oculta hasta autorizar al usuario
   ====================================================== -->
 
-  <main class="studio-container">
+  <div
+    id="studioApp"
+    hidden
+  >
 
 
     <!-- ===================================================
-         INFORMACIÓN DEL EPISODIO
+         CABECERA
     ==================================================== -->
 
-    <section class="episode-header panel">
+    <header class="topbar">
 
-      <div class="field episode-number-field">
+      <div class="studio-brand">
 
-        <label for="episodeNumber">
-          EPISODIO
-        </label>
-
-        <input
-          id="episodeNumber"
-          type="number"
-          min="1"
-          value="98"
-          autocomplete="off"
+        <a
+          class="studio-logo"
+          href="/inicio.html"
+          title="Ir a Radio Conexión"
+          aria-label="Radio Conexión"
         >
 
-      </div>
+          <img
+            src="https://www.dropbox.com/scl/fi/7h2pubomnn102d1rap4dr/Sin-Texto-versi-n-3D.png?rlkey=nd66shyykgea25m8c6sl2pp5d&raw=1"
+            alt="Radio Conexión"
+          >
+
+        </a>
 
 
-      <div class="field episode-title-field">
+        <div class="studio-brand-text">
 
-        <label for="episodeTitle">
-          TEMA / TÍTULO
-        </label>
-
-        <input
-          id="episodeTitle"
-          type="text"
-          placeholder="Tema principal del episodio"
-          autocomplete="off"
-        >
-
-      </div>
+          <span class="brand-name">
+            Radio Conexión
+          </span>
 
 
-      <div class="field episode-date-field">
+          <div class="studio-title-row">
 
-        <label for="episodeDate">
-          FECHA DE GRABACIÓN
-        </label>
+            <span class="studio-title">
+              Studio
+            </span>
 
-        <input
-          id="episodeDate"
-          type="date"
-        >
-
-      </div>
-
-    </section>
-
-
-    <!-- ===================================================
-         ÁREA DE PRODUCCIÓN
-    ==================================================== -->
-
-    <section class="main-grid">
-
-
-      <!-- PAUTA -->
-
-      <section class="panel pauta-panel">
-
-        <div class="panel-header">
-
-          <div>
-
-            <span class="section-label">
+            <span class="studio-badge">
               PRODUCCIÓN
             </span>
 
-            <h2>
-              Pauta
-            </h2>
-
           </div>
 
 
-          <button
-            id="addBlockBtn"
-            class="secondary-button"
-            type="button"
-          >
-            + Bloque
-          </button>
-
-        </div>
-
-
-        <div
-          id="pautaList"
-          class="pauta-list"
-        >
-        </div>
-
-      </section>
-
-
-      <!-- GRABACIÓN -->
-
-      <section class="panel recording-panel">
-
-        <div class="recording-top">
-
-          <span
-            id="recordingStatus"
-            class="recording-status"
-          >
-            LISTO PARA GRABAR
-          </span>
-
-
-          <span
-            id="currentBlockBadge"
-            class="block-badge"
-          >
-            Apertura
+          <span class="brand-tagline">
+            Conectados Con Tus Sentidos
           </span>
 
         </div>
-
-
-        <div
-          id="timer"
-          class="timer"
-          aria-live="polite"
-        >
-          00:00:00
-        </div>
-
-
-        <div class="recording-controls">
-
-          <button
-            id="startBtn"
-            class="button start-button"
-            type="button"
-          >
-            ● INICIAR
-          </button>
-
-
-          <button
-            id="pauseBtn"
-            class="button dark-button"
-            type="button"
-            disabled
-          >
-            PAUSAR
-          </button>
-
-
-          <button
-            id="finishBtn"
-            class="button dark-button"
-            type="button"
-            disabled
-          >
-            FINALIZAR
-          </button>
-
-        </div>
-
-
-        <button
-          id="markBtn"
-          class="mark-button"
-          type="button"
-          disabled
-        >
-          ✂ MARCAR PARA EDICIÓN
-        </button>
-
-
-        <div class="next-area">
-
-          <span>
-            BLOQUE ACTUAL
-          </span>
-
-
-          <strong id="currentBlock">
-            Apertura
-          </strong>
-
-
-          <button
-            id="nextBlockBtn"
-            class="next-button"
-            type="button"
-          >
-            SIGUIENTE BLOQUE →
-          </button>
-
-        </div>
-
-      </section>
-
-
-      <!-- MARCAS -->
-
-      <section class="panel marks-panel">
-
-        <div class="panel-header">
-
-          <div>
-
-            <span class="section-label">
-              POSTPRODUCCIÓN
-            </span>
-
-            <h2>
-              Marcas
-            </h2>
-
-          </div>
-
-
-          <span
-            id="markCount"
-            class="counter"
-          >
-            0
-          </span>
-
-        </div>
-
-
-        <div
-          id="marksList"
-          class="marks-list"
-        >
-        </div>
-
-      </section>
-
-    </section>
-
-
-    <!-- ===================================================
-         NOTAS
-    ==================================================== -->
-
-    <section class="panel notes-panel">
-
-      <div class="panel-header">
-
-        <div>
-
-          <span class="section-label">
-            EPISODIO
-          </span>
-
-          <h2>
-            Notas
-          </h2>
-
-        </div>
-
-
-        <button
-          id="newSessionBtn"
-          class="danger-outline-button"
-          type="button"
-        >
-          NUEVA SESIÓN
-        </button>
 
       </div>
 
 
-      <textarea
-        id="episodeNotes"
-        placeholder="Ideas, recordatorios, observaciones para edición, canciones pendientes..."
-      ></textarea>
+      <div class="topbar-actions">
 
-    </section>
+        <div
+          class="save-status"
+          id="saveStatus"
+        >
+          ● Guardado
+        </div>
 
-  </main>
+
+        <a
+          class="back-site-button"
+          href="/inicio.html"
+        >
+          <span aria-hidden="true">←</span>
+          <span>Volver a Radio Conexión</span>
+        </a>
+
+      </div>
+
+    </header>
+
+
+    <!-- ===================================================
+         NAVEGACIÓN INTERNA
+    ==================================================== -->
+
+    <nav
+      class="studio-navigation"
+      aria-label="Secciones de Radio Conexión Studio"
+    >
+
+      <button
+        class="studio-nav-button active"
+        type="button"
+        data-studio-section="produccion"
+      >
+        🎙️ PRODUCCIÓN
+      </button>
+
+
+      <button
+        class="studio-nav-button"
+        type="button"
+        data-studio-section="cabina"
+      >
+        📥 CABINA
+      </button>
+
+
+      <button
+        class="studio-nav-button"
+        type="button"
+        data-studio-section="publicar"
+      >
+        ✦ PUBLICAR
+      </button>
+
+
+      <div class="studio-nav-spacer"></div>
+
+
+      <div class="studio-user">
+
+        <span class="studio-user-dot"></span>
+
+        <span
+          id="studioUserEmail"
+          class="studio-user-email"
+        >
+        </span>
+
+
+        <button
+          id="studioLogoutBtn"
+          class="studio-logout-button"
+          type="button"
+        >
+          CERRAR SESIÓN
+        </button>
+
+      </div>
+
+    </nav>
+
+
+    <!-- ===================================================
+         PRODUCCIÓN
+    ==================================================== -->
+
+    <div
+      id="studioSectionProduccion"
+      class="studio-section"
+    >
+
+      <main class="studio-container">
+
+
+        <!-- =================================================
+             INFORMACIÓN DEL EPISODIO
+        ================================================== -->
+
+        <section class="episode-header panel">
+
+          <div class="field episode-number-field">
+
+            <label for="episodeNumber">
+              EPISODIO
+            </label>
+
+            <input
+              id="episodeNumber"
+              type="number"
+              min="1"
+              value="98"
+              autocomplete="off"
+            >
+
+          </div>
+
+
+          <div class="field episode-title-field">
+
+            <label for="episodeTitle">
+              TEMA / TÍTULO
+            </label>
+
+            <input
+              id="episodeTitle"
+              type="text"
+              placeholder="Tema principal del episodio"
+              autocomplete="off"
+            >
+
+          </div>
+
+
+          <div class="field episode-date-field">
+
+            <label for="episodeDate">
+              FECHA DE GRABACIÓN
+            </label>
+
+            <input
+              id="episodeDate"
+              type="date"
+            >
+
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PRODUCCIÓN
+        ================================================== -->
+
+        <section class="main-grid">
+
+
+          <!-- PAUTA -->
+
+          <section class="panel pauta-panel">
+
+            <div class="panel-header">
+
+              <div>
+
+                <span class="section-label">
+                  PRODUCCIÓN
+                </span>
+
+                <h2>
+                  Pauta
+                </h2>
+
+              </div>
+
+
+              <button
+                id="addBlockBtn"
+                class="secondary-button"
+                type="button"
+              >
+                + Bloque
+              </button>
+
+            </div>
+
+
+            <div
+              id="pautaList"
+              class="pauta-list"
+            >
+            </div>
+
+          </section>
+
+
+          <!-- GRABACIÓN -->
+
+          <section class="panel recording-panel">
+
+            <div class="recording-top">
+
+              <span
+                id="recordingStatus"
+                class="recording-status"
+              >
+                LISTO PARA GRABAR
+              </span>
+
+
+              <span
+                id="currentBlockBadge"
+                class="block-badge"
+              >
+                Apertura
+              </span>
+
+            </div>
+
+
+            <div
+              id="timer"
+              class="timer"
+              aria-live="polite"
+            >
+              00:00:00
+            </div>
+
+
+            <div class="recording-controls">
+
+              <button
+                id="startBtn"
+                class="button start-button"
+                type="button"
+              >
+                ● INICIAR
+              </button>
+
+
+              <button
+                id="pauseBtn"
+                class="button dark-button"
+                type="button"
+                disabled
+              >
+                PAUSAR
+              </button>
+
+
+              <button
+                id="finishBtn"
+                class="button dark-button"
+                type="button"
+                disabled
+              >
+                FINALIZAR
+              </button>
+
+            </div>
+
+
+            <button
+              id="markBtn"
+              class="mark-button"
+              type="button"
+              disabled
+            >
+              ✂ MARCAR PARA EDICIÓN
+            </button>
+
+
+            <div class="next-area">
+
+              <span>
+                BLOQUE ACTUAL
+              </span>
+
+
+              <strong id="currentBlock">
+                Apertura
+              </strong>
+
+
+              <button
+                id="nextBlockBtn"
+                class="next-button"
+                type="button"
+              >
+                SIGUIENTE BLOQUE →
+              </button>
+
+            </div>
+
+          </section>
+
+
+          <!-- MARCAS -->
+
+          <section class="panel marks-panel">
+
+            <div class="panel-header">
+
+              <div>
+
+                <span class="section-label">
+                  POSTPRODUCCIÓN
+                </span>
+
+                <h2>
+                  Marcas
+                </h2>
+
+              </div>
+
+
+              <span
+                id="markCount"
+                class="counter"
+              >
+                0
+              </span>
+
+            </div>
+
+
+            <div
+              id="marksList"
+              class="marks-list"
+            >
+            </div>
+
+          </section>
+
+        </section>
+
+
+        <!-- =================================================
+             SOUNDPAD
+        ================================================== -->
+
+        <section class="panel soundpad-panel">
+
+          <div class="soundpad-header">
+
+            <div class="soundpad-heading">
+
+              <span class="section-label">
+                AUDIO DE PRODUCCIÓN
+              </span>
+
+
+              <div class="soundpad-title-row">
+
+                <h2>
+                  Soundpad
+                </h2>
+
+
+                <span
+                  id="soundpadPlayingCount"
+                  class="soundpad-playing-count"
+                >
+                  0 reproduciendo
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div class="soundpad-master-controls">
+
+              <div class="soundpad-volume">
+
+                <label for="soundpadVolume">
+                  <span aria-hidden="true">🔊</span>
+                  Volumen
+                </label>
+
+
+                <input
+                  id="soundpadVolume"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="80"
+                  step="1"
+                >
+
+
+                <span
+                  id="soundpadVolumeValue"
+                  class="soundpad-volume-value"
+                >
+                  80%
+                </span>
+
+              </div>
+
+
+              <button
+                id="stopAllSoundsBtn"
+                class="soundpad-stop-all"
+                type="button"
+                disabled
+              >
+                ■ DETENER TODO
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div
+            id="soundpadNowPlaying"
+            class="soundpad-now-playing"
+          >
+
+            <span class="soundpad-now-playing-dot"></span>
+
+            <span id="soundpadNowPlayingText">
+              Ningún audio reproduciéndose
+            </span>
+
+          </div>
+
+
+          <div
+            id="soundpadGrid"
+            class="soundpad-grid"
+          >
+
+            <button
+              class="sound-button"
+              type="button"
+              data-sound-id="jingle"
+            >
+
+              <span class="sound-button-icon">
+                🎙️
+              </span>
+
+
+              <span class="sound-button-content">
+
+                <strong>
+                  Jingle Radio Conexión
+                </strong>
+
+                <small>
+                  JINGLE
+                </small>
+
+              </span>
+
+
+              <span class="sound-button-state">
+                ▶
+              </span>
+
+            </button>
+
+
+            <button
+              class="sound-button"
+              type="button"
+              data-sound-id="cortina"
+            >
+
+              <span class="sound-button-icon">
+                🎵
+              </span>
+
+
+              <span class="sound-button-content">
+
+                <strong>
+                  Cortina
+                </strong>
+
+                <small>
+                  MÚSICA
+                </small>
+
+              </span>
+
+
+              <span class="sound-button-state">
+                ▶
+              </span>
+
+            </button>
+
+
+            <button
+              class="sound-button"
+              type="button"
+              data-sound-id="separador"
+            >
+
+              <span class="sound-button-icon">
+                📻
+              </span>
+
+
+              <span class="sound-button-content">
+
+                <strong>
+                  Separador
+                </strong>
+
+                <small>
+                  IDENTIFICACIÓN
+                </small>
+
+              </span>
+
+
+              <span class="sound-button-state">
+                ▶
+              </span>
+
+            </button>
+
+
+            <button
+              class="sound-button"
+              type="button"
+              data-sound-id="aplausos"
+            >
+
+              <span class="sound-button-icon">
+                👏
+              </span>
+
+
+              <span class="sound-button-content">
+
+                <strong>
+                  Aplausos
+                </strong>
+
+                <small>
+                  EFECTO
+                </small>
+
+              </span>
+
+
+              <span class="sound-button-state">
+                ▶
+              </span>
+
+            </button>
+
+
+            <button
+              class="sound-button"
+              type="button"
+              data-sound-id="efecto"
+            >
+
+              <span class="sound-button-icon">
+                ✨
+              </span>
+
+
+              <span class="sound-button-content">
+
+                <strong>
+                  Efecto
+                </strong>
+
+                <small>
+                  EFECTO
+                </small>
+
+              </span>
+
+
+              <span class="sound-button-state">
+                ▶
+              </span>
+
+            </button>
+
+
+            <button
+              id="addSoundBtn"
+              class="sound-button sound-button-add"
+              type="button"
+            >
+
+              <span class="sound-button-icon">
+                ＋
+              </span>
+
+
+              <span class="sound-button-content">
+
+                <strong>
+                  Agregar sonido
+                </strong>
+
+                <small>
+                  PERSONALIZAR
+                </small>
+
+              </span>
+
+            </button>
+
+          </div>
+
+
+          <div
+            id="soundpadAudioContainer"
+            class="soundpad-audio-container"
+            aria-hidden="true"
+          >
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             NOTAS
+        ================================================== -->
+
+        <section class="panel notes-panel">
+
+          <div class="panel-header">
+
+            <div>
+
+              <span class="section-label">
+                EPISODIO
+              </span>
+
+              <h2>
+                Notas
+              </h2>
+
+            </div>
+
+
+            <button
+              id="newSessionBtn"
+              class="danger-outline-button"
+              type="button"
+            >
+              NUEVA SESIÓN
+            </button>
+
+          </div>
+
+
+          <textarea
+            id="episodeNotes"
+            placeholder="Ideas, recordatorios, observaciones para edición, canciones pendientes..."
+          ></textarea>
+
+        </section>
+
+      </main>
+
+    </div>
+
+
+    <!-- ===================================================
+         CABINA
+         La funcionalidad real se migra en el siguiente paso.
+    ==================================================== -->
+
+    <div
+      id="studioSectionCabina"
+      class="studio-section"
+      hidden
+    >
+    </div>
+
+
+    <!-- ===================================================
+         PUBLICAR
+         Avisos y Blog se migran posteriormente.
+    ==================================================== -->
+
+    <div
+      id="studioSectionPublicar"
+      class="studio-section"
+      hidden
+    >
+    </div>
+
+  </div>
 
 
   <!-- =====================================================
-       MODAL MARCA DE EDICIÓN
+       MODAL MARCA
   ====================================================== -->
 
   <div
@@ -466,8 +1507,148 @@
   </div>
 
 
-  <!-- JAVASCRIPT -->
+  <!-- =====================================================
+       MODAL SOUNDPAD
+  ====================================================== -->
+
+  <div
+    id="soundModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="soundModalTitle"
+  >
+
+    <div class="modal-card sound-modal-card">
+
+      <span class="section-label">
+        SOUNDPAD
+      </span>
+
+
+      <h2
+        id="soundModalTitle"
+        class="sound-modal-title"
+      >
+        Agregar sonido
+      </h2>
+
+
+      <p class="sound-modal-description">
+        Agrega tus propios jingles, cortinas, separadores
+        y efectos para utilizarlos durante la producción.
+      </p>
+
+
+      <div class="sound-form-field">
+
+        <label for="soundName">
+          Nombre
+        </label>
+
+
+        <input
+          id="soundName"
+          type="text"
+          placeholder="Ej: Jingle apertura"
+          autocomplete="off"
+        >
+
+      </div>
+
+
+      <div class="sound-form-field">
+
+        <label for="soundCategory">
+          Categoría
+        </label>
+
+
+        <select id="soundCategory">
+
+          <option value="jingle">
+            Jingle
+          </option>
+
+          <option value="cortina">
+            Cortina
+          </option>
+
+          <option value="separador">
+            Separador
+          </option>
+
+          <option value="efecto">
+            Efecto
+          </option>
+
+          <option value="otro">
+            Otro
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="sound-form-field">
+
+        <label for="soundFile">
+          Archivo de audio
+        </label>
+
+
+        <input
+          id="soundFile"
+          type="file"
+          accept="audio/*"
+        >
+
+      </div>
+
+
+      <div class="modal-actions">
+
+        <button
+          id="cancelSoundBtn"
+          class="button dark-button"
+          type="button"
+        >
+          CANCELAR
+        </button>
+
+
+        <button
+          id="saveSoundBtn"
+          class="button start-button"
+          type="button"
+        >
+          AGREGAR
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       JAVASCRIPT
+  ====================================================== -->
+
+  <!-- STUDIO -->
   <script src="./studio.js"></script>
+
+  <!-- SOUNDPAD -->
+  <script src="./soundpad.js"></script>
+
+  <!-- AUTENTICACIÓN FIREBASE -->
+  <script
+    type="module"
+    src="./studio-auth.js"
+  ></script>
+
 
 </body>
 </html>

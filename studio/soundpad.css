@@ -1,0 +1,923 @@
+/* =========================================================
+   RADIO CONEXIÓN STUDIO
+   SOUNDPAD V1
+========================================================= */
+
+
+/* =========================================================
+   PANEL PRINCIPAL
+========================================================= */
+
+.soundpad-panel {
+  position: relative;
+
+  margin-top: 18px;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(229, 169, 25, .08),
+      transparent 25rem
+    ),
+    var(--rc-card);
+}
+
+
+.soundpad-panel::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 3px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--rc-gold-2),
+      var(--rc-gold),
+      transparent 80%
+    );
+}
+
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.soundpad-header {
+  min-height: 92px;
+
+  padding:
+    19px 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 25px;
+
+  border-bottom:
+    1px solid
+    var(--rc-border);
+}
+
+
+.soundpad-heading {
+  min-width: 0;
+}
+
+
+.soundpad-title-row {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 3px;
+}
+
+
+.soundpad-title-row h2 {
+  margin: 0;
+
+  font-family:
+    "Unica One",
+    sans-serif;
+
+  color:
+    var(--rc-gold-dark);
+
+  font-size: 29px;
+
+  letter-spacing: .2px;
+}
+
+
+.soundpad-playing-count {
+  display: inline-flex;
+
+  align-items: center;
+
+  min-height: 25px;
+
+  padding:
+    4px 9px;
+
+  border:
+    1px solid
+    rgba(47, 143, 86, .13);
+
+  border-radius:
+    999px;
+
+  color:
+    var(--rc-muted);
+
+  background:
+    rgba(47, 143, 86, .05);
+
+  font-size: 9px;
+
+  font-weight: 700;
+}
+
+
+.soundpad-playing-count.active {
+  color:
+    var(--success);
+
+  background:
+    rgba(47, 143, 86, .09);
+
+  border-color:
+    rgba(47, 143, 86, .18);
+}
+
+
+/* =========================================================
+   CONTROLES GENERALES
+========================================================= */
+
+.soundpad-master-controls {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 16px;
+}
+
+
+.soundpad-volume {
+  display: grid;
+
+  grid-template-columns:
+    auto 125px 38px;
+
+  align-items: center;
+
+  gap: 9px;
+}
+
+
+.soundpad-volume label {
+  color:
+    var(--rc-muted);
+
+  white-space: nowrap;
+
+  font-size: 10px;
+
+  font-weight: 700;
+}
+
+
+.soundpad-volume input[type="range"] {
+  width: 125px;
+
+  accent-color:
+    var(--rc-gold);
+
+  cursor: pointer;
+}
+
+
+.soundpad-volume-value {
+  color:
+    var(--rc-gold-dark);
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  text-align: right;
+
+  font-variant-numeric:
+    tabular-nums;
+}
+
+
+.soundpad-stop-all {
+  min-height: 39px;
+
+  padding:
+    8px 14px;
+
+  border:
+    1px solid
+    rgba(215, 68, 68, .22);
+
+  border-radius:
+    999px;
+
+  color:
+    #b42318;
+
+  background:
+    rgba(215, 68, 68, .05);
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  transition:
+    transform .2s ease,
+    background .2s ease,
+    opacity .2s ease;
+}
+
+
+.soundpad-stop-all:hover:not(:disabled) {
+  background:
+    rgba(215, 68, 68, .10);
+
+  transform:
+    translateY(-1px);
+}
+
+
+.soundpad-stop-all:disabled {
+  opacity: .35;
+
+  cursor:
+    not-allowed;
+}
+
+
+/* =========================================================
+   AHORA REPRODUCIENDO
+========================================================= */
+
+.soundpad-now-playing {
+  min-height: 40px;
+
+  padding:
+    8px 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color:
+    var(--rc-muted);
+
+  background:
+    rgba(248, 249, 251, .55);
+
+  border-bottom:
+    1px solid
+    var(--rc-border);
+
+  font-size: 10px;
+
+  font-weight: 600;
+}
+
+
+.soundpad-now-playing-dot {
+  width: 7px;
+  height: 7px;
+
+  flex:
+    0 0 7px;
+
+  border-radius:
+    50%;
+
+  background:
+    #b7bcc4;
+}
+
+
+.soundpad-now-playing.active {
+  color:
+    var(--rc-text);
+}
+
+
+.soundpad-now-playing.active
+.soundpad-now-playing-dot {
+  background:
+    var(--success);
+
+  box-shadow:
+    0 0 0 4px
+    rgba(47, 143, 86, .10);
+
+  animation:
+    soundpadPulse
+    1.5s
+    ease-in-out
+    infinite;
+}
+
+
+@keyframes soundpadPulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: .45;
+  }
+
+}
+
+
+/* =========================================================
+   REJILLA DE SONIDOS
+========================================================= */
+
+.soundpad-grid {
+  padding: 18px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 11px;
+}
+
+
+/* =========================================================
+   BOTÓN DE SONIDO
+========================================================= */
+
+.sound-button {
+  position: relative;
+
+  min-width: 0;
+
+  min-height: 84px;
+
+  padding:
+    13px 14px;
+
+  display: grid;
+
+  grid-template-columns:
+    42px minmax(0, 1fr) 28px;
+
+  align-items: center;
+
+  gap: 11px;
+
+  text-align: left;
+
+  border:
+    1px solid
+    var(--rc-border);
+
+  border-radius:
+    16px;
+
+  color:
+    var(--rc-text);
+
+  background:
+    rgba(255, 255, 255, .70);
+
+  cursor: pointer;
+
+  box-shadow:
+    0 5px 16px
+    rgba(28, 34, 44, .035);
+
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
+}
+
+
+.sound-button:hover {
+  transform:
+    translateY(-2px);
+
+  border-color:
+    rgba(229, 169, 25, .25);
+
+  background:
+    rgba(255, 255, 255, .96);
+
+  box-shadow:
+    0 10px 25px
+    rgba(28, 34, 44, .07);
+}
+
+
+.sound-button:active {
+  transform:
+    translateY(0);
+}
+
+
+.sound-button-icon {
+  width: 42px;
+  height: 42px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius:
+    13px;
+
+  background:
+    rgba(229, 169, 25, .08);
+
+  font-size: 21px;
+}
+
+
+.sound-button-content {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+
+.sound-button-content strong {
+  overflow: hidden;
+
+  color:
+    var(--rc-ink);
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+
+.sound-button-content small {
+  color:
+    var(--rc-muted);
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+
+.sound-button-state {
+  width: 28px;
+  height: 28px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius:
+    50%;
+
+  color:
+    var(--rc-gold-dark);
+
+  background:
+    rgba(229, 169, 25, .10);
+
+  font-size: 10px;
+
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   SONIDO ACTIVO
+========================================================= */
+
+.sound-button.playing {
+  border-color:
+    rgba(47, 143, 86, .28);
+
+  background:
+    rgba(47, 143, 86, .055);
+
+  box-shadow:
+    0 8px 24px
+    rgba(47, 143, 86, .08);
+}
+
+
+.sound-button.playing
+.sound-button-icon {
+  background:
+    rgba(47, 143, 86, .10);
+}
+
+
+.sound-button.playing
+.sound-button-state {
+  color:
+    #ffffff;
+
+  background:
+    var(--success);
+
+  box-shadow:
+    0 5px 14px
+    rgba(47, 143, 86, .22);
+}
+
+
+.sound-button.playing
+.sound-button-content small {
+  color:
+    var(--success);
+}
+
+
+/* =========================================================
+   BOTÓN AGREGAR
+========================================================= */
+
+.sound-button-add {
+  border:
+    1px dashed
+    rgba(229, 169, 25, .35);
+
+  background:
+    rgba(229, 169, 25, .035);
+}
+
+
+.sound-button-add
+.sound-button-icon {
+  color:
+    var(--rc-gold-dark);
+
+  background:
+    rgba(229, 169, 25, .09);
+
+  font-size: 25px;
+
+  font-weight: 300;
+}
+
+
+.sound-button-add:hover {
+  border-color:
+    rgba(229, 169, 25, .55);
+
+  background:
+    rgba(229, 169, 25, .07);
+}
+
+
+/* =========================================================
+   AUDIO OCULTO
+========================================================= */
+
+.soundpad-audio-container {
+  display: none;
+}
+
+
+/* =========================================================
+   MODAL AGREGAR SONIDO
+========================================================= */
+
+.sound-modal-card {
+  width:
+    min(520px, 100%);
+}
+
+
+.modal-card
+.sound-modal-title {
+  margin-bottom: 7px;
+
+  font-size: 34px;
+}
+
+
+.sound-modal-description {
+  margin-bottom:
+    22px !important;
+
+  font-size: 12px;
+
+  line-height: 1.55;
+}
+
+
+.sound-form-field {
+  margin-bottom: 14px;
+}
+
+
+.sound-form-field label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color:
+    var(--rc-muted);
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: .5px;
+}
+
+
+.sound-form-field input,
+.sound-form-field select {
+  width: 100%;
+
+  min-height: 44px;
+
+  padding:
+    0 12px;
+
+  border:
+    1px solid
+    var(--rc-border-strong);
+
+  border-radius:
+    12px;
+
+  outline: none;
+
+  color:
+    var(--rc-text);
+
+  background:
+    #f8f9fb;
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+
+.sound-form-field
+input[type="file"] {
+  min-height: 52px;
+
+  padding:
+    9px 10px;
+}
+
+
+.sound-form-field input:focus,
+.sound-form-field select:focus {
+  border-color:
+    var(--rc-gold);
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(229, 169, 25, .12);
+}
+
+
+/* =========================================================
+   ARCHIVOS PERSONALIZADOS
+========================================================= */
+
+.sound-button.custom-sound
+.sound-button-icon {
+  background:
+    rgba(229, 169, 25, .07);
+}
+
+
+.sound-delete-button {
+  position: absolute;
+
+  top: 5px;
+  right: 5px;
+
+  width: 22px;
+  height: 22px;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 0;
+
+  border: 0;
+
+  border-radius: 7px;
+
+  color:
+    #a3a8b0;
+
+  background:
+    transparent;
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  opacity: 0;
+
+  transition:
+    opacity .18s ease,
+    color .18s ease,
+    background .18s ease;
+}
+
+
+.sound-button:hover
+.sound-delete-button {
+  opacity: 1;
+}
+
+
+.sound-delete-button:hover {
+  color:
+    var(--danger);
+
+  background:
+    rgba(215, 68, 68, .08);
+}
+
+
+/* =========================================================
+   ANIMACIÓN DE ENTRADA
+========================================================= */
+
+.soundpad-panel {
+  animation:
+    soundpadIn
+    .48s
+    cubic-bezier(.2, .8, .2, 1)
+    both;
+
+  animation-delay:
+    .08s;
+}
+
+
+@keyframes soundpadIn {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: none;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media
+(max-width: 900px) {
+
+  .soundpad-header {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+
+    gap: 14px;
+  }
+
+
+  .soundpad-master-controls {
+    width: 100%;
+
+    justify-content:
+      space-between;
+  }
+
+
+  .soundpad-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   MÓVIL
+========================================================= */
+
+@media
+(max-width: 620px) {
+
+  .soundpad-header {
+    padding:
+      17px;
+  }
+
+
+  .soundpad-master-controls {
+    align-items:
+      stretch;
+
+    flex-direction:
+      column;
+
+    gap: 12px;
+  }
+
+
+  .soundpad-volume {
+    width: 100%;
+
+    grid-template-columns:
+      auto 1fr 38px;
+  }
+
+
+  .soundpad-volume
+  input[type="range"] {
+    width: 100%;
+  }
+
+
+  .soundpad-stop-all {
+    width: 100%;
+  }
+
+
+  .soundpad-now-playing {
+    padding:
+      9px 17px;
+  }
+
+
+  .soundpad-grid {
+    padding:
+      12px;
+
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .sound-button {
+    min-height: 72px;
+  }
+
+
+  .sound-delete-button {
+    opacity: 1;
+  }
+
+}
+
+
+/* =========================================================
+   ACCESIBILIDAD
+========================================================= */
+
+@media
+(prefers-reduced-motion: reduce) {
+
+  .soundpad-panel,
+  .soundpad-now-playing-dot {
+    animation: none !important;
+  }
+
+}
