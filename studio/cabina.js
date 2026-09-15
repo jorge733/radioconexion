@@ -1187,6 +1187,21 @@ function mostrarSeccionStudio(
     publicar:
       document.getElementById(
         "studioSectionPublicar"
+      ),
+
+    episodios:
+      document.getElementById(
+        "studioSectionEpisodios"
+      )
+
+  };    publicar:
+      document.getElementById(
+        "studioSectionPublicar"
+      ),
+
+    episodios:
+      document.getElementById(
+        "studioSectionEpisodios"
       )
 
   };
