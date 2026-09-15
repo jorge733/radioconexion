@@ -21,28 +21,20 @@
     content="Radio Conexión Studio - Plataforma privada de producción de Radio Conexión."
   >
 
-  <!-- FAVICON -->
   <link
     rel="icon"
     type="image/png"
     href="https://www.dropbox.com/scl/fi/7h2pubomnn102d1rap4dr/Sin-Texto-versi-n-3D.png?rlkey=nd66shyykgea25m8c6sl2pp5d&st=dg874wjl&raw=1"
   >
 
-  <!-- ESTILOS PRINCIPALES -->
-  <link
-    rel="stylesheet"
-    href="./studio.css"
-  >
-
-  <!-- SOUNDPAD -->
-  <link
-    rel="stylesheet"
-    href="./soundpad.css"
-  >
+  <!-- ESTILOS -->
+  <link rel="stylesheet" href="./studio.css">
+  <link rel="stylesheet" href="./soundpad.css">
+  <link rel="stylesheet" href="./cabina.css">
 
 
   <!-- =====================================================
-       ESTILOS DEL ACCESO PRIVADO
+       ACCESO PRIVADO + NAVEGACIÓN
   ====================================================== -->
 
   <style>
@@ -58,11 +50,8 @@
 
     .studio-auth-gate {
       min-height: 100vh;
-
       display: grid;
-
       place-items: center;
-
       padding: 30px 18px;
 
       background:
@@ -82,9 +71,7 @@
 
     .studio-auth-card {
       width: min(440px, 100%);
-
       padding: 42px 38px 36px;
-
       text-align: center;
 
       border:
@@ -99,8 +86,7 @@
         0 28px 70px
         rgba(28, 34, 44, .11);
 
-      backdrop-filter:
-        blur(18px);
+      backdrop-filter: blur(18px);
     }
 
 
@@ -110,8 +96,7 @@
 
       display: block;
 
-      margin:
-        0 auto 18px;
+      margin: 0 auto 18px;
 
       object-fit: contain;
     }
@@ -125,9 +110,7 @@
       color: #a96500;
 
       font-size: 10px;
-
       font-weight: 800;
-
       letter-spacing: 1.7px;
     }
 
@@ -142,9 +125,7 @@
         sans-serif;
 
       font-size: 37px;
-
       font-weight: 400;
-
       line-height: 1;
     }
 
@@ -157,32 +138,25 @@
     .studio-auth-subtitle {
       max-width: 310px;
 
-      margin:
-        14px auto 27px;
+      margin: 14px auto 27px;
 
       color: #667085;
 
       font-size: 12px;
-
       line-height: 1.55;
     }
 
 
     .studio-google-button {
       width: 100%;
-
       min-height: 50px;
 
       display: flex;
-
       align-items: center;
-
       justify-content: center;
-
       gap: 11px;
 
-      padding:
-        10px 18px;
+      padding: 10px 18px;
 
       border:
         1px solid rgba(23, 25, 29, .12);
@@ -190,15 +164,12 @@
       border-radius: 14px;
 
       color: #30343b;
-
       background: #ffffff;
 
       cursor: pointer;
 
       font: inherit;
-
       font-size: 12px;
-
       font-weight: 750;
 
       box-shadow:
@@ -213,8 +184,7 @@
 
 
     .studio-google-button:hover:not(:disabled) {
-      transform:
-        translateY(-1px);
+      transform: translateY(-1px);
 
       border-color:
         rgba(217, 150, 20, .38);
@@ -227,7 +197,6 @@
 
     .studio-google-button:disabled {
       opacity: .55;
-
       cursor: wait;
     }
 
@@ -237,7 +206,6 @@
       height: 25px;
 
       display: grid;
-
       place-items: center;
 
       border-radius: 50%;
@@ -252,9 +220,7 @@
         );
 
       font-family: Arial, sans-serif;
-
       font-size: 14px;
-
       font-weight: 800;
     }
 
@@ -265,17 +231,13 @@
       color: #8b9099;
 
       font-size: 9px;
-
       line-height: 1.5;
     }
 
 
     .studio-auth-error {
-      margin:
-        18px 0 0;
-
-      padding:
-        11px 13px;
+      margin: 18px 0 0;
+      padding: 11px 13px;
 
       border:
         1px solid rgba(215, 68, 68, .17);
@@ -288,13 +250,12 @@
         rgba(215, 68, 68, .055);
 
       font-size: 10px;
-
       line-height: 1.5;
     }
 
 
     /* =====================================================
-       CARGANDO SESIÓN
+       COMPROBANDO SESIÓN
     ====================================================== */
 
     .studio-auth-loading {
@@ -306,15 +267,13 @@
       width: 34px;
       height: 34px;
 
-      margin:
-        4px auto 17px;
+      margin: 4px auto 17px;
 
       border:
         3px solid
         rgba(217, 150, 20, .14);
 
-      border-top-color:
-        #d99614;
+      border-top-color: #d99614;
 
       border-radius: 50%;
 
@@ -332,7 +291,6 @@
       color: #667085;
 
       font-size: 11px;
-
       font-weight: 600;
     }
 
@@ -340,30 +298,25 @@
     @keyframes studioAuthSpin {
 
       to {
-        transform:
-          rotate(360deg);
+        transform: rotate(360deg);
       }
 
     }
 
 
     /* =====================================================
-       NAVEGACIÓN INTERNA
+       NAVEGACIÓN STUDIO
     ====================================================== */
 
     .studio-navigation {
       width:
         min(1180px, calc(100% - 36px));
 
-      margin:
-        18px auto 0;
-
+      margin: 18px auto 0;
       padding: 5px;
 
       display: flex;
-
       align-items: center;
-
       gap: 5px;
 
       border:
@@ -378,33 +331,26 @@
         0 6px 20px
         rgba(28, 34, 44, .035);
 
-      backdrop-filter:
-        blur(12px);
+      backdrop-filter: blur(12px);
     }
 
 
     .studio-nav-button {
       min-height: 40px;
 
-      padding:
-        8px 17px;
+      padding: 8px 17px;
 
       border: 0;
-
       border-radius: 11px;
 
       color: #667085;
-
       background: transparent;
 
       cursor: pointer;
 
       font: inherit;
-
       font-size: 10px;
-
       font-weight: 800;
-
       letter-spacing: .3px;
 
       transition:
@@ -443,9 +389,7 @@
       min-width: 0;
 
       display: flex;
-
       align-items: center;
-
       gap: 9px;
 
       padding-left: 10px;
@@ -476,11 +420,9 @@
       color: #667085;
 
       white-space: nowrap;
-
       text-overflow: ellipsis;
 
       font-size: 9px;
-
       font-weight: 650;
     }
 
@@ -488,8 +430,7 @@
     .studio-logout-button {
       min-height: 34px;
 
-      padding:
-        6px 12px;
+      padding: 6px 12px;
 
       border:
         1px solid rgba(23, 25, 29, .09);
@@ -504,9 +445,7 @@
       cursor: pointer;
 
       font: inherit;
-
       font-size: 9px;
-
       font-weight: 750;
     }
 
@@ -523,20 +462,72 @@
 
 
     /* =====================================================
-       MÓVIL
+       PUBLICAR - ESTADO TEMPORAL
+    ====================================================== */
+
+    .studio-coming-container {
+      width:
+        min(1180px, calc(100% - 36px));
+
+      margin: 22px auto 50px;
+    }
+
+
+    .studio-coming-card {
+      padding: 55px 25px;
+
+      text-align: center;
+    }
+
+
+    .studio-coming-icon {
+      display: block;
+
+      margin-bottom: 13px;
+
+      font-size: 31px;
+    }
+
+
+    .studio-coming-card h2 {
+      margin: 0 0 8px;
+
+      color: #17191d;
+
+      font-family:
+        "Unica One",
+        sans-serif;
+
+      font-size: 30px;
+      font-weight: 400;
+    }
+
+
+    .studio-coming-card p {
+      max-width: 480px;
+
+      margin: 0 auto;
+
+      color: #667085;
+
+      font-size: 10px;
+      line-height: 1.6;
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
     ====================================================== */
 
     @media (max-width: 700px) {
 
       .studio-auth-card {
-        padding:
-          34px 23px 30px;
+        padding: 34px 23px 30px;
       }
 
 
       .studio-navigation {
         align-items: stretch;
-
         flex-wrap: wrap;
       }
 
@@ -554,8 +545,7 @@
       .studio-user {
         width: 100%;
 
-        padding:
-          7px 5px 3px;
+        padding: 7px 5px 3px;
 
         justify-content: center;
       }
@@ -607,8 +597,6 @@
       </h1>
 
 
-      <!-- COMPROBANDO SESIÓN -->
-
       <div
         id="studioAuthLoading"
         class="studio-auth-loading"
@@ -622,8 +610,6 @@
 
       </div>
 
-
-      <!-- LOGIN -->
 
       <div
         id="studioAuthLoginContent"
@@ -677,8 +663,7 @@
 
 
   <!-- =====================================================
-       APLICACIÓN STUDIO
-       Firebase la mantiene oculta hasta autorizar al usuario
+       STUDIO
   ====================================================== -->
 
   <div
@@ -763,7 +748,7 @@
 
 
     <!-- ===================================================
-         NAVEGACIÓN INTERNA
+         NAVEGACIÓN
     ==================================================== -->
 
     <nav
@@ -837,9 +822,7 @@
       <main class="studio-container">
 
 
-        <!-- =================================================
-             INFORMACIÓN DEL EPISODIO
-        ================================================== -->
+        <!-- INFORMACIÓN DEL EPISODIO -->
 
         <section class="episode-header panel">
 
@@ -892,9 +875,7 @@
         </section>
 
 
-        <!-- =================================================
-             PRODUCCIÓN
-        ================================================== -->
+        <!-- PRODUCCIÓN -->
 
         <section class="main-grid">
 
@@ -1186,7 +1167,6 @@
                 🎙️
               </span>
 
-
               <span class="sound-button-content">
 
                 <strong>
@@ -1198,7 +1178,6 @@
                 </small>
 
               </span>
-
 
               <span class="sound-button-state">
                 ▶
@@ -1217,7 +1196,6 @@
                 🎵
               </span>
 
-
               <span class="sound-button-content">
 
                 <strong>
@@ -1229,7 +1207,6 @@
                 </small>
 
               </span>
-
 
               <span class="sound-button-state">
                 ▶
@@ -1248,7 +1225,6 @@
                 📻
               </span>
 
-
               <span class="sound-button-content">
 
                 <strong>
@@ -1260,7 +1236,6 @@
                 </small>
 
               </span>
-
 
               <span class="sound-button-state">
                 ▶
@@ -1279,7 +1254,6 @@
                 👏
               </span>
 
-
               <span class="sound-button-content">
 
                 <strong>
@@ -1291,7 +1265,6 @@
                 </small>
 
               </span>
-
 
               <span class="sound-button-state">
                 ▶
@@ -1310,7 +1283,6 @@
                 ✨
               </span>
 
-
               <span class="sound-button-content">
 
                 <strong>
@@ -1322,7 +1294,6 @@
                 </small>
 
               </span>
-
 
               <span class="sound-button-state">
                 ▶
@@ -1340,7 +1311,6 @@
               <span class="sound-button-icon">
                 ＋
               </span>
-
 
               <span class="sound-button-content">
 
@@ -1369,9 +1339,7 @@
         </section>
 
 
-        <!-- =================================================
-             NOTAS
-        ================================================== -->
+        <!-- NOTAS -->
 
         <section class="panel notes-panel">
 
@@ -1415,7 +1383,6 @@
 
     <!-- ===================================================
          CABINA
-         La funcionalidad real se migra en el siguiente paso.
     ==================================================== -->
 
     <div
@@ -1423,12 +1390,233 @@
       class="studio-section"
       hidden
     >
+
+      <main class="cabina-container">
+
+        <section class="panel cabina-panel">
+
+
+          <!-- CABECERA -->
+
+          <div class="cabina-header">
+
+            <div class="cabina-heading">
+
+              <span class="section-label">
+                CABINA PRIVADA
+              </span>
+
+
+              <h1>
+                Solicitudes y mensajes
+              </h1>
+
+
+              <p>
+                Revisa las canciones solicitadas y los mensajes
+                enviados por la audiencia de Radio Conexión.
+                Actualiza el estado de cada solicitud a medida
+                que avanza la producción.
+              </p>
+
+            </div>
+
+
+            <button
+              id="studioCabinaRefreshBtn"
+              class="cabina-refresh-button"
+              type="button"
+            >
+              ↻ ACTUALIZAR
+            </button>
+
+          </div>
+
+
+          <!-- RESUMEN -->
+
+          <div class="cabina-summary">
+
+            <div class="cabina-summary-card">
+
+              <span>
+                Total
+              </span>
+
+              <strong id="studioCabinaTotal">
+                0
+              </strong>
+
+            </div>
+
+
+            <div class="cabina-summary-card new">
+
+              <span>
+                Nuevas
+              </span>
+
+              <strong id="studioCabinaNewCount">
+                0
+              </strong>
+
+            </div>
+
+
+            <div class="cabina-summary-card attended">
+
+              <span>
+                Atendidas
+              </span>
+
+              <strong id="studioCabinaAttendedCount">
+                0
+              </strong>
+
+            </div>
+
+
+            <div class="cabina-summary-card played">
+
+              <span>
+                Reproducidas
+              </span>
+
+              <strong id="studioCabinaPlayedCount">
+                0
+              </strong>
+
+            </div>
+
+
+            <div class="cabina-summary-card discarded">
+
+              <span>
+                Descartadas
+              </span>
+
+              <strong id="studioCabinaDiscardedCount">
+                0
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- FILTROS -->
+
+          <div class="cabina-toolbar">
+
+            <div
+              class="cabina-filters"
+              aria-label="Filtrar solicitudes"
+            >
+
+              <button
+                class="cabina-filter-button active"
+                type="button"
+                data-cabina-filter="todas"
+                aria-pressed="true"
+              >
+                TODAS
+              </button>
+
+
+              <button
+                class="cabina-filter-button"
+                type="button"
+                data-cabina-filter="nueva"
+                aria-pressed="false"
+              >
+                NUEVAS
+              </button>
+
+
+              <button
+                class="cabina-filter-button"
+                type="button"
+                data-cabina-filter="atendida"
+                aria-pressed="false"
+              >
+                ATENDIDAS
+              </button>
+
+
+              <button
+                class="cabina-filter-button"
+                type="button"
+                data-cabina-filter="reproducida"
+                aria-pressed="false"
+              >
+                REPRODUCIDAS
+              </button>
+
+
+              <button
+                class="cabina-filter-button"
+                type="button"
+                data-cabina-filter="descartada"
+                aria-pressed="false"
+              >
+                DESCARTADAS
+              </button>
+
+            </div>
+
+
+            <p
+              id="studioCabinaStatus"
+              class="cabina-status-message"
+              role="status"
+              aria-live="polite"
+            >
+              La bandeja se cargará al abrir Cabina.
+            </p>
+
+          </div>
+
+
+          <!-- SOLICITUDES -->
+
+          <div
+            id="studioCabinaList"
+            class="cabina-list"
+          >
+
+            <div class="cabina-empty">
+
+              <span
+                class="cabina-empty-icon"
+                aria-hidden="true"
+              >
+                📥
+              </span>
+
+
+              <strong>
+                Cabina lista
+              </strong>
+
+
+              <p>
+                Las solicitudes y mensajes aparecerán aquí
+                cuando abras esta sección.
+              </p>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      </main>
+
     </div>
 
 
     <!-- ===================================================
          PUBLICAR
-         Avisos y Blog se migran posteriormente.
     ==================================================== -->
 
     <div
@@ -1436,6 +1624,38 @@
       class="studio-section"
       hidden
     >
+
+      <main class="studio-coming-container">
+
+        <section class="panel studio-coming-card">
+
+          <span
+            class="studio-coming-icon"
+            aria-hidden="true"
+          >
+            ✦
+          </span>
+
+
+          <span class="section-label">
+            RADIO CONEXIÓN
+          </span>
+
+
+          <h2>
+            Publicar
+          </h2>
+
+
+          <p>
+            Aquí trasladaremos las herramientas administrativas
+            para publicar avisos y contenidos del Blog.
+          </p>
+
+        </section>
+
+      </main>
+
     </div>
 
   </div>
@@ -1637,16 +1857,18 @@
        JAVASCRIPT
   ====================================================== -->
 
-  <!-- STUDIO -->
   <script src="./studio.js"></script>
 
-  <!-- SOUNDPAD -->
   <script src="./soundpad.js"></script>
 
-  <!-- AUTENTICACIÓN FIREBASE -->
   <script
     type="module"
     src="./studio-auth.js"
+  ></script>
+
+  <script
+    type="module"
+    src="./cabina.js"
   ></script>
 
 
