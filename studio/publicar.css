@@ -1,0 +1,967 @@
+/* =========================================================
+   RADIO CONEXIÓN STUDIO
+   PUBLICAR V1
+========================================================= */
+
+
+/* =========================================================
+   SEGURIDAD DE LAYOUT
+========================================================= */
+
+#studioSectionPublicar,
+#studioSectionPublicar *,
+#studioSectionPublicar *::before,
+#studioSectionPublicar *::after {
+  box-sizing: border-box;
+}
+
+
+#studioSectionPublicar {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+
+/* =========================================================
+   CONTENEDOR
+========================================================= */
+
+.publicar-container {
+  width: min(1180px, calc(100% - 36px));
+
+  margin: 24px auto 55px;
+
+  min-width: 0;
+}
+
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.publicar-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 22px;
+}
+
+
+.publicar-page-heading {
+  min-width: 0;
+}
+
+
+.publicar-page-heading h1 {
+  margin: 5px 0 9px;
+
+  color: #17191d;
+
+  font-family:
+    "Unica One",
+    sans-serif;
+
+  font-size: clamp(32px, 3.4vw, 46px);
+
+  font-weight: 400;
+
+  line-height: 1.05;
+}
+
+
+.publicar-page-heading p {
+  max-width: 680px;
+
+  margin: 0;
+
+  color: #667085;
+
+  font-size: 11px;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   GRID PRINCIPAL
+========================================================= */
+
+.publicar-grid {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr);
+
+  gap: 18px;
+
+  align-items: start;
+}
+
+
+/* =========================================================
+   TARJETAS
+========================================================= */
+
+.publicar-card {
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 24px;
+
+  overflow: hidden;
+}
+
+
+.publicar-card-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 22px;
+}
+
+
+.publicar-card-heading {
+  min-width: 0;
+}
+
+
+.publicar-card-heading h2 {
+  margin: 5px 0 7px;
+
+  color: #17191d;
+
+  font-family:
+    "Unica One",
+    sans-serif;
+
+  font-size: 28px;
+
+  font-weight: 400;
+
+  line-height: 1.05;
+}
+
+
+.publicar-card-heading p {
+  max-width: 490px;
+
+  margin: 0;
+
+  color: #667085;
+
+  font-size: 10px;
+
+  line-height: 1.6;
+}
+
+
+.publicar-card-icon {
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 13px;
+
+  color: #9a6200;
+
+  background:
+    rgba(241, 183, 43, .1);
+
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   FORMULARIOS
+========================================================= */
+
+.publicar-form {
+  display: grid;
+
+  gap: 17px;
+}
+
+
+.publicar-field {
+  min-width: 0;
+
+  display: grid;
+
+  gap: 7px;
+}
+
+
+.publicar-field-top {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+
+.publicar-field label,
+.publicar-field-top label {
+  color: #667085;
+
+  font-size: 8px;
+
+  font-weight: 850;
+
+  letter-spacing: .65px;
+
+  text-transform: uppercase;
+}
+
+
+.publicar-character-count {
+  color: #9ca1aa;
+
+  font-size: 8px;
+
+  font-weight: 650;
+}
+
+
+.publicar-field input,
+.publicar-field select,
+.publicar-field textarea {
+  width: 100%;
+
+  min-width: 0;
+
+  border:
+    1px solid rgba(23, 25, 29, .1);
+
+  border-radius: 11px;
+
+  outline: none;
+
+  color: #30343b;
+
+  background: #ffffff;
+
+  font: inherit;
+
+  font-size: 10px;
+
+  transition:
+    border-color .18s ease,
+    box-shadow .18s ease,
+    background .18s ease;
+}
+
+
+.publicar-field input {
+  height: 43px;
+
+  padding: 0 13px;
+}
+
+
+.publicar-field select {
+  height: 43px;
+
+  padding: 0 35px 0 13px;
+
+  cursor: pointer;
+}
+
+
+.publicar-field textarea {
+  min-height: 108px;
+
+  padding: 12px 13px;
+
+  resize: vertical;
+
+  line-height: 1.55;
+}
+
+
+.publicar-field input::placeholder,
+.publicar-field textarea::placeholder {
+  color: #a1a6ae;
+}
+
+
+.publicar-field input:focus,
+.publicar-field select:focus,
+.publicar-field textarea:focus {
+  border-color:
+    rgba(217, 150, 20, .45);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(241, 183, 43, .08);
+}
+
+
+/* =========================================================
+   BOTONES PRINCIPALES
+========================================================= */
+
+.publicar-primary-button {
+  min-height: 42px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 9px 17px;
+
+  border:
+    1px solid #d99614;
+
+  border-radius: 11px;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #d99614,
+      #b97806
+    );
+
+  cursor: pointer;
+
+  font: inherit;
+
+  font-size: 9px;
+
+  font-weight: 850;
+
+  letter-spacing: .45px;
+
+  box-shadow:
+    0 6px 16px
+    rgba(217, 150, 20, .15);
+
+  transition:
+    transform .18s ease,
+    filter .18s ease,
+    box-shadow .18s ease;
+}
+
+
+.publicar-primary-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  filter: brightness(1.035);
+
+  box-shadow:
+    0 9px 20px
+    rgba(217, 150, 20, .19);
+}
+
+
+.publicar-primary-button:disabled {
+  opacity: .55;
+
+  cursor: wait;
+}
+
+
+.publicar-secondary-button {
+  min-height: 37px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 7px 13px;
+
+  border:
+    1px solid rgba(217, 150, 20, .2);
+
+  border-radius: 10px;
+
+  color: #8a5700;
+
+  background:
+    rgba(241, 183, 43, .07);
+
+  cursor: pointer;
+
+  font: inherit;
+
+  font-size: 8px;
+
+  font-weight: 850;
+
+  letter-spacing: .35px;
+
+  white-space: nowrap;
+}
+
+
+.publicar-secondary-button:hover:not(:disabled) {
+  background:
+    rgba(241, 183, 43, .13);
+}
+
+
+.publicar-secondary-button:disabled {
+  opacity: .55;
+
+  cursor: wait;
+}
+
+
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.publicar-status {
+  min-height: 16px;
+
+  margin: 0;
+
+  color: #667085;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  line-height: 1.5;
+}
+
+
+.publicar-status[data-state="ok"] {
+  color: #2f8f56;
+}
+
+
+.publicar-status[data-state="error"] {
+  color: #b42318;
+}
+
+
+/* =========================================================
+   NOTIFICACIÓN
+========================================================= */
+
+.publicar-notice-preview {
+  margin-top: 5px;
+
+  padding: 14px;
+
+  border:
+    1px solid rgba(23, 25, 29, .06);
+
+  border-radius: 12px;
+
+  color: #667085;
+
+  background:
+    rgba(244, 246, 248, .55);
+
+  font-size: 9px;
+
+  line-height: 1.55;
+}
+
+
+.publicar-notice-preview strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #30343b;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   BLOG
+========================================================= */
+
+.publicar-blog-card {
+  grid-column:
+    1 / -1;
+}
+
+
+.publicar-blog-top {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  gap: 10px;
+
+  align-items: end;
+}
+
+
+.publicar-blog-count {
+  min-width: 31px;
+  height: 31px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 999px;
+
+  color: #8a5700;
+
+  background:
+    rgba(241, 183, 43, .1);
+
+  font-size: 9px;
+
+  font-weight: 850;
+}
+
+
+/* =========================================================
+   LISTA DEL BLOG
+========================================================= */
+
+.publicar-blog-list {
+  width: 100%;
+
+  min-width: 0;
+
+  display: grid;
+
+  gap: 9px;
+
+  margin-top: 18px;
+}
+
+
+.publicar-blog-item {
+  width: 100%;
+
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding: 13px 14px;
+
+  border:
+    1px solid rgba(23, 25, 29, .07);
+
+  border-radius: 12px;
+
+  background:
+    rgba(255, 255, 255, .75);
+}
+
+
+.publicar-blog-item-main {
+  min-width: 0;
+
+  flex: 1;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+}
+
+
+.publicar-blog-instagram-icon {
+  width: 35px;
+  height: 35px;
+
+  flex: 0 0 35px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 10px;
+
+  color: #a96500;
+
+  background:
+    rgba(241, 183, 43, .09);
+
+  font-size: 17px;
+}
+
+
+.publicar-blog-item-info {
+  min-width: 0;
+
+  display: grid;
+
+  gap: 3px;
+}
+
+
+.publicar-blog-item-info > span {
+  color: #9ca1aa;
+
+  font-size: 7px;
+
+  font-weight: 850;
+
+  letter-spacing: .55px;
+}
+
+
+.publicar-blog-item-info a {
+  width: fit-content;
+
+  max-width: 100%;
+
+  color: #30343b;
+
+  font-size: 10px;
+
+  font-weight: 750;
+
+  text-decoration: none;
+}
+
+
+.publicar-blog-item-info a:hover {
+  color: #a96500;
+}
+
+
+.publicar-blog-item-info small {
+  max-width: 720px;
+
+  overflow: hidden;
+
+  color: #8b9099;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+
+  font-size: 8px;
+}
+
+
+/* =========================================================
+   QUITAR PUBLICACIÓN
+========================================================= */
+
+.publicar-remove-button {
+  min-height: 34px;
+
+  flex: 0 0 auto;
+
+  padding: 7px 12px;
+
+  border:
+    1px solid rgba(180, 35, 24, .13);
+
+  border-radius: 9px;
+
+  color: #b42318;
+
+  background:
+    rgba(180, 35, 24, .035);
+
+  cursor: pointer;
+
+  font: inherit;
+
+  font-size: 7px;
+
+  font-weight: 850;
+
+  letter-spacing: .4px;
+}
+
+
+.publicar-remove-button:hover:not(:disabled) {
+  border-color:
+    rgba(180, 35, 24, .24);
+
+  background:
+    rgba(180, 35, 24, .065);
+}
+
+
+.publicar-remove-button:disabled {
+  opacity: .5;
+
+  cursor: wait;
+}
+
+
+/* =========================================================
+   ESTADO VACÍO
+========================================================= */
+
+.publicar-empty {
+  padding: 40px 20px;
+
+  text-align: center;
+
+  border:
+    1px dashed
+    rgba(23, 25, 29, .09);
+
+  border-radius: 14px;
+
+  background:
+    rgba(244, 246, 248, .35);
+}
+
+
+.publicar-empty-icon {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: #d99614;
+
+  font-size: 27px;
+}
+
+
+.publicar-empty strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #30343b;
+
+  font-size: 11px;
+}
+
+
+.publicar-empty p {
+  max-width: 440px;
+
+  margin: 0 auto;
+
+  color: #8b9099;
+
+  font-size: 9px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   CARGANDO
+========================================================= */
+
+.publicar-loading {
+  min-height: 110px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  color: #667085;
+
+  font-size: 9px;
+
+  font-weight: 650;
+}
+
+
+.publicar-loading-spinner {
+  width: 20px;
+  height: 20px;
+
+  border:
+    2px solid
+    rgba(217, 150, 20, .13);
+
+  border-top-color: #d99614;
+
+  border-radius: 50%;
+
+  animation:
+    publicarSpin
+    .7s
+    linear
+    infinite;
+}
+
+
+@keyframes publicarSpin {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.publicar-error {
+  padding: 30px 20px;
+
+  text-align: center;
+
+  border:
+    1px solid
+    rgba(180, 35, 24, .12);
+
+  border-radius: 13px;
+
+  color: #b42318;
+
+  background:
+    rgba(180, 35, 24, .035);
+}
+
+
+.publicar-error strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  font-size: 11px;
+}
+
+
+.publicar-error p {
+  margin: 0;
+
+  font-size: 9px;
+
+  line-height: 1.55;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .publicar-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .publicar-blog-card {
+    grid-column:
+      auto;
+  }
+
+}
+
+
+/* =========================================================
+   MÓVIL
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .publicar-container {
+    width: calc(100% - 24px);
+
+    margin:
+      14px auto 40px;
+  }
+
+
+  .publicar-card {
+    padding: 18px;
+  }
+
+
+  .publicar-page-header {
+    display: grid;
+
+    gap: 15px;
+  }
+
+
+  .publicar-blog-top {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .publicar-primary-button {
+    width: 100%;
+  }
+
+
+  .publicar-blog-item {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+
+  .publicar-remove-button {
+    width: 100%;
+  }
+
+
+  .publicar-blog-item-info small {
+    white-space: normal;
+
+    overflow-wrap: anywhere;
+  }
+
+}
+
+
+/* =========================================================
+   ACCESIBILIDAD
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .publicar-loading-spinner {
+    animation: none;
+  }
+
+
+  .publicar-primary-button {
+    transition: none;
+  }
+
+}
