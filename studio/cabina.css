@@ -1,7 +1,27 @@
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   CABINA PRIVADA V1
+   CABINA PRIVADA V2
+   Diseño responsive sin desbordamiento horizontal
 ========================================================= */
+
+
+/* =========================================================
+   SEGURIDAD DE LAYOUT
+========================================================= */
+
+#studioSectionCabina,
+#studioSectionCabina *,
+#studioSectionCabina *::before,
+#studioSectionCabina *::after {
+  box-sizing: border-box;
+}
+
+
+#studioSectionCabina {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
 
 
 /* =========================================================
@@ -10,11 +30,20 @@
 
 .cabina-container {
   width: min(1180px, calc(100% - 36px));
-  margin: 22px auto 50px;
+
+  margin: 24px auto 55px;
+
+  min-width: 0;
 }
 
 
 .cabina-panel {
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 26px;
+
   overflow: hidden;
 }
 
@@ -24,21 +53,29 @@
 ========================================================= */
 
 .cabina-header {
+  width: 100%;
+
   display: flex;
+
   align-items: flex-start;
+
   justify-content: space-between;
+
   gap: 24px;
+
   margin-bottom: 24px;
 }
 
 
 .cabina-heading {
+  flex: 1;
+
   min-width: 0;
 }
 
 
 .cabina-heading h1 {
-  margin: 4px 0 8px;
+  margin: 5px 0 10px;
 
   color: #17191d;
 
@@ -46,16 +83,18 @@
     "Unica One",
     sans-serif;
 
-  font-size: clamp(28px, 4vw, 42px);
+  font-size: clamp(30px, 3.2vw, 44px);
 
   font-weight: 400;
 
-  line-height: 1;
+  line-height: 1.05;
+
+  overflow-wrap: anywhere;
 }
 
 
 .cabina-heading p {
-  max-width: 600px;
+  max-width: 680px;
 
   margin: 0;
 
@@ -63,7 +102,7 @@
 
   font-size: 11px;
 
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 
@@ -72,10 +111,10 @@
 
   flex: 0 0 auto;
 
-  padding: 9px 16px;
+  padding: 9px 17px;
 
   border:
-    1px solid rgba(217, 150, 20, .2);
+    1px solid rgba(217, 150, 20, .22);
 
   border-radius: 12px;
 
@@ -94,6 +133,8 @@
 
   letter-spacing: .4px;
 
+  white-space: nowrap;
+
   transition:
     transform .18s ease,
     background .18s ease,
@@ -105,7 +146,7 @@
   transform: translateY(-1px);
 
   border-color:
-    rgba(217, 150, 20, .38);
+    rgba(217, 150, 20, .4);
 
   background:
     rgba(241, 183, 43, .14);
@@ -114,6 +155,7 @@
 
 .cabina-refresh-button:disabled {
   opacity: .55;
+
   cursor: wait;
 }
 
@@ -123,6 +165,8 @@
 ========================================================= */
 
 .cabina-summary {
+  width: 100%;
+
   display: grid;
 
   grid-template-columns:
@@ -137,7 +181,7 @@
 .cabina-summary-card {
   min-width: 0;
 
-  padding: 14px 15px;
+  padding: 15px;
 
   border:
     1px solid rgba(23, 25, 29, .07);
@@ -152,7 +196,7 @@
 .cabina-summary-card span {
   display: block;
 
-  margin-bottom: 6px;
+  margin-bottom: 7px;
 
   color: #8b9099;
 
@@ -200,20 +244,21 @@
 
 
 /* =========================================================
-   FILTROS
+   BARRA DE FILTROS
 ========================================================= */
 
 .cabina-toolbar {
+  width: 100%;
+
   display: flex;
 
   align-items: center;
 
   justify-content: space-between;
 
-  gap: 15px;
+  gap: 18px;
 
-  padding:
-    13px 0 17px;
+  padding: 15px 0 18px;
 
   border-top:
     1px solid rgba(23, 25, 29, .06);
@@ -224,6 +269,8 @@
 
 
 .cabina-filters {
+  min-width: 0;
+
   display: flex;
 
   align-items: center;
@@ -237,8 +284,7 @@
 .cabina-filter-button {
   min-height: 34px;
 
-  padding:
-    7px 12px;
+  padding: 7px 12px;
 
   border:
     1px solid rgba(23, 25, 29, .07);
@@ -259,6 +305,8 @@
   font-weight: 800;
 
   letter-spacing: .3px;
+
+  white-space: nowrap;
 
   transition:
     color .18s ease,
@@ -287,6 +335,10 @@
 
 
 .cabina-status-message {
+  flex: 0 1 auto;
+
+  min-width: 0;
+
   margin: 0;
 
   color: #667085;
@@ -294,6 +346,8 @@
   font-size: 9px;
 
   font-weight: 600;
+
+  line-height: 1.45;
 
   text-align: right;
 }
@@ -314,11 +368,15 @@
 ========================================================= */
 
 .cabina-list {
+  width: 100%;
+
+  min-width: 0;
+
   display: grid;
 
-  gap: 12px;
+  gap: 14px;
 
-  margin-top: 18px;
+  margin-top: 20px;
 }
 
 
@@ -329,7 +387,11 @@
 .cabina-request-card {
   position: relative;
 
-  padding: 18px;
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 19px;
 
   overflow: hidden;
 
@@ -353,8 +415,7 @@
 
 
 .cabina-request-card:hover {
-  transform:
-    translateY(-1px);
+  transform: translateY(-1px);
 
   border-color:
     rgba(217, 150, 20, .16);
@@ -396,10 +457,14 @@
 
 
 /* =========================================================
-   PARTE SUPERIOR DE LA SOLICITUD
+   PARTE SUPERIOR
 ========================================================= */
 
 .cabina-request-top {
+  width: 100%;
+
+  min-width: 0;
+
   display: flex;
 
   align-items: flex-start;
@@ -411,12 +476,19 @@
 
 
 .cabina-request-type {
+  min-width: 0;
+
+  flex: 1;
+
   display: flex;
 
   align-items: center;
 
   gap: 11px;
+}
 
+
+.cabina-request-type > div {
   min-width: 0;
 }
 
@@ -425,8 +497,7 @@
   width: 38px;
   height: 38px;
 
-  flex:
-    0 0 38px;
+  flex: 0 0 38px;
 
   display: grid;
 
@@ -474,6 +545,8 @@
 .cabina-request-type strong {
   display: block;
 
+  min-width: 0;
+
   overflow: hidden;
 
   color: #30343b;
@@ -489,14 +562,17 @@
 
 
 /* =========================================================
-   BADGES DE ESTADO
+   ESTADOS
 ========================================================= */
 
 .cabina-status-badge {
   flex: 0 0 auto;
 
-  padding:
-    6px 9px;
+  max-width: 130px;
+
+  padding: 6px 9px;
+
+  overflow: hidden;
 
   border-radius: 999px;
 
@@ -506,7 +582,11 @@
 
   letter-spacing: .4px;
 
+  text-overflow: ellipsis;
+
   text-transform: uppercase;
+
+  white-space: nowrap;
 }
 
 
@@ -547,6 +627,10 @@
 ========================================================= */
 
 .cabina-request-meta {
+  width: calc(100% - 49px);
+
+  min-width: 0;
+
   display: flex;
 
   flex-wrap: wrap;
@@ -560,25 +644,37 @@
 
   font-size: 8px;
 
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 
 .cabina-request-meta span {
+  min-width: 0;
+
   overflow-wrap: anywhere;
+
+  word-break: break-word;
 }
 
 
 /* =========================================================
-   CONTENIDO
+   MENSAJE / CANCIONES
 ========================================================= */
 
 .cabina-request-content {
-  margin:
-    15px 0 16px;
+  width: 100%;
 
-  padding:
-    14px 15px;
+  min-width: 0;
+
+  margin: 15px 0 16px;
+
+  padding: 14px 15px;
+
+  overflow-wrap: anywhere;
+
+  word-break: break-word;
+
+  white-space: pre-wrap;
 
   border:
     1px solid rgba(23, 25, 29, .05);
@@ -590,10 +686,6 @@
   background:
     rgba(244, 246, 248, .64);
 
-  white-space: pre-wrap;
-
-  overflow-wrap: anywhere;
-
   font-size: 11px;
 
   line-height: 1.6;
@@ -601,21 +693,29 @@
 
 
 /* =========================================================
-   CONTROLES
+   CONTROLES DE ESTADO
 ========================================================= */
 
 .cabina-request-controls {
+  width: 100%;
+
+  min-width: 0;
+
   display: flex;
 
   align-items: flex-end;
 
   justify-content: flex-end;
 
+  flex-wrap: wrap;
+
   gap: 8px;
 }
 
 
 .cabina-request-controls label {
+  min-width: 0;
+
   display: grid;
 
   gap: 5px;
@@ -634,7 +734,9 @@
 
 
 .cabina-status-select {
-  min-width: 130px;
+  width: 150px;
+
+  max-width: 100%;
 
   height: 36px;
 
@@ -673,8 +775,9 @@
 .cabina-save-button {
   height: 36px;
 
-  padding:
-    0 13px;
+  flex: 0 0 auto;
+
+  padding: 0 15px;
 
   border:
     1px solid #d99614;
@@ -700,6 +803,8 @@
 
   letter-spacing: .4px;
 
+  white-space: nowrap;
+
   box-shadow:
     0 5px 13px
     rgba(217, 150, 20, .13);
@@ -713,17 +818,19 @@
 
 .cabina-save-button:disabled {
   opacity: .55;
+
   cursor: wait;
 }
 
 
 /* =========================================================
-   ESTADO VACÍO
+   VACÍO
 ========================================================= */
 
 .cabina-empty {
-  padding:
-    52px 20px;
+  width: 100%;
+
+  padding: 52px 20px;
 
   text-align: center;
 
@@ -776,6 +883,8 @@
 ========================================================= */
 
 .cabina-loading {
+  width: 100%;
+
   min-height: 180px;
 
   display: flex;
@@ -798,12 +907,13 @@
   width: 22px;
   height: 22px;
 
+  flex: 0 0 22px;
+
   border:
     2px solid
     rgba(217, 150, 20, .13);
 
-  border-top-color:
-    #d99614;
+  border-top-color: #d99614;
 
   border-radius: 50%;
 
@@ -829,8 +939,9 @@
 ========================================================= */
 
 .cabina-error {
-  padding:
-    34px 20px;
+  width: 100%;
+
+  padding: 34px 20px;
 
   text-align: center;
 
@@ -868,26 +979,47 @@
 
 
 /* =========================================================
-   RESPONSIVE
+   NOTEBOOK / TABLET
 ========================================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 1050px) {
 
   .cabina-summary {
     grid-template-columns:
       repeat(3, minmax(0, 1fr));
   }
 
+
+  .cabina-toolbar {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .cabina-status-message {
+    text-align: left;
+  }
+
 }
 
+
+/* =========================================================
+   TABLET / MÓVIL
+========================================================= */
 
 @media (max-width: 700px) {
 
   .cabina-container {
-    width:
-      min(100% - 24px, 1180px);
+    width: calc(100% - 24px);
 
-    margin-top: 14px;
+    margin:
+      14px auto 40px;
+  }
+
+
+  .cabina-panel {
+    padding: 18px;
   }
 
 
@@ -915,18 +1047,18 @@
   }
 
 
-  .cabina-toolbar {
-    align-items: stretch;
-
-    flex-direction: column;
-  }
-
-
   .cabina-filters {
+    width: 100%;
+
     display: grid;
 
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
+  }
+
+
+  .cabina-filter-button {
+    width: 100%;
   }
 
 
@@ -936,17 +1068,14 @@
   }
 
 
-  .cabina-status-message {
-    text-align: left;
-  }
-
-
   .cabina-request-top {
-    align-items: flex-start;
+    gap: 10px;
   }
 
 
   .cabina-request-meta {
+    width: 100%;
+
     margin-left: 0;
   }
 
@@ -975,10 +1104,20 @@
 }
 
 
+/* =========================================================
+   TELÉFONO PEQUEÑO
+========================================================= */
+
 @media (max-width: 430px) {
 
+  .cabina-panel {
+    padding: 15px;
+  }
+
+
   .cabina-summary {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns:
+      1fr 1fr;
   }
 
 
@@ -989,15 +1128,28 @@
 
   .cabina-request-type strong {
     white-space: normal;
+
+    overflow-wrap: anywhere;
   }
 
 
   .cabina-status-badge {
+    max-width: 95px;
+
     font-size: 6px;
+  }
+
+
+  .cabina-request-content {
+    padding: 12px;
   }
 
 }
 
+
+/* =========================================================
+   ACCESIBILIDAD
+========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
 
