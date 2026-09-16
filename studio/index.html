@@ -1424,6 +1424,189 @@
             </div>
 
 
+            <!-- CANAL 3 · CORTINA -->
+
+            <div class="audio-channel">
+
+              <div class="audio-channel-identity">
+
+                <div
+                  class="audio-channel-icon"
+                  aria-hidden="true"
+                >
+                  🎚️
+                </div>
+
+                <div class="audio-channel-name">
+
+                  <span>
+                    CANAL 3
+                  </span>
+
+                  <strong id="curtainTrackName">
+                    Sin cortina cargada
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="audio-meter-area">
+
+                <div class="audio-meter-labels">
+
+                  <span>
+                    NIVEL DE CORTINA
+                  </span>
+
+                  <span
+                    id="curtainDb"
+                    class="audio-meter-db"
+                  >
+                    — dB
+                  </span>
+
+                </div>
+
+                <div
+                  class="audio-meter"
+                  role="meter"
+                  aria-label="Nivel de cortina"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+
+                  <div
+                    id="curtainMeterFill"
+                    class="audio-meter-fill"
+                  ></div>
+
+                </div>
+
+                <div class="audio-meter-scale">
+                  <span>-60</span>
+                  <span>-30</span>
+                  <span>-18</span>
+                  <span>-6</span>
+                  <span>0 dB</span>
+                </div>
+
+              </div>
+
+
+              <div class="audio-channel-controls">
+
+                <input
+                  id="curtainFileInput"
+                  type="file"
+                  accept="audio/*"
+                  hidden
+                >
+
+                <div class="audio-control-row">
+
+                  <button
+                    id="curtainLoadBtn"
+                    class="audio-activate-button"
+                    type="button"
+                  >
+                    CARGAR CORTINA
+                  </button>
+
+                  <button
+                    id="curtainPlayBtn"
+                    class="audio-activate-button"
+                    type="button"
+                    disabled
+                  >
+                    ▶ PLAY
+                  </button>
+
+                  <button
+                    id="curtainStopBtn"
+                    class="audio-mute-button"
+                    type="button"
+                    disabled
+                  >
+                    ■ STOP
+                  </button>
+
+                  <button
+                    id="curtainMuteBtn"
+                    class="audio-mute-button"
+                    type="button"
+                    disabled
+                  >
+                    MUTE
+                  </button>
+
+                </div>
+
+
+                <div class="audio-gain-control">
+
+                  <label for="curtainVolume">
+                    VOLUMEN
+                  </label>
+
+                  <input
+                    id="curtainVolume"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="35"
+                    step="1"
+                  >
+
+                  <span
+                    id="curtainVolumeValue"
+                    class="audio-gain-value"
+                  >
+                    35%
+                  </span>
+
+                </div>
+
+
+                <div class="audio-gain-control">
+
+                  <span>
+                    POSICIÓN
+                  </span>
+
+                  <span
+                    id="curtainCurrentTime"
+                    class="audio-gain-value"
+                  >
+                    0:00
+                  </span>
+
+                  <input
+                    id="curtainProgress"
+                    type="range"
+                    min="0"
+                    max="1"
+                    value="0"
+                    step="0.1"
+                    disabled
+                    aria-label="Posición de la cortina"
+                  >
+
+                  <span
+                    id="curtainDuration"
+                    class="audio-gain-value"
+                  >
+                    0:00
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
             <p
               id="audioConsoleMessage"
               class="audio-console-message"

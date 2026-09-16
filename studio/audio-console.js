@@ -1,10 +1,11 @@
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   CONSOLA DE AUDIO V2
+   CONSOLA DE AUDIO V3
 
    Canales:
    - Micrófono
    - Música
+   - Cortina
 ========================================================= */
 
 import {
@@ -29,7 +30,20 @@ import {
   getMusicLevel,
   getMusicDecibels,
   getMusicState,
-  getMusicAudioElement
+  getMusicAudioElement,
+
+  /* Cortina */
+  loadCurtainFile,
+  playCurtain,
+  pauseCurtain,
+  stopCurtain,
+  seekCurtain,
+  setCurtainVolume,
+  setCurtainMuted,
+  getCurtainLevel,
+  getCurtainDecibels,
+  getCurtainState,
+  getCurtainAudioElement
 } from "./audio-engine.js";
 
 
@@ -46,8 +60,12 @@ let currentDeviceId = "";
 let musicMuted = false;
 let musicFileName = "";
 
+let curtainMuted = false;
+let curtainFileName = "";
+
 const DEFAULT_MIC_GAIN_PERCENT = 100;
 const DEFAULT_MUSIC_VOLUME_PERCENT = 70;
+const DEFAULT_CURTAIN_VOLUME_PERCENT = 35;
 
 
 /* =========================================================
@@ -179,6 +197,74 @@ function getElements() {
     musicDuration:
       document.getElementById(
         "musicDuration"
+      ),
+
+
+    /* Cortina */
+
+    curtainFileInput:
+      document.getElementById(
+        "curtainFileInput"
+      ),
+
+    curtainLoadButton:
+      document.getElementById(
+        "curtainLoadBtn"
+      ),
+
+    curtainPlayButton:
+      document.getElementById(
+        "curtainPlayBtn"
+      ),
+
+    curtainStopButton:
+      document.getElementById(
+        "curtainStopBtn"
+      ),
+
+    curtainMuteButton:
+      document.getElementById(
+        "curtainMuteBtn"
+      ),
+
+    curtainVolume:
+      document.getElementById(
+        "curtainVolume"
+      ),
+
+    curtainVolumeValue:
+      document.getElementById(
+        "curtainVolumeValue"
+      ),
+
+    curtainMeterFill:
+      document.getElementById(
+        "curtainMeterFill"
+      ),
+
+    curtainDecibels:
+      document.getElementById(
+        "curtainDb"
+      ),
+
+    curtainTrackName:
+      document.getElementById(
+        "curtainTrackName"
+      ),
+
+    curtainProgress:
+      document.getElementById(
+        "curtainProgress"
+      ),
+
+    curtainCurrentTime:
+      document.getElementById(
+        "curtainCurrentTime"
+      ),
+
+    curtainDuration:
+      document.getElementById(
+        "curtainDuration"
       )
 
   };
@@ -280,10 +366,14 @@ function updateEngineStatus() {
   const musicState =
     getMusicState();
 
+  const curtainState =
+    getCurtainState();
+
 
   const active =
     isMicrophoneActive() ||
-    musicState.loaded;
+    musicState.loaded ||
+    curtainState.loaded;
 
 
   status.classList.toggle(
@@ -1428,6 +1518,559 @@ function bindMusicElementEvents() {
 
 
 /* =========================================================
+   CORTINA — INTERFAZ
+========================================================= */
+
+function updateCurtainInterface() {
+
+  const {
+    curtainPlayButton,
+    curtainStopButton,
+    curtainMuteButton,
+    curtainTrackName,
+    curtainProgress,
+    curtainCurrentTime,
+    curtainDuration
+  } = getElements();
+
+
+  const state =
+    getCurtainState();
+
+
+  if (
+    curtainTrackName
+  ) {
+
+    curtainTrackName.textContent =
+      curtainFileName ||
+      "Sin cortina cargada";
+
+  }
+
+
+  if (
+    curtainPlayButton
+  ) {
+
+    curtainPlayButton.disabled =
+      !state.loaded;
+
+
+    curtainPlayButton.textContent =
+      state.playing
+        ? "❚❚ PAUSA"
+        : "▶ PLAY";
+
+  }
+
+
+  if (
+    curtainStopButton
+  ) {
+
+    curtainStopButton.disabled =
+      !state.loaded;
+
+  }
+
+
+  if (
+    curtainMuteButton
+  ) {
+
+    curtainMuteButton.disabled =
+      !state.loaded;
+
+
+    curtainMuteButton.classList.toggle(
+      "muted",
+      curtainMuted
+    );
+
+
+    curtainMuteButton.textContent =
+      curtainMuted
+        ? "ACTIVAR"
+        : "MUTE";
+
+  }
+
+
+  if (
+    curtainProgress
+  ) {
+
+    curtainProgress.disabled =
+      !state.loaded;
+
+
+    curtainProgress.max =
+      state.duration > 0
+        ? state.duration
+        : 1;
+
+
+    if (
+      document.activeElement !==
+      curtainProgress
+    ) {
+
+      curtainProgress.value =
+        state.currentTime;
+
+    }
+
+  }
+
+
+  if (
+    curtainCurrentTime
+  ) {
+
+    curtainCurrentTime.textContent =
+      formatTime(
+        state.currentTime
+      );
+
+  }
+
+
+  if (
+    curtainDuration
+  ) {
+
+    curtainDuration.textContent =
+      formatTime(
+        state.duration
+      );
+
+  }
+
+
+  updateEngineStatus();
+
+}
+
+
+/* =========================================================
+   ABRIR SELECTOR DE ARCHIVO
+========================================================= */
+
+function openCurtainPicker() {
+
+  const {
+    curtainFileInput
+  } = getElements();
+
+
+  if (!curtainFileInput) {
+    return;
+  }
+
+
+  curtainFileInput.click();
+
+}
+
+
+/* =========================================================
+   CARGAR CORTINA
+========================================================= */
+
+async function handleCurtainFile(
+  event
+) {
+
+  const file =
+    event.target
+      .files?.[0];
+
+
+  if (!file) {
+    return;
+  }
+
+
+  setMessage(
+    "Cargando cortina..."
+  );
+
+
+  try {
+
+    stopCurtain();
+
+
+    const result =
+      await loadCurtainFile(
+        file
+      );
+
+
+    curtainFileName =
+      result.name;
+
+
+    curtainMuted =
+      false;
+
+
+    setCurtainMuted(
+      false
+    );
+
+
+    updateCurtainInterface();
+
+
+    setMessage(
+      `Cortina cargada: ${result.name} · ${formatTime(result.duration)}`,
+      "ok"
+    );
+
+  }
+  catch (error) {
+
+    console.error(
+      "Error cargando cortina:",
+      error
+    );
+
+
+    curtainFileName =
+      "";
+
+
+    updateCurtainInterface();
+
+
+    setMessage(
+      error?.message ||
+      "No fue posible cargar la cortina.",
+      "error"
+    );
+
+  }
+  finally {
+
+    event.target.value =
+      "";
+
+  }
+
+}
+
+
+/* =========================================================
+   PLAY / PAUSA
+========================================================= */
+
+async function toggleCurtainPlayback() {
+
+  const state =
+    getCurtainState();
+
+
+  if (!state.loaded) {
+
+    setMessage(
+      "Primero debes cargar una cortina.",
+      "error"
+    );
+
+
+    return;
+
+  }
+
+
+  try {
+
+    if (state.playing) {
+
+      pauseCurtain();
+
+
+      setMessage(
+        "Cortina en pausa."
+      );
+
+    }
+    else {
+
+      await playCurtain();
+
+
+      setMessage(
+        "Reproduciendo cortina.",
+        "ok"
+      );
+
+    }
+
+
+    updateCurtainInterface();
+
+  }
+  catch (error) {
+
+    console.error(
+      "Error reproduciendo cortina:",
+      error
+    );
+
+
+    setMessage(
+      error?.message ||
+      "No fue posible reproducir la cortina.",
+      "error"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   STOP
+========================================================= */
+
+function handleCurtainStop() {
+
+  stopCurtain();
+
+
+  updateCurtainInterface();
+
+
+  setMessage(
+    "Cortina detenida."
+  );
+
+}
+
+
+/* =========================================================
+   MUTE CORTINA
+========================================================= */
+
+function toggleCurtainMuteUI() {
+
+  const state =
+    getCurtainState();
+
+
+  if (!state.loaded) {
+    return;
+  }
+
+
+  curtainMuted =
+    !curtainMuted;
+
+
+  setCurtainMuted(
+    curtainMuted
+  );
+
+
+  updateCurtainInterface();
+
+
+  setMessage(
+    curtainMuted
+      ? "Canal Cortina silenciado."
+      : "Canal Cortina nuevamente activo.",
+    curtainMuted
+      ? ""
+      : "ok"
+  );
+
+}
+
+
+/* =========================================================
+   VOLUMEN CORTINA
+========================================================= */
+
+function updateCurtainVolumeUI() {
+
+  const {
+    curtainVolume,
+    curtainVolumeValue
+  } = getElements();
+
+
+  if (!curtainVolume) {
+    return;
+  }
+
+
+  const rawValue =
+    Number(
+      curtainVolume.value
+    );
+
+
+  const percentage =
+    Number.isFinite(
+      rawValue
+    )
+      ? Math.max(
+          0,
+          Math.min(
+            100,
+            rawValue
+          )
+        )
+      : DEFAULT_MUSIC_VOLUME_PERCENT;
+
+
+  setCurtainVolume(
+    percentage / 100
+  );
+
+
+  if (
+    curtainVolumeValue
+  ) {
+
+    curtainVolumeValue.textContent =
+      `${Math.round(
+        percentage
+      )}%`;
+
+  }
+
+}
+
+
+/* =========================================================
+   SEEK / POSICIÓN DE CORTINA
+========================================================= */
+
+function handleCurtainSeekInput() {
+
+  const {
+    curtainProgress,
+    curtainCurrentTime
+  } = getElements();
+
+
+  if (!curtainProgress) {
+    return;
+  }
+
+
+  const value =
+    Number(
+      curtainProgress.value
+    );
+
+
+  if (
+    curtainCurrentTime
+  ) {
+
+    curtainCurrentTime.textContent =
+      formatTime(
+        value
+      );
+
+  }
+
+}
+
+
+function handleCurtainSeekCommit() {
+
+  const {
+    curtainProgress
+  } = getElements();
+
+
+  if (!curtainProgress) {
+    return;
+  }
+
+
+  seekCurtain(
+    Number(
+      curtainProgress.value
+    )
+  );
+
+
+  updateCurtainInterface();
+
+}
+
+
+/* =========================================================
+   EVENTOS DEL ELEMENTO AUDIO
+========================================================= */
+
+function bindCurtainElementEvents() {
+
+  const audio =
+    getCurtainAudioElement();
+
+
+  if (!audio) {
+    return;
+  }
+
+
+  if (
+    audio.dataset
+      .radioConexionBound ===
+    "true"
+  ) {
+    return;
+  }
+
+
+  audio.dataset
+    .radioConexionBound =
+      "true";
+
+
+  audio.addEventListener(
+    "play",
+    updateCurtainInterface
+  );
+
+
+  audio.addEventListener(
+    "pause",
+    updateCurtainInterface
+  );
+
+
+  audio.addEventListener(
+    "ended",
+    updateCurtainInterface
+  );
+
+
+  audio.addEventListener(
+    "loadedmetadata",
+    updateCurtainInterface
+  );
+
+
+  audio.addEventListener(
+    "durationchange",
+    updateCurtainInterface
+  );
+
+}
+
+
+
+
+/* =========================================================
    MEDIDORES
 ========================================================= */
 
@@ -1441,7 +2084,13 @@ function renderMeters() {
     musicDecibels,
     musicProgress,
     musicCurrentTime,
-    musicDuration
+    musicDuration,
+
+    curtainMeterFill,
+    curtainDecibels,
+    curtainProgress,
+    curtainCurrentTime,
+    curtainDuration
   } = getElements();
 
 
@@ -1648,6 +2297,133 @@ function renderMeters() {
   }
 
 
+  /* -------------------------
+     CORTINA
+  ------------------------- */
+
+  const curtainState =
+    getCurtainState();
+
+
+  if (
+    curtainState.loaded
+  ) {
+
+    const level =
+      getCurtainLevel();
+
+    const db =
+      getCurtainDecibels();
+
+
+    if (
+      curtainMeterFill
+    ) {
+
+      curtainMeterFill
+        .style.width =
+          `${Math.max(
+            0,
+            Math.min(
+              100,
+              level * 100
+            )
+          )}%`;
+
+    }
+
+
+    if (
+      curtainDecibels
+    ) {
+
+      curtainDecibels
+        .textContent =
+          Number.isFinite(
+            db
+          )
+            ? `${Math.round(db)} dB`
+            : "— dB";
+
+    }
+
+
+    if (
+      curtainProgress &&
+      document.activeElement !==
+      curtainProgress
+    ) {
+
+      curtainProgress.max =
+        curtainState.duration > 0
+          ? curtainState.duration
+          : 1;
+
+      curtainProgress.value =
+        curtainState.currentTime;
+
+    }
+
+
+    if (
+      curtainCurrentTime
+    ) {
+
+      curtainCurrentTime.textContent =
+        formatTime(
+          curtainState.currentTime
+        );
+
+    }
+
+
+    if (
+      curtainDuration
+    ) {
+
+      curtainDuration.textContent =
+        formatTime(
+          curtainState.duration
+        );
+
+    }
+
+
+    if (
+      curtainState.ended
+    ) {
+
+      updateCurtainInterface();
+
+    }
+
+  }
+  else {
+
+    if (
+      curtainMeterFill
+    ) {
+
+      curtainMeterFill
+        .style.width =
+          "0%";
+
+    }
+
+
+    if (
+      curtainDecibels
+    ) {
+
+      curtainDecibels
+        .textContent =
+          "— dB";
+
+    }
+
+  }
+
+
   meterAnimationFrame =
     requestAnimationFrame(
       renderMeters
@@ -1725,7 +2501,15 @@ async function initializeAudioConsole() {
     musicStopButton,
     musicMuteButton,
     musicVolume,
-    musicProgress
+    musicProgress,
+
+    curtainFileInput,
+    curtainLoadButton,
+    curtainPlayButton,
+    curtainStopButton,
+    curtainMuteButton,
+    curtainVolume,
+    curtainProgress
   } = getElements();
 
 
@@ -1885,6 +2669,107 @@ async function initializeAudioConsole() {
 
 
   /* -------------------------
+     CORTINA
+  ------------------------- */
+
+  if (
+    curtainLoadButton
+  ) {
+
+    curtainLoadButton
+      .addEventListener(
+        "click",
+        openCurtainPicker
+      );
+
+  }
+
+
+  if (
+    curtainFileInput
+  ) {
+
+    curtainFileInput
+      .addEventListener(
+        "change",
+        handleCurtainFile
+      );
+
+  }
+
+
+  if (
+    curtainPlayButton
+  ) {
+
+    curtainPlayButton
+      .addEventListener(
+        "click",
+        toggleCurtainPlayback
+      );
+
+  }
+
+
+  if (
+    curtainStopButton
+  ) {
+
+    curtainStopButton
+      .addEventListener(
+        "click",
+        handleCurtainStop
+      );
+
+  }
+
+
+  if (
+    curtainMuteButton
+  ) {
+
+    curtainMuteButton
+      .addEventListener(
+        "click",
+        toggleCurtainMuteUI
+      );
+
+  }
+
+
+  if (
+    curtainVolume
+  ) {
+
+    curtainVolume
+      .addEventListener(
+        "input",
+        updateCurtainVolumeUI
+      );
+
+  }
+
+
+  if (
+    curtainProgress
+  ) {
+
+    curtainProgress
+      .addEventListener(
+        "input",
+        handleCurtainSeekInput
+      );
+
+    curtainProgress
+      .addEventListener(
+        "change",
+        handleCurtainSeekCommit
+      );
+
+  }
+
+
+  /* -------------------------
      VALORES INICIALES
   ------------------------- */
 
@@ -1892,9 +2777,13 @@ async function initializeAudioConsole() {
 
   updateMusicVolumeUI();
 
+  updateCurtainVolumeUI();
+
   updateMicrophoneInterface();
 
   updateMusicInterface();
+
+  updateCurtainInterface();
 
 
   /* -------------------------
@@ -1971,6 +2860,31 @@ async function initializeAudioConsole() {
     );
 
 
+  const curtainBindingInterval =
+    window.setInterval(
+      () => {
+
+        const audio =
+          getCurtainAudioElement();
+
+
+        if (!audio) {
+          return;
+        }
+
+
+        bindCurtainElementEvents();
+
+
+        window.clearInterval(
+          curtainBindingInterval
+        );
+
+      },
+      250
+    );
+
+
   /* -------------------------
      MEDIDORES
   ------------------------- */
@@ -1991,6 +2905,8 @@ function cleanupAudioConsole() {
   stopMicrophone();
 
   stopMusic();
+
+  stopCurtain();
 
 }
 

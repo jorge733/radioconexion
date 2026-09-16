@@ -1,10 +1,11 @@
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   CONSOLA DE AUDIO V2
+   CONSOLA DE AUDIO V3
 
    Canales:
    - Micrófono
    - Música
+   - Cortina
 ========================================================= */
 
 .audio-console-panel {
@@ -338,18 +339,24 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* La fila de posición de Música contiene tiempo inicial + slider + duración. */
-#musicProgress {
+/* Las filas de posición de Música y Cortina contienen
+   tiempo inicial + slider + duración. */
+
+#musicProgress,
+#curtainProgress {
   cursor: pointer;
 }
 
-#musicProgress:disabled {
+#musicProgress:disabled,
+#curtainProgress:disabled {
   opacity: .45;
   cursor: not-allowed;
 }
 
 #musicCurrentTime,
-#musicDuration {
+#musicDuration,
+#curtainCurrentTime,
+#curtainDuration {
   min-width: 34px;
   white-space: nowrap;
 }
