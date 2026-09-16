@@ -1245,9 +1245,8 @@ async function saveSound() {
 
   if (
     file.type &&
-    !file.type.startsWith(
-      "audio/"
-    )
+    !file.type.startsWith("audio/") &&
+    !/\.mp3$/i.test(file.name)
   ) {
 
     await showModal({
