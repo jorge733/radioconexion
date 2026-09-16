@@ -1,0 +1,531 @@
+/* =========================================================
+   RADIO CONEXIÓN STUDIO
+   CONSOLA DE AUDIO V1
+========================================================= */
+
+.audio-console-panel {
+  margin-top: 18px;
+  overflow: hidden;
+}
+
+.audio-console-header {
+  min-height: 92px;
+  padding: 20px 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-bottom:
+    1px solid var(--rc-border);
+}
+
+.audio-console-heading h2 {
+  margin: 3px 0 0;
+
+  color: var(--rc-gold-dark);
+
+  font-family:
+    "Unica One",
+    sans-serif;
+
+  font-size: 29px;
+  font-weight: 400;
+}
+
+.audio-console-heading p {
+  max-width: 560px;
+
+  margin: 7px 0 0;
+
+  color: var(--rc-muted);
+
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.audio-engine-status {
+  min-height: 30px;
+
+  padding: 6px 11px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  border:
+    1px solid rgba(23, 25, 29, .08);
+
+  border-radius: 999px;
+
+  color: var(--rc-muted);
+
+  background:
+    rgba(248, 249, 251, .9);
+
+  white-space: nowrap;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .6px;
+}
+
+.audio-engine-status::before {
+  content: "";
+
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #a6abb3;
+}
+
+.audio-engine-status.active {
+  color: var(--success);
+
+  border-color:
+    rgba(47, 143, 86, .16);
+
+  background:
+    rgba(47, 143, 86, .06);
+}
+
+.audio-engine-status.active::before {
+  background: var(--success);
+
+  box-shadow:
+    0 0 0 4px
+    rgba(47, 143, 86, .09);
+}
+
+
+/* =========================================================
+   CUERPO
+========================================================= */
+
+.audio-console-body {
+  padding: 18px;
+}
+
+.audio-channel {
+  padding: 18px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(210px, .9fr)
+    minmax(260px, 1.3fr)
+    minmax(230px, 1fr);
+
+  gap: 22px;
+
+  align-items: center;
+
+  border:
+    1px solid var(--rc-border);
+
+  border-radius: 17px;
+
+  background:
+    rgba(248, 249, 251, .62);
+}
+
+
+/* =========================================================
+   IDENTIDAD DEL CANAL
+========================================================= */
+
+.audio-channel-identity {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.audio-channel-icon {
+  width: 45px;
+  height: 45px;
+
+  flex: 0 0 45px;
+
+  display: grid;
+  place-items: center;
+
+  border:
+    1px solid
+    rgba(229, 169, 25, .18);
+
+  border-radius: 14px;
+
+  background:
+    rgba(229, 169, 25, .08);
+
+  font-size: 20px;
+}
+
+.audio-channel-name {
+  min-width: 0;
+}
+
+.audio-channel-name span {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: var(--rc-muted);
+
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+}
+
+.audio-channel-name strong {
+  display: block;
+
+  overflow: hidden;
+
+  color: var(--rc-ink);
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   MEDIDOR
+========================================================= */
+
+.audio-meter-area {
+  min-width: 0;
+}
+
+.audio-meter-labels {
+  margin-bottom: 7px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  color: var(--rc-muted);
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.audio-meter-db {
+  color: var(--rc-gold-dark);
+
+  font-variant-numeric:
+    tabular-nums;
+
+  font-weight: 800;
+}
+
+.audio-meter {
+  position: relative;
+
+  height: 12px;
+
+  overflow: hidden;
+
+  border:
+    1px solid rgba(23, 25, 29, .07);
+
+  border-radius: 999px;
+
+  background:
+    #e7eaee;
+}
+
+.audio-meter-fill {
+  width: 0%;
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #2f8f56 0%,
+      #6fae58 58%,
+      #d99614 82%,
+      #d74444 100%
+    );
+
+  transition:
+    width .07s linear;
+}
+
+.audio-meter-scale {
+  margin-top: 5px;
+
+  display: flex;
+  justify-content: space-between;
+
+  color: #a0a6ae;
+
+  font-size: 7px;
+  font-variant-numeric:
+    tabular-nums;
+}
+
+
+/* =========================================================
+   CONTROLES
+========================================================= */
+
+.audio-channel-controls {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.audio-device-select {
+  width: 100%;
+  min-height: 39px;
+
+  padding: 7px 11px;
+
+  border:
+    1px solid var(--rc-border-strong);
+
+  border-radius: 11px;
+
+  outline: none;
+
+  color: var(--rc-text);
+
+  background: #fff;
+
+  font-size: 10px;
+}
+
+.audio-device-select:focus {
+  border-color: var(--rc-gold);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(229, 169, 25, .10);
+}
+
+.audio-control-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.audio-activate-button,
+.audio-mute-button {
+  min-height: 38px;
+
+  border: 0;
+  border-radius: 999px;
+
+  cursor: pointer;
+
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+
+  transition:
+    transform .18s ease,
+    background .18s ease,
+    opacity .18s ease;
+}
+
+.audio-activate-button {
+  flex: 1;
+
+  padding: 8px 14px;
+
+  color: #1a160c;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--rc-gold-2),
+      var(--rc-gold)
+    );
+
+  box-shadow:
+    0 7px 18px
+    rgba(199, 127, 13, .16);
+}
+
+.audio-activate-button:hover {
+  transform: translateY(-1px);
+}
+
+.audio-activate-button.active {
+  color: var(--success);
+
+  border:
+    1px solid
+    rgba(47, 143, 86, .18);
+
+  background:
+    rgba(47, 143, 86, .08);
+
+  box-shadow: none;
+}
+
+.audio-mute-button {
+  min-width: 72px;
+
+  padding: 8px 12px;
+
+  color: var(--rc-muted);
+
+  border:
+    1px solid var(--rc-border-strong);
+
+  background: #fff;
+}
+
+.audio-mute-button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.audio-mute-button.muted {
+  color: #b42318;
+
+  border-color:
+    rgba(215, 68, 68, .20);
+
+  background:
+    rgba(215, 68, 68, .06);
+}
+
+
+/* =========================================================
+   GANANCIA
+========================================================= */
+
+.audio-gain-control {
+  display: grid;
+
+  grid-template-columns:
+    auto minmax(100px, 1fr) 42px;
+
+  align-items: center;
+  gap: 9px;
+}
+
+.audio-gain-control label {
+  color: var(--rc-muted);
+
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .8px;
+}
+
+.audio-gain-control input {
+  width: 100%;
+
+  accent-color:
+    var(--rc-gold);
+}
+
+.audio-gain-value {
+  color: var(--rc-gold-dark);
+
+  text-align: right;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  font-variant-numeric:
+    tabular-nums;
+}
+
+
+/* =========================================================
+   MENSAJE
+========================================================= */
+
+.audio-console-message {
+  min-height: 16px;
+
+  margin: 12px 3px 0;
+
+  color: var(--rc-muted);
+
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.audio-console-message[data-state="error"] {
+  color: #b42318;
+}
+
+.audio-console-message[data-state="ok"] {
+  color: var(--success);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 980px) {
+
+  .audio-channel {
+    grid-template-columns:
+      minmax(200px, .8fr)
+      minmax(260px, 1.2fr);
+  }
+
+  .audio-channel-controls {
+    grid-column: 1 / 3;
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .audio-console-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .audio-channel {
+    grid-template-columns: 1fr;
+  }
+
+  .audio-channel-controls {
+    grid-column: auto;
+  }
+
+}
+
+
+@media (max-width: 430px) {
+
+  .audio-console-body {
+    padding: 12px;
+  }
+
+  .audio-channel {
+    padding: 14px;
+  }
+
+  .audio-control-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .audio-mute-button {
+    width: 100%;
+  }
+
+}

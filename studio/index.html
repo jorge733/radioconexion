@@ -33,6 +33,7 @@
   <link rel="stylesheet" href="./cabina.css">
   <link rel="stylesheet" href="./publicar.css">
   <link rel="stylesheet" href="./episodios.css">
+  <link rel="stylesheet" href="./audio-console.css">
 
 
   <!-- =====================================================
@@ -1067,6 +1068,189 @@
             </div>
 
           </section>
+
+        </section>
+
+
+        <!-- =================================================
+             CONSOLA DE AUDIO
+        ================================================== -->
+
+        <section class="panel audio-console-panel">
+
+          <div class="audio-console-header">
+
+            <div class="audio-console-heading">
+
+              <span class="section-label">
+                CONSOLA DE AUDIO
+              </span>
+
+              <h2>
+                Micrófono
+              </h2>
+
+              <p>
+                Controla la entrada de tu micrófono y comprueba el nivel
+                de audio antes de comenzar la producción.
+              </p>
+
+            </div>
+
+            <span
+              id="audioEngineStatus"
+              class="audio-engine-status"
+            >
+              MOTOR DE AUDIO EN ESPERA
+            </span>
+
+          </div>
+
+
+          <div class="audio-console-body">
+
+            <div class="audio-channel">
+
+              <div class="audio-channel-identity">
+
+                <div
+                  class="audio-channel-icon"
+                  aria-hidden="true"
+                >
+                  🎙️
+                </div>
+
+                <div class="audio-channel-name">
+
+                  <span>
+                    CANAL 1
+                  </span>
+
+                  <strong id="microphoneDeviceName">
+                    Micrófono
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="audio-meter-area">
+
+                <div class="audio-meter-labels">
+
+                  <span>
+                    NIVEL DE ENTRADA
+                  </span>
+
+                  <span
+                    id="microphoneDb"
+                    class="audio-meter-db"
+                  >
+                    — dB
+                  </span>
+
+                </div>
+
+                <div
+                  class="audio-meter"
+                  role="meter"
+                  aria-label="Nivel del micrófono"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+
+                  <div
+                    id="microphoneMeterFill"
+                    class="audio-meter-fill"
+                  ></div>
+
+                </div>
+
+                <div class="audio-meter-scale">
+                  <span>-60</span>
+                  <span>-30</span>
+                  <span>-18</span>
+                  <span>-6</span>
+                  <span>0 dB</span>
+                </div>
+
+              </div>
+
+
+              <div class="audio-channel-controls">
+
+                <select
+                  id="microphoneDevice"
+                  class="audio-device-select"
+                  aria-label="Seleccionar micrófono"
+                >
+                  <option value="">
+                    Micrófono predeterminado
+                  </option>
+                </select>
+
+
+                <div class="audio-control-row">
+
+                  <button
+                    id="microphoneActivateBtn"
+                    class="audio-activate-button"
+                    type="button"
+                  >
+                    ACTIVAR MICRÓFONO
+                  </button>
+
+                  <button
+                    id="microphoneMuteBtn"
+                    class="audio-mute-button"
+                    type="button"
+                    disabled
+                  >
+                    MUTE
+                  </button>
+
+                </div>
+
+
+                <div class="audio-gain-control">
+
+                  <label for="microphoneGain">
+                    GANANCIA
+                  </label>
+
+                  <input
+                    id="microphoneGain"
+                    type="range"
+                    min="0"
+                    max="200"
+                    value="100"
+                    step="1"
+                  >
+
+                  <span
+                    id="microphoneGainValue"
+                    class="audio-gain-value"
+                  >
+                    100%
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <p
+              id="audioConsoleMessage"
+              class="audio-console-message"
+              role="status"
+              aria-live="polite"
+            >
+              Activa el micrófono para comprobar la señal de entrada.
+            </p>
+
+          </div>
 
         </section>
 
@@ -2192,6 +2376,12 @@
   <script
     type="module"
     src="./publicar.js"
+  ></script>
+
+
+  <script
+    type="module"
+    src="./audio-console.js"
   ></script>
 
 
