@@ -1,10 +1,10 @@
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   CONSOLA DE AUDIO V3
+   CONSOLA DE AUDIO V4
 
    Canales:
    - Micrófono
-   - Música
+   - Música con playlist
    - Cortina
 ========================================================= */
 
@@ -21,6 +21,13 @@ import {
 
   /* Música */
   loadMusicFile,
+  addMusicFiles,
+  selectMusicTrack,
+  nextMusicTrack,
+  previousMusicTrack,
+  removeMusicTrack,
+  clearMusicPlaylist,
+  getMusicPlaylistState,
   playMusic,
   pauseMusic,
   stopMusic,
@@ -197,6 +204,31 @@ function getElements() {
     musicDuration:
       document.getElementById(
         "musicDuration"
+      ),
+
+    musicPreviousButton:
+      document.getElementById(
+        "musicPreviousBtn"
+      ),
+
+    musicNextButton:
+      document.getElementById(
+        "musicNextBtn"
+      ),
+
+    musicClearButton:
+      document.getElementById(
+        "musicClearBtn"
+      ),
+
+    musicPlaylist:
+      document.getElementById(
+        "musicPlaylist"
+      ),
+
+    musicPlaylistCount:
+      document.getElementById(
+        "musicPlaylistCount"
       ),
 
 
@@ -967,6 +999,383 @@ async function handleSystemDeviceChange() {
 
 
 /* =========================================================
+   MÚSICA — PLAYLIST
+========================================================= */
+
+function syncCurrentMusicName() {
+
+  const playlistState =
+    getMusicPlaylistState();
+
+  const currentTrack =
+    playlistState.tracks[
+      playlistState.currentIndex
+    ];
+
+  musicFileName =
+    currentTrack?.name ||
+    "";
+
+}
+
+
+function renderMusicPlaylist() {
+
+  const {
+    musicPlaylist,
+    musicPlaylistCount,
+    musicPreviousButton,
+    musicNextButton,
+    musicClearButton
+  } = getElements();
+
+  const playlistState =
+    getMusicPlaylistState();
+
+  if (musicPlaylistCount) {
+
+    musicPlaylistCount.textContent =
+      playlistState.count === 1
+        ? "1 canción"
+        : `${playlistState.count} canciones`;
+
+  }
+
+  if (musicPreviousButton) {
+
+    musicPreviousButton.disabled =
+      !playlistState.hasPrevious;
+
+  }
+
+  if (musicNextButton) {
+
+    musicNextButton.disabled =
+      !playlistState.hasNext;
+
+  }
+
+  if (musicClearButton) {
+
+    musicClearButton.disabled =
+      playlistState.count === 0;
+
+  }
+
+  if (!musicPlaylist) {
+    return;
+  }
+
+  musicPlaylist.innerHTML = "";
+
+  if (playlistState.count === 0) {
+
+    const empty =
+      document.createElement("div");
+
+    empty.className =
+      "music-playlist-empty";
+
+    empty.textContent =
+      "No hay canciones en la playlist.";
+
+    musicPlaylist.appendChild(empty);
+
+    return;
+
+  }
+
+  playlistState.tracks.forEach(
+    track => {
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "music-playlist-item";
+
+      row.classList.toggle(
+        "active",
+        track.selected
+      );
+
+      row.dataset.index =
+        String(track.index);
+
+
+      const selectButton =
+        document.createElement("button");
+
+      selectButton.type =
+        "button";
+
+      selectButton.className =
+        "music-playlist-select";
+
+      selectButton.dataset.action =
+        "select";
+
+      selectButton.dataset.index =
+        String(track.index);
+
+      selectButton.textContent =
+        `${track.index + 1}. ${track.name}`;
+
+
+      const duration =
+        document.createElement("span");
+
+      duration.className =
+        "music-playlist-duration";
+
+      duration.textContent =
+        track.duration > 0
+          ? formatTime(track.duration)
+          : "—";
+
+
+      const removeButton =
+        document.createElement("button");
+
+      removeButton.type =
+        "button";
+
+      removeButton.className =
+        "music-playlist-remove";
+
+      removeButton.dataset.action =
+        "remove";
+
+      removeButton.dataset.index =
+        String(track.index);
+
+      removeButton.setAttribute(
+        "aria-label",
+        `Eliminar ${track.name}`
+      );
+
+      removeButton.title =
+        "Eliminar de la playlist";
+
+      removeButton.textContent =
+        "×";
+
+
+      row.appendChild(
+        selectButton
+      );
+
+      row.appendChild(
+        duration
+      );
+
+      row.appendChild(
+        removeButton
+      );
+
+      musicPlaylist.appendChild(
+        row
+      );
+
+    }
+  );
+
+}
+
+
+async function handleMusicPlaylistClick(
+  event
+) {
+
+  const button =
+    event.target.closest(
+      "button[data-action]"
+    );
+
+  if (!button) {
+    return;
+  }
+
+  const index =
+    Number(
+      button.dataset.index
+    );
+
+  if (!Number.isInteger(index)) {
+    return;
+  }
+
+  try {
+
+    if (
+      button.dataset.action ===
+      "select"
+    ) {
+
+      stopMusic();
+
+      const result =
+        await selectMusicTrack(
+          index
+        );
+
+      musicFileName =
+        result.name;
+
+      updateMusicInterface();
+
+      setMessage(
+        `Canción seleccionada: ${result.name}`,
+        "ok"
+      );
+
+    }
+    else if (
+      button.dataset.action ===
+      "remove"
+    ) {
+
+      await removeMusicTrack(
+        index
+      );
+
+      syncCurrentMusicName();
+
+      updateMusicInterface();
+
+      setMessage(
+        "Canción eliminada de la playlist."
+      );
+
+    }
+
+  }
+  catch (error) {
+
+    console.error(
+      "Error administrando playlist:",
+      error
+    );
+
+    setMessage(
+      error?.message ||
+      "No fue posible actualizar la playlist.",
+      "error"
+    );
+
+  }
+
+}
+
+
+async function handlePreviousMusicTrack() {
+
+  try {
+
+    stopMusic();
+
+    const result =
+      await previousMusicTrack();
+
+    if (!result) {
+      return;
+    }
+
+    musicFileName =
+      result.name;
+
+    updateMusicInterface();
+
+    setMessage(
+      `Canción anterior: ${result.name}`,
+      "ok"
+    );
+
+  }
+  catch (error) {
+
+    console.error(
+      "Error seleccionando canción anterior:",
+      error
+    );
+
+    setMessage(
+      error?.message ||
+      "No fue posible seleccionar la canción anterior.",
+      "error"
+    );
+
+  }
+
+}
+
+
+async function handleNextMusicTrack() {
+
+  try {
+
+    stopMusic();
+
+    const result =
+      await nextMusicTrack();
+
+    if (!result) {
+      return;
+    }
+
+    musicFileName =
+      result.name;
+
+    updateMusicInterface();
+
+    setMessage(
+      `Siguiente canción: ${result.name}`,
+      "ok"
+    );
+
+  }
+  catch (error) {
+
+    console.error(
+      "Error seleccionando siguiente canción:",
+      error
+    );
+
+    setMessage(
+      error?.message ||
+      "No fue posible seleccionar la siguiente canción.",
+      "error"
+    );
+
+  }
+
+}
+
+
+function handleClearMusicPlaylist() {
+
+  clearMusicPlaylist();
+
+  musicFileName =
+    "";
+
+  musicMuted =
+    false;
+
+  setMusicMuted(
+    false
+  );
+
+  updateMusicInterface();
+
+  setMessage(
+    "Playlist de música vaciada."
+  );
+
+}
+
+
+/* =========================================================
    MÚSICA — INTERFAZ
 ========================================================= */
 
@@ -985,6 +1394,10 @@ function updateMusicInterface() {
 
   const state =
     getMusicState();
+
+  syncCurrentMusicName();
+
+  renderMusicPlaylist();
 
 
   if (
@@ -1118,65 +1531,77 @@ function openMusicPicker() {
   }
 
 
+  musicFileInput.multiple =
+    true;
+
   musicFileInput.click();
 
 }
 
 
 /* =========================================================
-   CARGAR CANCIÓN
+   CARGAR CANCIONES
 ========================================================= */
 
 async function handleMusicFile(
   event
 ) {
 
-  const file =
-    event.target
-      .files?.[0];
+  const files =
+    Array.from(
+      event.target.files ||
+      []
+    );
 
-
-  if (!file) {
+  if (!files.length) {
     return;
   }
 
-
   setMessage(
-    "Cargando canción..."
+    files.length === 1
+      ? "Agregando canción..."
+      : `Agregando ${files.length} canciones...`
   );
-
 
   try {
 
-    stopMusic();
+    const previousCount =
+      getMusicPlaylistState()
+        .count;
 
+    await addMusicFiles(
+      files
+    );
 
-    const result =
-      await loadMusicFile(
-        file
-      );
-
-
-    musicFileName =
-      result.name;
-
+    syncCurrentMusicName();
 
     musicMuted =
       false;
-
 
     setMusicMuted(
       false
     );
 
-
     updateMusicInterface();
 
+    const playlistState =
+      getMusicPlaylistState();
 
     setMessage(
-      `Canción cargada: ${result.name} · ${formatTime(result.duration)}`,
+      files.length === 1
+        ? `Canción agregada. Playlist: ${playlistState.count} canción${playlistState.count === 1 ? "" : "es"}.`
+        : `${files.length} canciones agregadas. Playlist: ${playlistState.count} canciones.`,
       "ok"
     );
+
+    /*
+     * Si ya había música reproduciéndose,
+     * addMusicFiles no reemplaza ni interrumpe
+     * la canción actual.
+     */
+    if (previousCount > 0) {
+      updateMusicInterface();
+    }
 
   }
   catch (error) {
@@ -1186,17 +1611,13 @@ async function handleMusicFile(
       error
     );
 
-
-    musicFileName =
-      "";
-
+    syncCurrentMusicName();
 
     updateMusicInterface();
 
-
     setMessage(
       error?.message ||
-      "No fue posible cargar la canción.",
+      "No fue posible agregar las canciones.",
       "error"
     );
 
@@ -2502,6 +2923,10 @@ async function initializeAudioConsole() {
     musicMuteButton,
     musicVolume,
     musicProgress,
+    musicPreviousButton,
+    musicNextButton,
+    musicClearButton,
+    musicPlaylist,
 
     curtainFileInput,
     curtainLoadButton,
@@ -2663,6 +3088,58 @@ async function initializeAudioConsole() {
       .addEventListener(
         "change",
         handleMusicSeekCommit
+      );
+
+  }
+
+
+  if (
+    musicPreviousButton
+  ) {
+
+    musicPreviousButton
+      .addEventListener(
+        "click",
+        handlePreviousMusicTrack
+      );
+
+  }
+
+
+  if (
+    musicNextButton
+  ) {
+
+    musicNextButton
+      .addEventListener(
+        "click",
+        handleNextMusicTrack
+      );
+
+  }
+
+
+  if (
+    musicClearButton
+  ) {
+
+    musicClearButton
+      .addEventListener(
+        "click",
+        handleClearMusicPlaylist
+      );
+
+  }
+
+
+  if (
+    musicPlaylist
+  ) {
+
+    musicPlaylist
+      .addEventListener(
+        "click",
+        handleMusicPlaylistClick
       );
 
   }

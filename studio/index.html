@@ -1318,6 +1318,7 @@
                   id="musicFileInput"
                   type="file"
                   accept="audio/*"
+                  multiple
                   hidden
                 >
 
@@ -1328,7 +1329,7 @@
                     class="audio-activate-button"
                     type="button"
                   >
-                    CARGAR CANCIÓN
+                    AGREGAR CANCIONES
                   </button>
 
                   <button
@@ -1416,6 +1417,58 @@
                   >
                     0:00
                   </span>
+
+                </div>
+
+                <div class="music-playlist-controls">
+
+                  <div class="audio-control-row">
+
+                    <button
+                      id="musicPreviousBtn"
+                      class="audio-mute-button"
+                      type="button"
+                      disabled
+                    >
+                      ← ANTERIOR
+                    </button>
+
+                    <button
+                      id="musicNextBtn"
+                      class="audio-mute-button"
+                      type="button"
+                      disabled
+                    >
+                      SIGUIENTE →
+                    </button>
+
+                    <button
+                      id="musicClearBtn"
+                      class="audio-mute-button"
+                      type="button"
+                      disabled
+                    >
+                      VACIAR PLAYLIST
+                    </button>
+
+                    <span
+                      id="musicPlaylistCount"
+                      class="audio-gain-value"
+                    >
+                      0 canciones
+                    </span>
+
+                  </div>
+
+                  <div
+                    id="musicPlaylist"
+                    class="music-playlist"
+                    aria-label="Playlist de música"
+                  >
+                    <div class="music-playlist-empty">
+                      No hay canciones en la playlist.
+                    </div>
+                  </div>
 
                 </div>
 

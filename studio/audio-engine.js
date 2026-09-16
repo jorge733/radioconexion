@@ -1,7 +1,7 @@
 /* ========================================================= RADIO
-CONEXIÓN STUDIO AUDIO ENGINE V3
+CONEXIÓN STUDIO AUDIO ENGINE V4
 
-Canales actuales: - Micrófono - Música - Cortina
+Canales actuales: - Micrófono - Música con playlist - Cortina
 
 Próximamente: - Soundpad - Master - Grabación
 ========================================================= */
@@ -28,6 +28,13 @@ null; let musicAnalyser = null;
 let musicObjectUrl = null;
 
 let musicVolume = 0.7; let musicMuted = false;
+
+/* Playlist de Música.
+   Los archivos permanecen disponibles durante la sesión del navegador.
+   No se avanza automáticamente al terminar una canción: el operador decide. */
+let musicPlaylist = [];
+let musicPlaylistIndex = -1;
+let musicPlaylistId = 0;
 
 /* ========================================================= CORTINA
 ========================================================= */
@@ -417,10 +424,11 @@ return musicAudioElement;
 
 }
 
-/* ========================================================= CARGAR
-MÚSICA ========================================================= */
+/* =========================================================
+   PLAYLIST / CARGA DE MÚSICA
+========================================================= */
 
-async function loadMusicFile( file ) {
+function validateMusicFile( file ) {
 
 if (!(file instanceof File)) {
 
@@ -433,34 +441,75 @@ if (!(file instanceof File)) {
 if ( file.type && !file.type.startsWith( "audio/" ) ) {
 
     throw new Error(
-      "El archivo seleccionado no parece ser un archivo de audio."
+      `El archivo "${file.name}" no parece ser un archivo de audio.`
+    );
+
+}
+
+}
+
+
+function createMusicPlaylistItem( file ) {
+
+validateMusicFile(file);
+
+musicPlaylistId += 1;
+
+return {
+  id: `music-${Date.now()}-${musicPlaylistId}`,
+  name: file.name,
+  file,
+  url: URL.createObjectURL(file),
+  duration: 0
+};
+
+}
+
+
+function revokeMusicPlaylistItem( item ) {
+
+if (!item?.url) { return; }
+
+try {
+    URL.revokeObjectURL(item.url);
+}
+catch (error) {
+    console.warn(
+      "No fue posible liberar el archivo de música:",
+      error
+    );
+}
+
+}
+
+
+async function loadMusicPlaylistIndex( index ) {
+
+const numericIndex = Number(index);
+
+if (
+  !Number.isInteger(numericIndex) ||
+  numericIndex < 0 ||
+  numericIndex >= musicPlaylist.length
+) {
+
+    throw new Error(
+      "La canción seleccionada no existe en la playlist."
     );
 
 }
 
 const audio = await ensureMusicChannel();
 
-/* Liberamos el Object URL * anterior para no acumular * memoria en el
-navegador. */
-
-if (musicObjectUrl) {
-
-    URL.revokeObjectURL(
-      musicObjectUrl
-    );
-
-    musicObjectUrl = null;
-
-}
-
-musicObjectUrl = URL.createObjectURL( file );
+const item = musicPlaylist[numericIndex];
 
 audio.pause();
 
-audio.src = musicObjectUrl;
+musicPlaylistIndex = numericIndex;
+musicObjectUrl = item.url;
 
+audio.src = item.url;
 audio.currentTime = 0;
-
 audio.load();
 
 return new Promise( (resolve, reject) => {
@@ -470,16 +519,16 @@ return new Promise( (resolve, reject) => {
 
           cleanup();
 
-          resolve({
-            name:
-              file.name,
+          item.duration =
+            Number.isFinite(audio.duration)
+              ? audio.duration
+              : 0;
 
-            duration:
-              Number.isFinite(
-                audio.duration
-              )
-                ? audio.duration
-                : 0
+          resolve({
+            id: item.id,
+            index: musicPlaylistIndex,
+            name: item.name,
+            duration: item.duration
           });
 
         };
@@ -492,7 +541,7 @@ return new Promise( (resolve, reject) => {
 
           reject(
             new Error(
-              "El navegador no pudo cargar este archivo de audio."
+              `El navegador no pudo cargar "${item.name}".`
             )
           );
 
@@ -507,7 +556,6 @@ return new Promise( (resolve, reject) => {
             handleLoaded
           );
 
-
           audio.removeEventListener(
             "error",
             handleError
@@ -521,7 +569,6 @@ return new Promise( (resolve, reject) => {
         handleLoaded
       );
 
-
       audio.addEventListener(
         "error",
         handleError
@@ -532,6 +579,235 @@ return new Promise( (resolve, reject) => {
 );
 
 }
+
+
+/* Compatibilidad con la versión anterior:
+   cargar una sola canción reemplaza la playlist completa. */
+async function loadMusicFile( file ) {
+
+clearMusicPlaylist();
+
+const item = createMusicPlaylistItem(file);
+
+musicPlaylist.push(item);
+
+return loadMusicPlaylistIndex(0);
+
+}
+
+
+/* Añade una o varias canciones sin borrar las existentes.
+   La primera canción se carga si todavía no había ninguna. */
+async function addMusicFiles( files ) {
+
+const incoming =
+  Array.from(files || []);
+
+if (incoming.length === 0) {
+
+    throw new Error(
+      "Debes seleccionar al menos un archivo de audio."
+    );
+
+}
+
+const newItems =
+  incoming.map(
+    file => createMusicPlaylistItem(file)
+  );
+
+const playlistWasEmpty =
+  musicPlaylist.length === 0;
+
+musicPlaylist.push(...newItems);
+
+if (playlistWasEmpty) {
+
+    await loadMusicPlaylistIndex(0);
+
+}
+
+return getMusicPlaylistState();
+
+}
+
+
+async function selectMusicTrack( index ) {
+
+return loadMusicPlaylistIndex(index);
+
+}
+
+
+async function nextMusicTrack() {
+
+if (musicPlaylist.length === 0) {
+
+    throw new Error(
+      "La playlist de música está vacía."
+    );
+
+}
+
+if (musicPlaylistIndex >= musicPlaylist.length - 1) {
+
+    return null;
+
+}
+
+return loadMusicPlaylistIndex(
+  musicPlaylistIndex + 1
+);
+
+}
+
+
+async function previousMusicTrack() {
+
+if (musicPlaylist.length === 0) {
+
+    throw new Error(
+      "La playlist de música está vacía."
+    );
+
+}
+
+if (musicPlaylistIndex <= 0) {
+
+    return null;
+
+}
+
+return loadMusicPlaylistIndex(
+  musicPlaylistIndex - 1
+);
+
+}
+
+
+async function removeMusicTrack( index ) {
+
+const numericIndex = Number(index);
+
+if (
+  !Number.isInteger(numericIndex) ||
+  numericIndex < 0 ||
+  numericIndex >= musicPlaylist.length
+) {
+
+    return getMusicPlaylistState();
+
+}
+
+const removingCurrent =
+  numericIndex === musicPlaylistIndex;
+
+const [removed] =
+  musicPlaylist.splice(numericIndex, 1);
+
+if (removingCurrent && musicAudioElement) {
+
+    musicAudioElement.pause();
+    musicAudioElement.removeAttribute("src");
+    musicAudioElement.load();
+
+}
+
+revokeMusicPlaylistItem(removed);
+
+if (musicPlaylist.length === 0) {
+
+    musicPlaylistIndex = -1;
+    musicObjectUrl = null;
+
+    return getMusicPlaylistState();
+
+}
+
+if (numericIndex < musicPlaylistIndex) {
+
+    musicPlaylistIndex -= 1;
+
+}
+
+if (removingCurrent) {
+
+    const nextIndex =
+      Math.min(
+        numericIndex,
+        musicPlaylist.length - 1
+      );
+
+    await loadMusicPlaylistIndex(nextIndex);
+
+}
+
+return getMusicPlaylistState();
+
+}
+
+
+function clearMusicPlaylist() {
+
+if (musicAudioElement) {
+
+    musicAudioElement.pause();
+
+    try {
+      musicAudioElement.removeAttribute("src");
+      musicAudioElement.load();
+    }
+    catch (error) {
+      console.warn(
+        "No fue posible limpiar el reproductor de música:",
+        error
+      );
+    }
+
+}
+
+musicPlaylist.forEach(
+  item => revokeMusicPlaylistItem(item)
+);
+
+musicPlaylist = [];
+musicPlaylistIndex = -1;
+musicObjectUrl = null;
+
+}
+
+
+function getMusicPlaylistState() {
+
+return {
+  tracks:
+    musicPlaylist.map(
+      (item, index) => ({
+        id: item.id,
+        index,
+        name: item.name,
+        duration: item.duration,
+        selected:
+          index === musicPlaylistIndex
+      })
+    ),
+
+  currentIndex:
+    musicPlaylistIndex,
+
+  count:
+    musicPlaylist.length,
+
+  hasPrevious:
+    musicPlaylistIndex > 0,
+
+  hasNext:
+    musicPlaylistIndex >= 0 &&
+    musicPlaylistIndex < musicPlaylist.length - 1
+};
+
+}
+
 
 /* =========================================================
 REPRODUCCIÓN DE MÚSICA
@@ -713,7 +989,8 @@ if (!musicAudioElement) {
       currentTime: 0,
       duration: 0,
       volume: musicVolume,
-      muted: musicMuted
+      muted: musicMuted,
+      playlist: getMusicPlaylistState()
     };
 
 }
@@ -753,7 +1030,10 @@ return {
       musicVolume,
 
     muted:
-      musicMuted
+      musicMuted,
+
+    playlist:
+      getMusicPlaylistState()
 
 };
 
@@ -1264,16 +1544,16 @@ if (musicAnalyser) {
 
 }
 
-if (musicObjectUrl) {
+musicPlaylist.forEach(
+  item => revokeMusicPlaylistItem(item)
+);
 
-    URL.revokeObjectURL(
-      musicObjectUrl
-    );
-
-}
+musicPlaylist = [];
+musicPlaylistIndex = -1;
+musicObjectUrl = null;
 
 musicAudioElement = null; musicSource = null; musicGain = null;
-musicAnalyser = null; musicObjectUrl = null;
+musicAnalyser = null;
 
 }
 
@@ -1389,7 +1669,9 @@ setMicrophoneVolume, setMicrophoneMuted, toggleMicrophoneMute,
 getMicrophoneLevel, getMicrophoneDecibels, isMicrophoneActive,
 getMicrophoneStream,
 
-/* Música */ loadMusicFile, playMusic, pauseMusic, stopMusic, seekMusic,
+/* Música */ loadMusicFile, addMusicFiles, selectMusicTrack,
+nextMusicTrack, previousMusicTrack, removeMusicTrack, clearMusicPlaylist,
+getMusicPlaylistState, playMusic, pauseMusic, stopMusic, seekMusic,
 setMusicVolume, setMusicMuted, toggleMusicMute, getMusicLevel,
 getMusicDecibels, getMusicState, getMusicAudioElement,
 
