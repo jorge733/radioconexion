@@ -1,7 +1,7 @@
 /* ========================================================= RADIO
-CONEXIÓN STUDIO AUDIO ENGINE V4
+CONEXIÓN STUDIO AUDIO ENGINE V5
 
-Canales actuales: - Micrófono - Música con playlist - Cortina
+Canales actuales: - Micrófono - Música con playlist + crossfade automático - Cortina
 
 Próximamente: - Soundpad - Master - Grabación
 ========================================================= */
@@ -19,19 +19,34 @@ microphoneGain = null; let microphoneAnalyser = null;
 
 let microphoneMuted = false; let microphoneVolume = 1;
 
-/* ========================================================= MÚSICA
+/* =========================================================
+   MÚSICA V5 · PLAYLIST + CROSSFADE A/B
 ========================================================= */
 
-let musicAudioElement = null; let musicSource = null; let musicGain =
-null; let musicAnalyser = null;
+const MUSIC_CROSSFADE_SECONDS = 5;
+
+let musicAudioA = null;
+let musicAudioB = null;
+
+let musicSourceA = null;
+let musicSourceB = null;
+
+let musicFadeGainA = null;
+let musicFadeGainB = null;
+
+let musicGain = null;
+let musicAnalyser = null;
+
+let musicActiveSlot = "A";
+let musicTransitioning = false;
+let musicTransitionPromise = null;
+let musicAutoAdvanceEnabled = true;
 
 let musicObjectUrl = null;
 
-let musicVolume = 0.7; let musicMuted = false;
+let musicVolume = 0.7;
+let musicMuted = false;
 
-/* Playlist de Música.
-   Los archivos permanecen disponibles durante la sesión del navegador.
-   No se avanza automáticamente al terminar una canción: el operador decide. */
 let musicPlaylist = [];
 let musicPlaylistIndex = -1;
 let musicPlaylistId = 0;
@@ -347,391 +362,665 @@ track.readyState === "live" );
 
 }
 
-/* ========================================================= CREAR CANAL
-DE MÚSICA ========================================================= */
+/* =========================================================
+   CANAL DE MÚSICA V5
+========================================================= */
+
+function getActiveMusicAudio() {
+  return musicActiveSlot === "A" ? musicAudioA : musicAudioB;
+}
+
+function getStandbyMusicAudio() {
+  return musicActiveSlot === "A" ? musicAudioB : musicAudioA;
+}
+
+function getActiveMusicFadeGain() {
+  return musicActiveSlot === "A" ? musicFadeGainA : musicFadeGainB;
+}
+
+function getStandbyMusicFadeGain() {
+  return musicActiveSlot === "A" ? musicFadeGainB : musicFadeGainA;
+}
+
+function safeSetAudioTime(audio, seconds = 0) {
+  if (!audio) { return; }
+
+  try {
+    audio.currentTime = seconds;
+  }
+  catch (error) {
+    console.warn("No fue posible cambiar la posición de la música:", error);
+  }
+}
+
+function stopAndUnloadMusicAudio(audio) {
+  if (!audio) { return; }
+
+  audio.pause();
+  safeSetAudioTime(audio, 0);
+
+  try {
+    audio.removeAttribute("src");
+    audio.load();
+  }
+  catch (error) {
+    console.warn("No fue posible limpiar un reproductor de música:", error);
+  }
+}
+
+function setFadeGainImmediately(gainNode, value) {
+  if (!gainNode || !audioContext) { return; }
+
+  const now = audioContext.currentTime;
+  gainNode.gain.cancelScheduledValues(now);
+  gainNode.gain.setValueAtTime(value, now);
+}
+
+function applyMusicMasterGain() {
+  if (!musicGain) { return; }
+
+  const target = musicMuted ? 0 : musicVolume;
+  const now = audioContext ? audioContext.currentTime : 0;
+
+  if (audioContext) {
+    musicGain.gain.cancelScheduledValues(now);
+    musicGain.gain.setValueAtTime(target, now);
+  }
+  else {
+    musicGain.gain.value = target;
+  }
+}
+
+function attachMusicAutomationListeners(audio) {
+  if (!audio || audio.dataset.radioConexionV5Bound === "1") {
+    return;
+  }
+
+  audio.dataset.radioConexionV5Bound = "1";
+
+  audio.addEventListener("timeupdate", () => {
+    if (!musicAutoAdvanceEnabled || musicTransitioning) {
+      return;
+    }
+
+    if (audio !== getActiveMusicAudio()) {
+      return;
+    }
+
+    const duration = Number(audio.duration);
+    const currentTime = Number(audio.currentTime);
+
+    if (
+      !Number.isFinite(duration) ||
+      duration <= 0 ||
+      !Number.isFinite(currentTime)
+    ) {
+      return;
+    }
+
+    const remaining = duration - currentTime;
+
+    if (
+      remaining <= MUSIC_CROSSFADE_SECONDS &&
+      remaining > 0 &&
+      musicPlaylistIndex >= 0 &&
+      musicPlaylistIndex < musicPlaylist.length - 1
+    ) {
+      crossfadeToMusicIndex(
+        musicPlaylistIndex + 1,
+        MUSIC_CROSSFADE_SECONDS
+      ).catch(error => {
+        console.error("Error durante el crossfade automático:", error);
+      });
+    }
+  });
+
+  audio.addEventListener("ended", () => {
+    if (audio !== getActiveMusicAudio()) {
+      return;
+    }
+
+    if (
+      musicAutoAdvanceEnabled &&
+      !musicTransitioning &&
+      musicPlaylistIndex >= 0 &&
+      musicPlaylistIndex < musicPlaylist.length - 1
+    ) {
+      crossfadeToMusicIndex(
+        musicPlaylistIndex + 1,
+        0
+      ).catch(error => {
+        console.error("Error al avanzar automáticamente la playlist:", error);
+      });
+    }
+  });
+}
 
 async function ensureMusicChannel() {
+  const context = await ensureAudioContext();
 
-const context = await ensureAudioContext();
+  if (!musicAudioA) {
+    musicAudioA = new Audio();
+    musicAudioA.preload = "metadata";
+    attachMusicAutomationListeners(musicAudioA);
+  }
 
-if (!musicAudioElement) {
+  if (!musicAudioB) {
+    musicAudioB = new Audio();
+    musicAudioB.preload = "metadata";
+    attachMusicAutomationListeners(musicAudioB);
+  }
 
-    musicAudioElement =
-      new Audio();
+  if (!musicSourceA) {
+    musicSourceA = context.createMediaElementSource(musicAudioA);
+  }
 
+  if (!musicSourceB) {
+    musicSourceB = context.createMediaElementSource(musicAudioB);
+  }
 
-    musicAudioElement.preload =
-      "metadata";
+  if (!musicFadeGainA) {
+    musicFadeGainA = context.createGain();
+    musicFadeGainA.gain.value = 1;
+  }
 
+  if (!musicFadeGainB) {
+    musicFadeGainB = context.createGain();
+    musicFadeGainB.gain.value = 0;
+  }
 
-    musicAudioElement.crossOrigin =
-      "anonymous";
+  if (!musicGain) {
+    musicGain = context.createGain();
+  }
 
+  if (!musicAnalyser) {
+    musicAnalyser = context.createAnalyser();
+    musicAnalyser.fftSize = 2048;
+    musicAnalyser.smoothingTimeConstant = 0.72;
+  }
+
+  try { musicSourceA.disconnect(); } catch (error) {}
+  try { musicSourceB.disconnect(); } catch (error) {}
+  try { musicFadeGainA.disconnect(); } catch (error) {}
+  try { musicFadeGainB.disconnect(); } catch (error) {}
+  try { musicGain.disconnect(); } catch (error) {}
+  try { musicAnalyser.disconnect(); } catch (error) {}
+
+  musicSourceA.connect(musicFadeGainA);
+  musicSourceB.connect(musicFadeGainB);
+
+  musicFadeGainA.connect(musicGain);
+  musicFadeGainB.connect(musicGain);
+
+  musicGain.connect(musicAnalyser);
+  musicAnalyser.connect(context.destination);
+
+  applyMusicMasterGain();
+
+  return getActiveMusicAudio();
 }
 
-if (!musicSource) {
-
-    musicSource =
-      context
-        .createMediaElementSource(
-          musicAudioElement
-        );
-
-}
-
-if (!musicGain) {
-
-    musicGain =
-      context.createGain();
-
-}
-
-if (!musicAnalyser) {
-
-    musicAnalyser =
-      context.createAnalyser();
-
-
-    musicAnalyser.fftSize =
-      2048;
-
-
-    musicAnalyser
-      .smoothingTimeConstant =
-      0.72;
-
-}
-
-/* Cadena del canal: Archivo * ↓ * Gain * ↓ * Analyser * ↓ * Parlantes
-Más adelante, en vez de ir * directamente a destination, * todos los
-canales pasarán por * el MASTER. */
-
-try { musicSource.disconnect(); } catch (error) { /* Puede no estar conectado todavía. */ }
-
-try { musicGain.disconnect(); } catch (error) { /* Puede no estar conectado todavía. */ }
-
-try { musicAnalyser.disconnect(); } catch (error) { /* Puede no estar conectado todavía. */ }
-
-musicSource.connect( musicGain );
-
-musicGain.connect( musicAnalyser );
-
-musicAnalyser.connect( context.destination );
-
-updateMusicGain();
-
-return musicAudioElement;
-
-}
 
 /* =========================================================
    PLAYLIST / CARGA DE MÚSICA
 ========================================================= */
 
-function validateMusicFile( file ) {
+function validateMusicFile(file) {
+  if (!(file instanceof File)) {
+    throw new Error("Debes seleccionar un archivo de audio válido.");
+  }
 
-if (!(file instanceof File)) {
-
-    throw new Error(
-      "Debes seleccionar un archivo de audio válido."
-    );
-
-}
-
-if ( file.type && !file.type.startsWith( "audio/" ) ) {
-
+  if (file.type && !file.type.startsWith("audio/")) {
     throw new Error(
       `El archivo "${file.name}" no parece ser un archivo de audio.`
     );
-
+  }
 }
 
+function createMusicPlaylistItem(file) {
+  validateMusicFile(file);
+
+  musicPlaylistId += 1;
+
+  return {
+    id: `music-${Date.now()}-${musicPlaylistId}`,
+    name: file.name,
+    file,
+    url: URL.createObjectURL(file),
+    duration: 0
+  };
 }
 
+function revokeMusicPlaylistItem(item) {
+  if (!item?.url) { return; }
 
-function createMusicPlaylistItem( file ) {
-
-validateMusicFile(file);
-
-musicPlaylistId += 1;
-
-return {
-  id: `music-${Date.now()}-${musicPlaylistId}`,
-  name: file.name,
-  file,
-  url: URL.createObjectURL(file),
-  duration: 0
-};
-
-}
-
-
-function revokeMusicPlaylistItem( item ) {
-
-if (!item?.url) { return; }
-
-try {
+  try {
     URL.revokeObjectURL(item.url);
-}
-catch (error) {
+  }
+  catch (error) {
     console.warn(
       "No fue posible liberar el archivo de música:",
       error
     );
+  }
 }
 
+function waitForMusicMetadata(audio, item, index) {
+  return new Promise((resolve, reject) => {
+    const handleLoaded = () => {
+      cleanup();
+
+      item.duration =
+        Number.isFinite(audio.duration)
+          ? audio.duration
+          : 0;
+
+      resolve({
+        id: item.id,
+        index,
+        name: item.name,
+        duration: item.duration
+      });
+    };
+
+    const handleError = () => {
+      cleanup();
+
+      reject(
+        new Error(
+          `El navegador no pudo cargar "${item.name}".`
+        )
+      );
+    };
+
+    const cleanup = () => {
+      audio.removeEventListener("loadedmetadata", handleLoaded);
+      audio.removeEventListener("error", handleError);
+    };
+
+    audio.addEventListener("loadedmetadata", handleLoaded);
+    audio.addEventListener("error", handleError);
+  });
 }
 
+async function prepareMusicAudio(audio, index) {
+  const numericIndex = Number(index);
 
-async function loadMusicPlaylistIndex( index ) {
-
-const numericIndex = Number(index);
-
-if (
-  !Number.isInteger(numericIndex) ||
-  numericIndex < 0 ||
-  numericIndex >= musicPlaylist.length
-) {
-
+  if (
+    !Number.isInteger(numericIndex) ||
+    numericIndex < 0 ||
+    numericIndex >= musicPlaylist.length
+  ) {
     throw new Error(
       "La canción seleccionada no existe en la playlist."
     );
+  }
 
+  await ensureMusicChannel();
+
+  const item = musicPlaylist[numericIndex];
+
+  audio.pause();
+  audio.src = item.url;
+  safeSetAudioTime(audio, 0);
+  audio.load();
+
+  const result = await waitForMusicMetadata(
+    audio,
+    item,
+    numericIndex
+  );
+
+  return result;
 }
 
-const audio = await ensureMusicChannel();
+async function loadMusicPlaylistIndex(index) {
+  const numericIndex = Number(index);
 
-const item = musicPlaylist[numericIndex];
+  if (
+    !Number.isInteger(numericIndex) ||
+    numericIndex < 0 ||
+    numericIndex >= musicPlaylist.length
+  ) {
+    throw new Error(
+      "La canción seleccionada no existe en la playlist."
+    );
+  }
 
-audio.pause();
+  await ensureMusicChannel();
 
-musicPlaylistIndex = numericIndex;
-musicObjectUrl = item.url;
+  musicTransitioning = false;
+  musicTransitionPromise = null;
 
-audio.src = item.url;
-audio.currentTime = 0;
-audio.load();
+  const activeAudio = getActiveMusicAudio();
+  const standbyAudio = getStandbyMusicAudio();
 
-return new Promise( (resolve, reject) => {
+  activeAudio.pause();
+  standbyAudio.pause();
 
-      const handleLoaded =
-        () => {
+  setFadeGainImmediately(getActiveMusicFadeGain(), 1);
+  setFadeGainImmediately(getStandbyMusicFadeGain(), 0);
 
-          cleanup();
+  stopAndUnloadMusicAudio(standbyAudio);
 
-          item.duration =
-            Number.isFinite(audio.duration)
-              ? audio.duration
-              : 0;
+  const result = await prepareMusicAudio(
+    activeAudio,
+    numericIndex
+  );
 
-          resolve({
-            id: item.id,
-            index: musicPlaylistIndex,
-            name: item.name,
-            duration: item.duration
-          });
+  musicPlaylistIndex = numericIndex;
+  musicObjectUrl = musicPlaylist[numericIndex].url;
 
-        };
-
-
-      const handleError =
-        () => {
-
-          cleanup();
-
-          reject(
-            new Error(
-              `El navegador no pudo cargar "${item.name}".`
-            )
-          );
-
-        };
-
-
-      const cleanup =
-        () => {
-
-          audio.removeEventListener(
-            "loadedmetadata",
-            handleLoaded
-          );
-
-          audio.removeEventListener(
-            "error",
-            handleError
-          );
-
-        };
-
-
-      audio.addEventListener(
-        "loadedmetadata",
-        handleLoaded
-      );
-
-      audio.addEventListener(
-        "error",
-        handleError
-      );
-
-    }
-
-);
-
+  return result;
 }
 
 
-/* Compatibilidad con la versión anterior:
-   cargar una sola canción reemplaza la playlist completa. */
-async function loadMusicFile( file ) {
+/* Compatibilidad: una sola canción reemplaza la playlist. */
+async function loadMusicFile(file) {
+  clearMusicPlaylist();
 
-clearMusicPlaylist();
+  const item = createMusicPlaylistItem(file);
+  musicPlaylist.push(item);
 
-const item = createMusicPlaylistItem(file);
-
-musicPlaylist.push(item);
-
-return loadMusicPlaylistIndex(0);
-
+  return loadMusicPlaylistIndex(0);
 }
 
 
-/* Añade una o varias canciones sin borrar las existentes.
-   La primera canción se carga si todavía no había ninguna. */
-async function addMusicFiles( files ) {
+/* Añade una o varias canciones sin borrar las existentes. */
+async function addMusicFiles(files) {
+  const incoming = Array.from(files || []);
 
-const incoming =
-  Array.from(files || []);
-
-if (incoming.length === 0) {
-
+  if (incoming.length === 0) {
     throw new Error(
       "Debes seleccionar al menos un archivo de audio."
     );
+  }
 
-}
+  const newItems =
+    incoming.map(file => createMusicPlaylistItem(file));
 
-const newItems =
-  incoming.map(
-    file => createMusicPlaylistItem(file)
-  );
+  const playlistWasEmpty =
+    musicPlaylist.length === 0;
 
-const playlistWasEmpty =
-  musicPlaylist.length === 0;
+  musicPlaylist.push(...newItems);
 
-musicPlaylist.push(...newItems);
-
-if (playlistWasEmpty) {
-
+  if (playlistWasEmpty) {
     await loadMusicPlaylistIndex(0);
+  }
 
+  return getMusicPlaylistState();
 }
 
-return getMusicPlaylistState();
 
+/* =========================================================
+   CROSSFADE
+========================================================= */
+
+async function crossfadeToMusicIndex(
+  targetIndex,
+  requestedSeconds = MUSIC_CROSSFADE_SECONDS
+) {
+  const numericIndex = Number(targetIndex);
+
+  if (
+    !Number.isInteger(numericIndex) ||
+    numericIndex < 0 ||
+    numericIndex >= musicPlaylist.length
+  ) {
+    return null;
+  }
+
+  if (musicTransitioning) {
+    return musicTransitionPromise;
+  }
+
+  if (numericIndex === musicPlaylistIndex) {
+    return {
+      id: musicPlaylist[numericIndex].id,
+      index: numericIndex,
+      name: musicPlaylist[numericIndex].name,
+      duration: musicPlaylist[numericIndex].duration
+    };
+  }
+
+  musicTransitioning = true;
+
+  musicTransitionPromise = (async () => {
+    const context = await ensureAudioContext();
+    await ensureMusicChannel();
+
+    const outgoingAudio = getActiveMusicAudio();
+    const incomingAudio = getStandbyMusicAudio();
+
+    const outgoingGain = getActiveMusicFadeGain();
+    const incomingGain = getStandbyMusicFadeGain();
+
+    const result = await prepareMusicAudio(
+      incomingAudio,
+      numericIndex
+    );
+
+    const outgoingWasPlaying =
+      outgoingAudio &&
+      !outgoingAudio.paused &&
+      !outgoingAudio.ended;
+
+    let fadeSeconds =
+      Math.max(0, Number(requestedSeconds) || 0);
+
+    if (outgoingWasPlaying) {
+      const remaining =
+        Number.isFinite(outgoingAudio.duration)
+          ? Math.max(
+              0,
+              outgoingAudio.duration - outgoingAudio.currentTime
+            )
+          : fadeSeconds;
+
+      fadeSeconds =
+        Math.min(fadeSeconds, remaining);
+    }
+    else {
+      fadeSeconds = 0;
+    }
+
+    const now = context.currentTime;
+    const masterTarget = musicMuted ? 0 : musicVolume;
+
+    applyMusicMasterGain();
+
+    incomingGain.gain.cancelScheduledValues(now);
+    incomingGain.gain.setValueAtTime(0, now);
+
+    outgoingGain.gain.cancelScheduledValues(now);
+    outgoingGain.gain.setValueAtTime(
+      outgoingWasPlaying ? 1 : 0,
+      now
+    );
+
+    await incomingAudio.play();
+
+    if (fadeSeconds > 0) {
+      incomingGain.gain.linearRampToValueAtTime(
+        1,
+        now + fadeSeconds
+      );
+
+      outgoingGain.gain.linearRampToValueAtTime(
+        0,
+        now + fadeSeconds
+      );
+
+      await new Promise(resolve => {
+        window.setTimeout(
+          resolve,
+          Math.ceil(fadeSeconds * 1000) + 40
+        );
+      });
+    }
+    else {
+      incomingGain.gain.setValueAtTime(1, now);
+      outgoingGain.gain.setValueAtTime(0, now);
+    }
+
+    outgoingAudio.pause();
+    safeSetAudioTime(outgoingAudio, 0);
+
+    musicActiveSlot =
+      musicActiveSlot === "A" ? "B" : "A";
+
+    musicPlaylistIndex = numericIndex;
+    musicObjectUrl = musicPlaylist[numericIndex].url;
+
+    setFadeGainImmediately(
+      getActiveMusicFadeGain(),
+      1
+    );
+
+    setFadeGainImmediately(
+      getStandbyMusicFadeGain(),
+      0
+    );
+
+    return result;
+  })();
+
+  try {
+    return await musicTransitionPromise;
+  }
+  finally {
+    musicTransitioning = false;
+    musicTransitionPromise = null;
+  }
 }
 
 
-async function selectMusicTrack( index ) {
+async function selectMusicTrack(index) {
+  const activeAudio = getActiveMusicAudio();
 
-return loadMusicPlaylistIndex(index);
+  if (
+    activeAudio &&
+    !activeAudio.paused &&
+    !activeAudio.ended &&
+    musicPlaylistIndex >= 0
+  ) {
+    return crossfadeToMusicIndex(
+      index,
+      MUSIC_CROSSFADE_SECONDS
+    );
+  }
 
+  return loadMusicPlaylistIndex(index);
 }
 
 
 async function nextMusicTrack() {
-
-if (musicPlaylist.length === 0) {
-
+  if (musicPlaylist.length === 0) {
     throw new Error(
       "La playlist de música está vacía."
     );
+  }
 
-}
-
-if (musicPlaylistIndex >= musicPlaylist.length - 1) {
-
+  if (musicPlaylistIndex >= musicPlaylist.length - 1) {
     return null;
+  }
 
-}
+  const activeAudio = getActiveMusicAudio();
 
-return loadMusicPlaylistIndex(
-  musicPlaylistIndex + 1
-);
+  if (
+    activeAudio &&
+    !activeAudio.paused &&
+    !activeAudio.ended
+  ) {
+    return crossfadeToMusicIndex(
+      musicPlaylistIndex + 1,
+      MUSIC_CROSSFADE_SECONDS
+    );
+  }
 
+  return loadMusicPlaylistIndex(
+    musicPlaylistIndex + 1
+  );
 }
 
 
 async function previousMusicTrack() {
-
-if (musicPlaylist.length === 0) {
-
+  if (musicPlaylist.length === 0) {
     throw new Error(
       "La playlist de música está vacía."
     );
+  }
 
-}
-
-if (musicPlaylistIndex <= 0) {
-
+  if (musicPlaylistIndex <= 0) {
     return null;
+  }
 
+  const activeAudio = getActiveMusicAudio();
+
+  if (
+    activeAudio &&
+    !activeAudio.paused &&
+    !activeAudio.ended
+  ) {
+    return crossfadeToMusicIndex(
+      musicPlaylistIndex - 1,
+      MUSIC_CROSSFADE_SECONDS
+    );
+  }
+
+  return loadMusicPlaylistIndex(
+    musicPlaylistIndex - 1
+  );
 }
 
-return loadMusicPlaylistIndex(
-  musicPlaylistIndex - 1
-);
 
-}
+async function removeMusicTrack(index) {
+  const numericIndex = Number(index);
 
-
-async function removeMusicTrack( index ) {
-
-const numericIndex = Number(index);
-
-if (
-  !Number.isInteger(numericIndex) ||
-  numericIndex < 0 ||
-  numericIndex >= musicPlaylist.length
-) {
-
+  if (
+    !Number.isInteger(numericIndex) ||
+    numericIndex < 0 ||
+    numericIndex >= musicPlaylist.length
+  ) {
     return getMusicPlaylistState();
+  }
 
-}
+  if (musicTransitioning) {
+    throw new Error(
+      "Espera a que termine la transición antes de eliminar una canción."
+    );
+  }
 
-const removingCurrent =
-  numericIndex === musicPlaylistIndex;
+  const removingCurrent =
+    numericIndex === musicPlaylistIndex;
 
-const [removed] =
-  musicPlaylist.splice(numericIndex, 1);
+  const activeWasPlaying =
+    removingCurrent &&
+    getActiveMusicAudio() &&
+    !getActiveMusicAudio().paused &&
+    !getActiveMusicAudio().ended;
 
-if (removingCurrent && musicAudioElement) {
+  const [removed] =
+    musicPlaylist.splice(numericIndex, 1);
 
-    musicAudioElement.pause();
-    musicAudioElement.removeAttribute("src");
-    musicAudioElement.load();
+  revokeMusicPlaylistItem(removed);
 
-}
-
-revokeMusicPlaylistItem(removed);
-
-if (musicPlaylist.length === 0) {
+  if (musicPlaylist.length === 0) {
+    stopMusic();
+    stopAndUnloadMusicAudio(musicAudioA);
+    stopAndUnloadMusicAudio(musicAudioB);
 
     musicPlaylistIndex = -1;
     musicObjectUrl = null;
 
     return getMusicPlaylistState();
+  }
 
-}
-
-if (numericIndex < musicPlaylistIndex) {
-
+  if (numericIndex < musicPlaylistIndex) {
     musicPlaylistIndex -= 1;
+  }
 
-}
-
-if (removingCurrent) {
-
+  if (removingCurrent) {
     const nextIndex =
       Math.min(
         numericIndex,
@@ -740,247 +1029,264 @@ if (removingCurrent) {
 
     await loadMusicPlaylistIndex(nextIndex);
 
-}
+    if (activeWasPlaying) {
+      await playMusic();
+    }
+  }
 
-return getMusicPlaylistState();
-
+  return getMusicPlaylistState();
 }
 
 
 function clearMusicPlaylist() {
+  musicTransitioning = false;
+  musicTransitionPromise = null;
 
-if (musicAudioElement) {
+  if (musicAudioA) {
+    stopAndUnloadMusicAudio(musicAudioA);
+  }
 
-    musicAudioElement.pause();
+  if (musicAudioB) {
+    stopAndUnloadMusicAudio(musicAudioB);
+  }
 
-    try {
-      musicAudioElement.removeAttribute("src");
-      musicAudioElement.load();
-    }
-    catch (error) {
-      console.warn(
-        "No fue posible limpiar el reproductor de música:",
-        error
-      );
-    }
+  musicPlaylist.forEach(
+    item => revokeMusicPlaylistItem(item)
+  );
 
-}
+  musicPlaylist = [];
+  musicPlaylistIndex = -1;
+  musicObjectUrl = null;
 
-musicPlaylist.forEach(
-  item => revokeMusicPlaylistItem(item)
-);
+  if (musicFadeGainA) {
+    setFadeGainImmediately(musicFadeGainA, 1);
+  }
 
-musicPlaylist = [];
-musicPlaylistIndex = -1;
-musicObjectUrl = null;
+  if (musicFadeGainB) {
+    setFadeGainImmediately(musicFadeGainB, 0);
+  }
 
+  musicActiveSlot = "A";
 }
 
 
 function getMusicPlaylistState() {
+  return {
+    tracks:
+      musicPlaylist.map(
+        (item, index) => ({
+          id: item.id,
+          index,
+          name: item.name,
+          duration: item.duration,
+          selected:
+            index === musicPlaylistIndex
+        })
+      ),
 
-return {
-  tracks:
-    musicPlaylist.map(
-      (item, index) => ({
-        id: item.id,
-        index,
-        name: item.name,
-        duration: item.duration,
-        selected:
-          index === musicPlaylistIndex
-      })
-    ),
+    currentIndex:
+      musicPlaylistIndex,
 
-  currentIndex:
-    musicPlaylistIndex,
+    count:
+      musicPlaylist.length,
 
-  count:
-    musicPlaylist.length,
+    hasPrevious:
+      musicPlaylistIndex > 0,
 
-  hasPrevious:
-    musicPlaylistIndex > 0,
-
-  hasNext:
-    musicPlaylistIndex >= 0 &&
-    musicPlaylistIndex < musicPlaylist.length - 1
-};
-
+    hasNext:
+      musicPlaylistIndex >= 0 &&
+      musicPlaylistIndex < musicPlaylist.length - 1
+  };
 }
 
 
 /* =========================================================
-REPRODUCCIÓN DE MÚSICA
+   REPRODUCCIÓN DE MÚSICA
 ========================================================= */
 
 async function playMusic() {
+  const audio = getActiveMusicAudio();
 
-if ( !musicAudioElement || !musicAudioElement.src ) {
-
+  if (!audio || !audio.src) {
     throw new Error(
       "Primero debes cargar una canción."
     );
+  }
 
+  await ensureAudioContext();
+  await audio.play();
 }
 
-await ensureAudioContext();
-
-await musicAudioElement.play();
-
-}
 
 function pauseMusic() {
+  if (musicAudioA) {
+    musicAudioA.pause();
+  }
 
-if (!musicAudioElement) { return; }
-
-musicAudioElement.pause();
-
+  if (musicAudioB) {
+    musicAudioB.pause();
+  }
 }
+
 
 function stopMusic() {
+  musicTransitioning = false;
+  musicTransitionPromise = null;
 
-if (!musicAudioElement) { return; }
+  if (musicAudioA) {
+    musicAudioA.pause();
+    safeSetAudioTime(musicAudioA, 0);
+  }
 
-musicAudioElement.pause();
+  if (musicAudioB) {
+    musicAudioB.pause();
+    safeSetAudioTime(musicAudioB, 0);
+  }
 
-try {
-
-    musicAudioElement.currentTime =
-      0;
-
-} catch (error) {
-
-    console.warn(
-      "No fue posible volver al inicio de la canción:",
-      error
+  if (musicFadeGainA) {
+    setFadeGainImmediately(
+      musicFadeGainA,
+      musicActiveSlot === "A" ? 1 : 0
     );
+  }
 
+  if (musicFadeGainB) {
+    setFadeGainImmediately(
+      musicFadeGainB,
+      musicActiveSlot === "B" ? 1 : 0
+    );
+  }
 }
 
+
+/* =========================================================
+   POSICIÓN DE MÚSICA
+========================================================= */
+
+function seekMusic(seconds) {
+  const audio = getActiveMusicAudio();
+
+  if (!audio) { return; }
+
+  const duration = audio.duration;
+
+  if (!Number.isFinite(duration) || duration <= 0) {
+    return;
+  }
+
+  const value = Number(seconds);
+
+  if (!Number.isFinite(value)) {
+    return;
+  }
+
+  audio.currentTime =
+    Math.max(
+      0,
+      Math.min(duration, value)
+    );
 }
 
-/* ========================================================= POSICIÓN DE
-MÚSICA ========================================================= */
 
-function seekMusic( seconds ) {
-
-if (!musicAudioElement) { return; }
-
-const duration = musicAudioElement.duration;
-
-if ( !Number.isFinite(duration) || duration <= 0 ) { return; }
-
-const value = Number(seconds);
-
-if (!Number.isFinite(value)) { return; }
-
-musicAudioElement.currentTime = Math.max( 0, Math.min( duration, value )
-);
-
-}
-
-/* ========================================================= VOLUMEN DE
-MÚSICA ========================================================= */
+/* =========================================================
+   VOLUMEN DE MÚSICA
+========================================================= */
 
 function updateMusicGain() {
-
-if (!musicGain) { return; }
-
-musicGain.gain.value = musicMuted ? 0 : musicVolume;
-
+  applyMusicMasterGain();
 }
 
-function setMusicVolume( value ) {
 
-const number = Number(value);
+function setMusicVolume(value) {
+  const number = Number(value);
 
-if (!Number.isFinite(number)) { return; }
+  if (!Number.isFinite(number)) {
+    return;
+  }
 
-musicVolume = Math.max( 0, Math.min( 1, number ) );
+  musicVolume =
+    Math.max(
+      0,
+      Math.min(1, number)
+    );
 
-updateMusicGain();
-
+  updateMusicGain();
 }
 
-function setMusicMuted( muted ) {
 
-musicMuted = Boolean(muted);
-
-updateMusicGain();
-
+function setMusicMuted(muted) {
+  musicMuted = Boolean(muted);
+  updateMusicGain();
 }
+
 
 function toggleMusicMute() {
-
-setMusicMuted( !musicMuted );
-
-return musicMuted;
-
+  setMusicMuted(!musicMuted);
+  return musicMuted;
 }
 
-/* ========================================================= NIVEL DE
-MÚSICA ========================================================= */
+
+/* =========================================================
+   NIVEL DE MÚSICA
+========================================================= */
 
 function getMusicRms() {
+  if (!musicAnalyser) {
+    return 0;
+  }
 
-if (!musicAnalyser) { return 0; }
+  const data =
+    new Uint8Array(
+      musicAnalyser.fftSize
+    );
 
-const data = new Uint8Array( musicAnalyser .fftSize );
+  musicAnalyser.getByteTimeDomainData(data);
 
-musicAnalyser .getByteTimeDomainData( data );
+  let sumSquares = 0;
 
-let sumSquares = 0;
-
-for ( let index = 0; index < data.length; index += 1 ) {
-
+  for (
+    let index = 0;
+    index < data.length;
+    index += 1
+  ) {
     const normalized =
-      (
-        data[index] -
-        128
-      ) /
-      128;
-
+      (data[index] - 128) / 128;
 
     sumSquares +=
-      normalized *
-      normalized;
+      normalized * normalized;
+  }
 
+  return Math.sqrt(
+    sumSquares / data.length
+  );
 }
 
-return Math.sqrt( sumSquares / data.length );
-
-}
 
 function getMusicLevel() {
-
-const rms = getMusicRms();
-
-return Math.min( 1, rms * 3 );
-
+  const rms = getMusicRms();
+  return Math.min(1, rms * 3);
 }
+
 
 function getMusicDecibels() {
+  const rms = getMusicRms();
 
-const rms = getMusicRms();
-
-if (rms <= 0) {
-
+  if (rms <= 0) {
     return -Infinity;
+  }
 
+  return 20 * Math.log10(rms);
 }
 
-return 20 * Math.log10(rms);
 
-}
-
-/* ========================================================= INFORMACIÓN
-DEL CANAL MÚSICA
+/* =========================================================
+   ESTADO DEL CANAL MÚSICA
 ========================================================= */
 
 function getMusicState() {
+  const audio = getActiveMusicAudio();
 
-if (!musicAudioElement) {
-
+  if (!audio) {
     return {
       loaded: false,
       playing: false,
@@ -990,40 +1296,34 @@ if (!musicAudioElement) {
       duration: 0,
       volume: musicVolume,
       muted: musicMuted,
+      transitioning: musicTransitioning,
+      crossfadeSeconds: MUSIC_CROSSFADE_SECONDS,
+      autoAdvance: musicAutoAdvanceEnabled,
       playlist: getMusicPlaylistState()
     };
+  }
 
-}
-
-return {
-
-    loaded:
-      Boolean(
-        musicAudioElement.src
-      ),
+  return {
+    loaded: Boolean(audio.src),
 
     playing:
-      !musicAudioElement.paused &&
-      !musicAudioElement.ended,
+      !audio.paused &&
+      !audio.ended,
 
     paused:
-      musicAudioElement.paused,
+      audio.paused,
 
     ended:
-      musicAudioElement.ended,
+      audio.ended,
 
     currentTime:
-      Number.isFinite(
-        musicAudioElement.currentTime
-      )
-        ? musicAudioElement.currentTime
+      Number.isFinite(audio.currentTime)
+        ? audio.currentTime
         : 0,
 
     duration:
-      Number.isFinite(
-        musicAudioElement.duration
-      )
-        ? musicAudioElement.duration
+      Number.isFinite(audio.duration)
+        ? audio.duration
         : 0,
 
     volume:
@@ -1032,20 +1332,27 @@ return {
     muted:
       musicMuted,
 
+    transitioning:
+      musicTransitioning,
+
+    crossfadeSeconds:
+      MUSIC_CROSSFADE_SECONDS,
+
+    autoAdvance:
+      musicAutoAdvanceEnabled,
+
     playlist:
       getMusicPlaylistState()
-
-};
-
+  };
 }
 
-/* ========================================================= ELEMENTO DE
-MÚSICA ========================================================= */
+
+/* =========================================================
+   ELEMENTO ACTIVO DE MÚSICA
+========================================================= */
 
 function getMusicAudioElement() {
-
-return musicAudioElement;
-
+  return getActiveMusicAudio();
 }
 
 /* ========================================================= CREAR CANAL
@@ -1496,65 +1803,51 @@ DEL CANAL MÚSICA
 ========================================================= */
 
 function destroyMusicChannel() {
+  musicTransitioning = false;
+  musicTransitionPromise = null;
 
-if (musicAudioElement) {
+  stopAndUnloadMusicAudio(musicAudioA);
+  stopAndUnloadMusicAudio(musicAudioB);
 
-    musicAudioElement.pause();
-
-
-    musicAudioElement.removeAttribute(
-      "src"
-    );
-
-
-    musicAudioElement.load();
-
-}
-
-if (musicSource) {
+  for (const node of [
+    musicSourceA,
+    musicSourceB,
+    musicFadeGainA,
+    musicFadeGainB,
+    musicGain,
+    musicAnalyser
+  ]) {
+    if (!node) { continue; }
 
     try {
-      musicSource.disconnect();
+      node.disconnect();
     }
     catch (error) {
       console.warn(error);
     }
+  }
 
-}
+  musicPlaylist.forEach(
+    item => revokeMusicPlaylistItem(item)
+  );
 
-if (musicGain) {
+  musicPlaylist = [];
+  musicPlaylistIndex = -1;
+  musicObjectUrl = null;
 
-    try {
-      musicGain.disconnect();
-    }
-    catch (error) {
-      console.warn(error);
-    }
+  musicAudioA = null;
+  musicAudioB = null;
 
-}
+  musicSourceA = null;
+  musicSourceB = null;
 
-if (musicAnalyser) {
+  musicFadeGainA = null;
+  musicFadeGainB = null;
 
-    try {
-      musicAnalyser.disconnect();
-    }
-    catch (error) {
-      console.warn(error);
-    }
+  musicGain = null;
+  musicAnalyser = null;
 
-}
-
-musicPlaylist.forEach(
-  item => revokeMusicPlaylistItem(item)
-);
-
-musicPlaylist = [];
-musicPlaylistIndex = -1;
-musicObjectUrl = null;
-
-musicAudioElement = null; musicSource = null; musicGain = null;
-musicAnalyser = null;
-
+  musicActiveSlot = "A";
 }
 
 /* ========================================================= LIMPIEZA

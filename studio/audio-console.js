@@ -1,10 +1,10 @@
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   CONSOLA DE AUDIO V4
+   CONSOLA DE AUDIO V5
 
    Canales:
    - Micrófono
-   - Música con playlist
+   - Música con playlist + crossfade automático
    - Cortina
 ========================================================= */
 
@@ -59,6 +59,10 @@ import {
 ========================================================= */
 
 let meterAnimationFrame = null;
+
+let lastMusicPlaylistIndex = -1;
+let lastMusicTransitioning = false;
+let lastMusicAudioElement = null;
 
 let microphoneActive = false;
 let microphoneMuted = false;
@@ -1212,8 +1216,6 @@ async function handleMusicPlaylistClick(
       "select"
     ) {
 
-      stopMusic();
-
       const result =
         await selectMusicTrack(
           index
@@ -1225,7 +1227,7 @@ async function handleMusicPlaylistClick(
       updateMusicInterface();
 
       setMessage(
-        `Canción seleccionada: ${result.name}`,
+        `Transición a: ${result.name}`,
         "ok"
       );
 
@@ -1272,8 +1274,6 @@ async function handlePreviousMusicTrack() {
 
   try {
 
-    stopMusic();
-
     const result =
       await previousMusicTrack();
 
@@ -1287,7 +1287,7 @@ async function handlePreviousMusicTrack() {
     updateMusicInterface();
 
     setMessage(
-      `Canción anterior: ${result.name}`,
+      `Transición a canción anterior: ${result.name}`,
       "ok"
     );
 
@@ -1314,8 +1314,6 @@ async function handleNextMusicTrack() {
 
   try {
 
-    stopMusic();
-
     const result =
       await nextMusicTrack();
 
@@ -1329,7 +1327,7 @@ async function handleNextMusicTrack() {
     updateMusicInterface();
 
     setMessage(
-      `Siguiente canción: ${result.name}`,
+      `Transición a siguiente canción: ${result.name}`,
       "ok"
     );
 
@@ -1886,11 +1884,12 @@ function bindMusicElementEvents() {
   const audio =
     getMusicAudioElement();
 
-
   if (!audio) {
     return;
   }
 
+  lastMusicAudioElement =
+    audio;
 
   if (
     audio.dataset
@@ -1900,40 +1899,92 @@ function bindMusicElementEvents() {
     return;
   }
 
-
   audio.dataset
     .radioConexionBound =
       "true";
 
+  const refresh =
+    () => {
+      syncCurrentMusicName();
+      updateMusicInterface();
+    };
 
   audio.addEventListener(
     "play",
-    updateMusicInterface
+    refresh
   );
-
 
   audio.addEventListener(
     "pause",
-    updateMusicInterface
+    refresh
   );
-
 
   audio.addEventListener(
     "ended",
-    updateMusicInterface
+    refresh
   );
-
 
   audio.addEventListener(
     "loadedmetadata",
-    updateMusicInterface
+    refresh
   );
-
 
   audio.addEventListener(
     "durationchange",
-    updateMusicInterface
+    refresh
   );
+
+}
+
+
+/* =========================================================
+   SINCRONIZACIÓN V5 A/B
+========================================================= */
+
+function syncMusicV5Interface() {
+
+  const state =
+    getMusicState();
+
+  const currentIndex =
+    state.playlist?.currentIndex ??
+    -1;
+
+  const activeAudio =
+    getMusicAudioElement();
+
+  /*
+   * En V5 el motor alterna entre dos reproductores.
+   * Cada vez que cambia el elemento activo lo enlazamos
+   * también a la interfaz, sin duplicar listeners.
+   */
+  if (
+    activeAudio &&
+    activeAudio !==
+      lastMusicAudioElement
+  ) {
+    bindMusicElementEvents();
+  }
+
+  if (
+    currentIndex !==
+      lastMusicPlaylistIndex ||
+    Boolean(state.transitioning) !==
+      lastMusicTransitioning
+  ) {
+
+    lastMusicPlaylistIndex =
+      currentIndex;
+
+    lastMusicTransitioning =
+      Boolean(
+        state.transitioning
+      );
+
+    syncCurrentMusicName();
+    updateMusicInterface();
+
+  }
 
 }
 
@@ -2595,6 +2646,8 @@ function renderMeters() {
 
   const musicState =
     getMusicState();
+
+  syncMusicV5Interface();
 
 
   if (
@@ -3312,29 +3365,35 @@ async function initializeAudioConsole() {
    * eventos una sola vez.
    */
 
-  const musicBindingInterval =
-    window.setInterval(
-      () => {
+  /*
+   * V5 usa dos reproductores internos A/B.
+   * Este observador permanece activo para enlazar el
+   * reproductor que vaya quedando activo después de
+   * cada crossfade.
+   */
+  window.setInterval(
+    () => {
 
-        const audio =
-          getMusicAudioElement();
+      const audio =
+        getMusicAudioElement();
 
+      if (!audio) {
+        return;
+      }
 
-        if (!audio) {
-          return;
-        }
-
-
+      if (
+        audio !==
+          lastMusicAudioElement ||
+        audio.dataset
+          .radioConexionBound !==
+          "true"
+      ) {
         bindMusicElementEvents();
+      }
 
-
-        window.clearInterval(
-          musicBindingInterval
-        );
-
-      },
-      250
-    );
+    },
+    250
+  );
 
 
   const curtainBindingInterval =
