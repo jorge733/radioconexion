@@ -1,0 +1,881 @@
+/* =========================================================
+   RADIO CONEXIÓN STUDIO
+   EPISODIOS V1
+========================================================= */
+
+
+/* =========================================================
+   SEGURIDAD DE LAYOUT
+========================================================= */
+
+#studioSectionEpisodios,
+#studioSectionEpisodios *,
+#studioSectionEpisodios *::before,
+#studioSectionEpisodios *::after {
+  box-sizing: border-box;
+}
+
+
+#studioSectionEpisodios {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+
+/* =========================================================
+   CONTENEDOR
+========================================================= */
+
+.episodes-container {
+  width: min(1180px, calc(100% - 36px));
+  margin: 24px auto 55px;
+  min-width: 0;
+}
+
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.episodes-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 22px;
+}
+
+
+.episodes-heading {
+  min-width: 0;
+}
+
+
+.episodes-heading h1 {
+  margin: 5px 0 9px;
+
+  color: #17191d;
+
+  font-family:
+    "Unica One",
+    sans-serif;
+
+  font-size: clamp(32px, 3.4vw, 46px);
+
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+
+.episodes-heading p {
+  max-width: 680px;
+
+  margin: 0;
+
+  color: #667085;
+
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   BOTÓN NUEVO EPISODIO
+========================================================= */
+
+.episodes-new-button {
+  min-height: 42px;
+
+  flex: 0 0 auto;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 9px 17px;
+
+  border: 1px solid #d99614;
+  border-radius: 11px;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #d99614,
+      #b97806
+    );
+
+  cursor: pointer;
+
+  font: inherit;
+
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .45px;
+
+  box-shadow:
+    0 6px 16px
+    rgba(217, 150, 20, .15);
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    filter .18s ease;
+}
+
+
+.episodes-new-button:hover {
+  transform: translateY(-1px);
+
+  filter: brightness(1.035);
+
+  box-shadow:
+    0 9px 20px
+    rgba(217, 150, 20, .19);
+}
+
+
+/* =========================================================
+   RESUMEN
+========================================================= */
+
+.episodes-summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 11px;
+
+  margin-bottom: 18px;
+}
+
+
+.episodes-summary-card {
+  min-width: 0;
+
+  padding: 16px 17px;
+
+  border:
+    1px solid rgba(23, 25, 29, .07);
+
+  border-radius: 14px;
+
+  background:
+    rgba(255, 255, 255, .78);
+
+  box-shadow:
+    0 5px 18px
+    rgba(28, 34, 44, .025);
+}
+
+
+.episodes-summary-card span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #8b9099;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: .55px;
+
+  text-transform: uppercase;
+}
+
+
+.episodes-summary-card strong {
+  display: block;
+
+  color: #17191d;
+
+  font-family:
+    "Unica One",
+    sans-serif;
+
+  font-size: 27px;
+  font-weight: 400;
+
+  line-height: 1;
+}
+
+
+.episodes-summary-card.finished strong {
+  color: #2f8f56;
+}
+
+
+.episodes-summary-card.progress strong {
+  color: #a96500;
+}
+
+
+.episodes-summary-card.draft strong {
+  color: #667085;
+}
+
+
+/* =========================================================
+   PANEL PRINCIPAL
+========================================================= */
+
+.episodes-panel {
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 22px;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.episodes-toolbar {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 18px;
+}
+
+
+.episodes-search {
+  position: relative;
+
+  width: min(390px, 100%);
+
+  min-width: 0;
+}
+
+
+.episodes-search input {
+  width: 100%;
+  height: 40px;
+
+  padding: 0 13px 0 36px;
+
+  border:
+    1px solid rgba(23, 25, 29, .09);
+
+  border-radius: 11px;
+
+  outline: none;
+
+  color: #30343b;
+  background: #ffffff;
+
+  font: inherit;
+  font-size: 10px;
+}
+
+
+.episodes-search input:focus {
+  border-color:
+    rgba(217, 150, 20, .4);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(241, 183, 43, .07);
+}
+
+
+.episodes-search input::placeholder {
+  color: #a1a6ae;
+}
+
+
+.episodes-search-icon {
+  position: absolute;
+
+  left: 13px;
+  top: 50%;
+
+  transform:
+    translateY(-50%);
+
+  color: #8b9099;
+
+  font-size: 13px;
+
+  pointer-events: none;
+}
+
+
+.episodes-count {
+  color: #8b9099;
+
+  font-size: 9px;
+  font-weight: 650;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   LISTA
+========================================================= */
+
+.episodes-list {
+  display: grid;
+
+  gap: 10px;
+
+  min-width: 0;
+}
+
+
+/* =========================================================
+   TARJETA EPISODIO
+========================================================= */
+
+.episode-history-card {
+  width: 100%;
+
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  gap: 20px;
+
+  align-items: center;
+
+  padding: 16px 17px;
+
+  border:
+    1px solid rgba(23, 25, 29, .07);
+
+  border-radius: 14px;
+
+  background:
+    rgba(255, 255, 255, .74);
+
+  transition:
+    border-color .18s ease,
+    box-shadow .18s ease,
+    transform .18s ease;
+}
+
+
+.episode-history-card:hover {
+  transform:
+    translateY(-1px);
+
+  border-color:
+    rgba(217, 150, 20, .18);
+
+  box-shadow:
+    0 7px 22px
+    rgba(28, 34, 44, .045);
+}
+
+
+/* =========================================================
+   INFORMACIÓN DEL EPISODIO
+========================================================= */
+
+.episode-history-main {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+
+.episode-history-number {
+  width: 48px;
+  height: 48px;
+
+  flex: 0 0 48px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 13px;
+
+  color: #8a5700;
+
+  background:
+    rgba(241, 183, 43, .1);
+
+  font-family:
+    "Unica One",
+    sans-serif;
+
+  font-size: 18px;
+}
+
+
+.episode-history-info {
+  min-width: 0;
+}
+
+
+.episode-history-title-row {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  min-width: 0;
+
+  margin-bottom: 5px;
+}
+
+
+.episode-history-title {
+  min-width: 0;
+
+  overflow: hidden;
+
+  color: #30343b;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+
+.episode-history-status {
+  flex: 0 0 auto;
+
+  padding: 4px 7px;
+
+  border-radius: 999px;
+
+  font-size: 7px;
+  font-weight: 850;
+
+  letter-spacing: .35px;
+
+  text-transform: uppercase;
+}
+
+
+.episode-history-status.finished {
+  color: #237744;
+
+  background:
+    rgba(47, 143, 86, .09);
+}
+
+
+.episode-history-status.progress {
+  color: #8a5700;
+
+  background:
+    rgba(241, 183, 43, .11);
+}
+
+
+.episode-history-status.draft {
+  color: #667085;
+
+  background:
+    rgba(102, 112, 133, .08);
+}
+
+
+/* =========================================================
+   METADATOS
+========================================================= */
+
+.episode-history-meta {
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 6px 13px;
+
+  color: #8b9099;
+
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+
+.episode-history-meta span {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 4px;
+}
+
+
+/* =========================================================
+   ACCIONES
+========================================================= */
+
+.episode-history-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+}
+
+
+.episode-history-open {
+  min-height: 35px;
+
+  padding: 7px 12px;
+
+  border:
+    1px solid
+    rgba(217, 150, 20, .2);
+
+  border-radius: 9px;
+
+  color: #8a5700;
+
+  background:
+    rgba(241, 183, 43, .07);
+
+  cursor: pointer;
+
+  font: inherit;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  letter-spacing: .35px;
+
+  white-space: nowrap;
+}
+
+
+.episode-history-open:hover {
+  background:
+    rgba(241, 183, 43, .13);
+}
+
+
+.episode-history-delete {
+  width: 35px;
+  height: 35px;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(180, 35, 24, .12);
+
+  border-radius: 9px;
+
+  color: #b42318;
+
+  background:
+    rgba(180, 35, 24, .03);
+
+  cursor: pointer;
+
+  font: inherit;
+
+  font-size: 13px;
+}
+
+
+.episode-history-delete:hover {
+  border-color:
+    rgba(180, 35, 24, .22);
+
+  background:
+    rgba(180, 35, 24, .06);
+}
+
+
+/* =========================================================
+   ESTADO VACÍO
+========================================================= */
+
+.episodes-empty {
+  padding: 55px 22px;
+
+  text-align: center;
+
+  border:
+    1px dashed
+    rgba(23, 25, 29, .09);
+
+  border-radius: 14px;
+
+  background:
+    rgba(244, 246, 248, .32);
+}
+
+
+.episodes-empty-icon {
+  display: block;
+
+  margin-bottom: 12px;
+
+  font-size: 30px;
+}
+
+
+.episodes-empty strong {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #30343b;
+
+  font-size: 12px;
+}
+
+
+.episodes-empty p {
+  max-width: 470px;
+
+  margin: 0 auto;
+
+  color: #8b9099;
+
+  font-size: 9px;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   ESTADO DE INFORMACIÓN
+========================================================= */
+
+.episodes-status {
+  min-height: 16px;
+
+  margin: 14px 0 0;
+
+  color: #667085;
+
+  font-size: 9px;
+
+  line-height: 1.5;
+}
+
+
+.episodes-status[data-state="ok"] {
+  color: #2f8f56;
+}
+
+
+.episodes-status[data-state="error"] {
+  color: #b42318;
+}
+
+
+/* =========================================================
+   AVISO DE ALMACENAMIENTO LOCAL
+========================================================= */
+
+.episodes-local-notice {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 9px;
+
+  margin-top: 16px;
+
+  padding: 11px 13px;
+
+  border:
+    1px solid
+    rgba(217, 150, 20, .11);
+
+  border-radius: 11px;
+
+  color: #7a6641;
+
+  background:
+    rgba(241, 183, 43, .045);
+
+  font-size: 8px;
+
+  line-height: 1.55;
+}
+
+
+.episodes-local-notice span {
+  flex: 0 0 auto;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .episodes-summary {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   MÓVIL
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .episodes-container {
+    width:
+      calc(100% - 24px);
+
+    margin:
+      14px auto 40px;
+  }
+
+
+  .episodes-header {
+    display: grid;
+
+    gap: 16px;
+  }
+
+
+  .episodes-new-button {
+    width: 100%;
+  }
+
+
+  .episodes-summary {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .episodes-panel {
+    padding: 17px;
+  }
+
+
+  .episodes-toolbar {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+
+  .episodes-search {
+    width: 100%;
+  }
+
+
+  .episode-history-card {
+    grid-template-columns:
+      1fr;
+
+    gap: 14px;
+  }
+
+
+  .episode-history-main {
+    align-items: flex-start;
+  }
+
+
+  .episode-history-title-row {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .episode-history-title {
+    width: 100%;
+
+    white-space: normal;
+  }
+
+
+  .episode-history-actions {
+    width: 100%;
+  }
+
+
+  .episode-history-open {
+    flex: 1;
+  }
+
+}
+
+
+/* =========================================================
+   MÓVIL PEQUEÑO
+========================================================= */
+
+@media (max-width: 430px) {
+
+  .episodes-summary {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+
+  .episodes-summary-card {
+    padding: 14px;
+  }
+
+
+  .episode-history-number {
+    width: 42px;
+    height: 42px;
+
+    flex-basis: 42px;
+
+    font-size: 16px;
+  }
+
+}
+
+
+/* =========================================================
+   ACCESIBILIDAD
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .episode-history-card,
+  .episodes-new-button {
+    transition: none;
+  }
+
+}

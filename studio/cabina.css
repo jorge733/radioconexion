@@ -1,0 +1,1166 @@
+/* =========================================================
+   RADIO CONEXIÓN STUDIO
+   CABINA PRIVADA V2
+   Diseño responsive sin desbordamiento horizontal
+========================================================= */
+
+
+/* =========================================================
+   SEGURIDAD DE LAYOUT
+========================================================= */
+
+#studioSectionCabina,
+#studioSectionCabina *,
+#studioSectionCabina *::before,
+#studioSectionCabina *::after {
+  box-sizing: border-box;
+}
+
+
+#studioSectionCabina {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+
+/* =========================================================
+   CONTENEDOR GENERAL
+========================================================= */
+
+.cabina-container {
+  width: min(1180px, calc(100% - 36px));
+
+  margin: 24px auto 55px;
+
+  min-width: 0;
+}
+
+
+.cabina-panel {
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 26px;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.cabina-header {
+  width: 100%;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 24px;
+}
+
+
+.cabina-heading {
+  flex: 1;
+
+  min-width: 0;
+}
+
+
+.cabina-heading h1 {
+  margin: 5px 0 10px;
+
+  color: #17191d;
+
+  font-family:
+    "Unica One",
+    sans-serif;
+
+  font-size: clamp(30px, 3.2vw, 44px);
+
+  font-weight: 400;
+
+  line-height: 1.05;
+
+  overflow-wrap: anywhere;
+}
+
+
+.cabina-heading p {
+  max-width: 680px;
+
+  margin: 0;
+
+  color: #667085;
+
+  font-size: 11px;
+
+  line-height: 1.65;
+}
+
+
+.cabina-refresh-button {
+  min-height: 42px;
+
+  flex: 0 0 auto;
+
+  padding: 9px 17px;
+
+  border:
+    1px solid rgba(217, 150, 20, .22);
+
+  border-radius: 12px;
+
+  color: #8a5700;
+
+  background:
+    rgba(241, 183, 43, .08);
+
+  cursor: pointer;
+
+  font: inherit;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: .4px;
+
+  white-space: nowrap;
+
+  transition:
+    transform .18s ease,
+    background .18s ease,
+    border-color .18s ease;
+}
+
+
+.cabina-refresh-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color:
+    rgba(217, 150, 20, .4);
+
+  background:
+    rgba(241, 183, 43, .14);
+}
+
+
+.cabina-refresh-button:disabled {
+  opacity: .55;
+
+  cursor: wait;
+}
+
+
+/* =========================================================
+   RESUMEN
+========================================================= */
+
+.cabina-summary {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-bottom: 22px;
+}
+
+
+.cabina-summary-card {
+  min-width: 0;
+
+  padding: 15px;
+
+  border:
+    1px solid rgba(23, 25, 29, .07);
+
+  border-radius: 14px;
+
+  background:
+    rgba(255, 255, 255, .72);
+}
+
+
+.cabina-summary-card span {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #8b9099;
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+  letter-spacing: .7px;
+
+  text-transform: uppercase;
+}
+
+
+.cabina-summary-card strong {
+  display: block;
+
+  color: #17191d;
+
+  font-size: 24px;
+
+  font-weight: 750;
+
+  line-height: 1;
+}
+
+
+.cabina-summary-card.new strong {
+  color: #c77f0d;
+}
+
+
+.cabina-summary-card.attended strong {
+  color: #3b6ca8;
+}
+
+
+.cabina-summary-card.played strong {
+  color: #2f8f56;
+}
+
+
+.cabina-summary-card.discarded strong {
+  color: #8b9099;
+}
+
+
+/* =========================================================
+   BARRA DE FILTROS
+========================================================= */
+
+.cabina-toolbar {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 18px;
+
+  padding: 15px 0 18px;
+
+  border-top:
+    1px solid rgba(23, 25, 29, .06);
+
+  border-bottom:
+    1px solid rgba(23, 25, 29, .06);
+}
+
+
+.cabina-filters {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 6px;
+}
+
+
+.cabina-filter-button {
+  min-height: 34px;
+
+  padding: 7px 12px;
+
+  border:
+    1px solid rgba(23, 25, 29, .07);
+
+  border-radius: 10px;
+
+  color: #667085;
+
+  background:
+    rgba(255, 255, 255, .7);
+
+  cursor: pointer;
+
+  font: inherit;
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+  letter-spacing: .3px;
+
+  white-space: nowrap;
+
+  transition:
+    color .18s ease,
+    background .18s ease,
+    border-color .18s ease;
+}
+
+
+.cabina-filter-button:hover {
+  color: #a96500;
+
+  border-color:
+    rgba(217, 150, 20, .22);
+}
+
+
+.cabina-filter-button.active {
+  color: #8a5700;
+
+  border-color:
+    rgba(217, 150, 20, .22);
+
+  background:
+    rgba(241, 183, 43, .11);
+}
+
+
+.cabina-status-message {
+  flex: 0 1 auto;
+
+  min-width: 0;
+
+  margin: 0;
+
+  color: #667085;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  line-height: 1.45;
+
+  text-align: right;
+}
+
+
+.cabina-status-message[data-state="ok"] {
+  color: #2f8f56;
+}
+
+
+.cabina-status-message[data-state="error"] {
+  color: #b42318;
+}
+
+
+/* =========================================================
+   LISTA
+========================================================= */
+
+.cabina-list {
+  width: 100%;
+
+  min-width: 0;
+
+  display: grid;
+
+  gap: 14px;
+
+  margin-top: 20px;
+}
+
+
+/* =========================================================
+   TARJETAS
+========================================================= */
+
+.cabina-request-card {
+  position: relative;
+
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 19px;
+
+  overflow: hidden;
+
+  border:
+    1px solid rgba(23, 25, 29, .075);
+
+  border-radius: 16px;
+
+  background:
+    rgba(255, 255, 255, .86);
+
+  box-shadow:
+    0 7px 22px
+    rgba(28, 34, 44, .035);
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    border-color .18s ease;
+}
+
+
+.cabina-request-card:hover {
+  transform: translateY(-1px);
+
+  border-color:
+    rgba(217, 150, 20, .16);
+
+  box-shadow:
+    0 11px 28px
+    rgba(28, 34, 44, .055);
+}
+
+
+.cabina-request-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  bottom: 0;
+  left: 0;
+
+  width: 3px;
+
+  background: #d99614;
+}
+
+
+.cabina-request-card[data-status="atendida"]::before {
+  background: #3b6ca8;
+}
+
+
+.cabina-request-card[data-status="reproducida"]::before {
+  background: #2f8f56;
+}
+
+
+.cabina-request-card[data-status="descartada"]::before {
+  background: #a5a9b0;
+}
+
+
+/* =========================================================
+   PARTE SUPERIOR
+========================================================= */
+
+.cabina-request-top {
+  width: 100%;
+
+  min-width: 0;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+
+.cabina-request-type {
+  min-width: 0;
+
+  flex: 1;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+}
+
+
+.cabina-request-type > div {
+  min-width: 0;
+}
+
+
+.cabina-request-icon {
+  width: 38px;
+  height: 38px;
+
+  flex: 0 0 38px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 11px;
+
+  background:
+    rgba(241, 183, 43, .1);
+
+  font-size: 17px;
+}
+
+
+.cabina-request-type.message
+.cabina-request-icon {
+  background:
+    rgba(59, 108, 168, .08);
+}
+
+
+.cabina-request-kicker {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #a96500;
+
+  font-size: 7px;
+
+  font-weight: 850;
+
+  letter-spacing: .65px;
+
+  text-transform: uppercase;
+}
+
+
+.cabina-request-type.message
+.cabina-request-kicker {
+  color: #3b6ca8;
+}
+
+
+.cabina-request-type strong {
+  display: block;
+
+  min-width: 0;
+
+  overflow: hidden;
+
+  color: #30343b;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+
+  font-size: 12px;
+
+  font-weight: 750;
+}
+
+
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.cabina-status-badge {
+  flex: 0 0 auto;
+
+  max-width: 130px;
+
+  padding: 6px 9px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  font-size: 7px;
+
+  font-weight: 850;
+
+  letter-spacing: .4px;
+
+  text-overflow: ellipsis;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+
+.cabina-status-nueva {
+  color: #8a5700;
+
+  background:
+    rgba(241, 183, 43, .12);
+}
+
+
+.cabina-status-atendida {
+  color: #315f96;
+
+  background:
+    rgba(59, 108, 168, .09);
+}
+
+
+.cabina-status-reproducida {
+  color: #287849;
+
+  background:
+    rgba(47, 143, 86, .09);
+}
+
+
+.cabina-status-descartada {
+  color: #737780;
+
+  background:
+    rgba(102, 112, 133, .09);
+}
+
+
+/* =========================================================
+   METADATOS
+========================================================= */
+
+.cabina-request-meta {
+  width: calc(100% - 49px);
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 5px 14px;
+
+  margin:
+    12px 0 0 49px;
+
+  color: #8b9099;
+
+  font-size: 8px;
+
+  line-height: 1.45;
+}
+
+
+.cabina-request-meta span {
+  min-width: 0;
+
+  overflow-wrap: anywhere;
+
+  word-break: break-word;
+}
+
+
+/* =========================================================
+   MENSAJE / CANCIONES
+========================================================= */
+
+.cabina-request-content {
+  width: 100%;
+
+  min-width: 0;
+
+  margin: 15px 0 16px;
+
+  padding: 14px 15px;
+
+  overflow-wrap: anywhere;
+
+  word-break: break-word;
+
+  white-space: pre-wrap;
+
+  border:
+    1px solid rgba(23, 25, 29, .05);
+
+  border-radius: 12px;
+
+  color: #30343b;
+
+  background:
+    rgba(244, 246, 248, .64);
+
+  font-size: 11px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   CONTROLES DE ESTADO
+========================================================= */
+
+.cabina-request-controls {
+  width: 100%;
+
+  min-width: 0;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: flex-end;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+
+.cabina-request-controls label {
+  min-width: 0;
+
+  display: grid;
+
+  gap: 5px;
+}
+
+
+.cabina-request-controls label > span {
+  color: #8b9099;
+
+  font-size: 7px;
+
+  font-weight: 800;
+
+  letter-spacing: .6px;
+}
+
+
+.cabina-status-select {
+  width: 150px;
+
+  max-width: 100%;
+
+  height: 36px;
+
+  padding:
+    0 30px 0 10px;
+
+  border:
+    1px solid rgba(23, 25, 29, .1);
+
+  border-radius: 9px;
+
+  outline: none;
+
+  color: #30343b;
+
+  background: #ffffff;
+
+  font: inherit;
+
+  font-size: 9px;
+
+  font-weight: 650;
+}
+
+
+.cabina-status-select:focus {
+  border-color:
+    rgba(217, 150, 20, .45);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(241, 183, 43, .08);
+}
+
+
+.cabina-save-button {
+  height: 36px;
+
+  flex: 0 0 auto;
+
+  padding: 0 15px;
+
+  border:
+    1px solid #d99614;
+
+  border-radius: 9px;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #d99614,
+      #b97806
+    );
+
+  cursor: pointer;
+
+  font: inherit;
+
+  font-size: 8px;
+
+  font-weight: 850;
+
+  letter-spacing: .4px;
+
+  white-space: nowrap;
+
+  box-shadow:
+    0 5px 13px
+    rgba(217, 150, 20, .13);
+}
+
+
+.cabina-save-button:hover:not(:disabled) {
+  filter: brightness(1.035);
+}
+
+
+.cabina-save-button:disabled {
+  opacity: .55;
+
+  cursor: wait;
+}
+
+
+/* =========================================================
+   VACÍO
+========================================================= */
+
+.cabina-empty {
+  width: 100%;
+
+  padding: 52px 20px;
+
+  text-align: center;
+
+  border:
+    1px dashed
+    rgba(23, 25, 29, .1);
+
+  border-radius: 16px;
+
+  background:
+    rgba(255, 255, 255, .4);
+}
+
+
+.cabina-empty-icon {
+  display: block;
+
+  margin-bottom: 12px;
+
+  font-size: 29px;
+}
+
+
+.cabina-empty strong {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #30343b;
+
+  font-size: 12px;
+}
+
+
+.cabina-empty p {
+  max-width: 420px;
+
+  margin: 0 auto;
+
+  color: #8b9099;
+
+  font-size: 9px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   CARGANDO
+========================================================= */
+
+.cabina-loading {
+  width: 100%;
+
+  min-height: 180px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 11px;
+
+  color: #667085;
+
+  font-size: 10px;
+
+  font-weight: 650;
+}
+
+
+.cabina-loading-spinner {
+  width: 22px;
+  height: 22px;
+
+  flex: 0 0 22px;
+
+  border:
+    2px solid
+    rgba(217, 150, 20, .13);
+
+  border-top-color: #d99614;
+
+  border-radius: 50%;
+
+  animation:
+    cabinaSpin
+    .7s
+    linear
+    infinite;
+}
+
+
+@keyframes cabinaSpin {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.cabina-error {
+  width: 100%;
+
+  padding: 34px 20px;
+
+  text-align: center;
+
+  border:
+    1px solid
+    rgba(180, 35, 24, .12);
+
+  border-radius: 15px;
+
+  color: #b42318;
+
+  background:
+    rgba(180, 35, 24, .035);
+}
+
+
+.cabina-error strong {
+  display: block;
+
+  margin-bottom: 7px;
+
+  font-size: 12px;
+}
+
+
+.cabina-error p {
+  max-width: 480px;
+
+  margin: 0 auto;
+
+  font-size: 9px;
+
+  line-height: 1.55;
+}
+
+
+/* =========================================================
+   NOTEBOOK / TABLET
+========================================================= */
+
+@media (max-width: 1050px) {
+
+  .cabina-summary {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+
+  .cabina-toolbar {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .cabina-status-message {
+    text-align: left;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET / MÓVIL
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .cabina-container {
+    width: calc(100% - 24px);
+
+    margin:
+      14px auto 40px;
+  }
+
+
+  .cabina-panel {
+    padding: 18px;
+  }
+
+
+  .cabina-header {
+    display: grid;
+
+    gap: 16px;
+  }
+
+
+  .cabina-refresh-button {
+    width: 100%;
+  }
+
+
+  .cabina-summary {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .cabina-summary-card:first-child {
+    grid-column:
+      1 / -1;
+  }
+
+
+  .cabina-filters {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .cabina-filter-button {
+    width: 100%;
+  }
+
+
+  .cabina-filter-button:first-child {
+    grid-column:
+      1 / -1;
+  }
+
+
+  .cabina-request-top {
+    gap: 10px;
+  }
+
+
+  .cabina-request-meta {
+    width: 100%;
+
+    margin-left: 0;
+  }
+
+
+  .cabina-request-controls {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+
+  .cabina-request-controls label {
+    width: 100%;
+  }
+
+
+  .cabina-status-select {
+    width: 100%;
+  }
+
+
+  .cabina-save-button {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   TELÉFONO PEQUEÑO
+========================================================= */
+
+@media (max-width: 430px) {
+
+  .cabina-panel {
+    padding: 15px;
+  }
+
+
+  .cabina-summary {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+
+  .cabina-request-card {
+    padding: 15px;
+  }
+
+
+  .cabina-request-type strong {
+    white-space: normal;
+
+    overflow-wrap: anywhere;
+  }
+
+
+  .cabina-status-badge {
+    max-width: 95px;
+
+    font-size: 6px;
+  }
+
+
+  .cabina-request-content {
+    padding: 12px;
+  }
+
+}
+
+
+/* =========================================================
+   ACCESIBILIDAD
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .cabina-loading-spinner {
+    animation: none;
+  }
+
+
+  .cabina-request-card,
+  .cabina-refresh-button {
+    transition: none;
+  }
+
+}
