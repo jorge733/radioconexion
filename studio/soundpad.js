@@ -1,13 +1,14 @@
 import {
   ensureAudioContext,
   getAudioContext,
-  connectNodeToMaster
+  connectNodeToMaster,
+  connectNodeToProgram
 } from "./audio-engine.js";
 
 
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   SOUNDPAD V2 · MASTER
+   SOUNDPAD V3 · MASTER + PROGRAM
 ========================================================= */
 
 
@@ -265,6 +266,10 @@ function ensureSoundpadBus() {
 
 
     connectNodeToMaster(
+      soundpadBusGain
+    );
+
+    connectNodeToProgram(
       soundpadBusGain
     );
   }

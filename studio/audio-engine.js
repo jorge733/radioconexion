@@ -1,9 +1,9 @@
 /* ========================================================= RADIO
-CONEXIÓN STUDIO AUDIO ENGINE V7
+CONEXIÓN STUDIO AUDIO ENGINE V8
 
 Canales actuales: - Micrófono - Música con playlist + crossfade automático - Cortina - Master
 
-Próximamente: - Soundpad - Grabación
+Program de grabación preparado para futura MediaRecorder.
 ========================================================= */
 
 /* =========================================================
@@ -22,6 +22,14 @@ let masterMuted = false;
  * Más adelante el micrófono se sumará a un bus de grabación
  * independiente que podrá reutilizar el nivel del MASTER.
  */
+
+/* =========================================================
+   PROGRAM · BUS DE GRABACIÓN V8
+========================================================= */
+
+let programGain = null;
+let programAnalyser = null;
+let programDestination = null;
 
 /* ========================================================= AUDIO
 CONTEXT ========================================================= */
@@ -288,6 +296,62 @@ function getMasterState() {
 }
 
 
+/* =========================================================
+   CREAR / ACTUALIZAR PROGRAM
+========================================================= */
+
+function ensureProgramBus() {
+  if (!audioContext) {
+    throw new Error(
+      "El AudioContext debe estar activo antes de crear el bus Program."
+    );
+  }
+
+  if (!programGain) {
+    programGain = audioContext.createGain();
+    programGain.gain.value = 1;
+  }
+
+  if (!programAnalyser) {
+    programAnalyser = audioContext.createAnalyser();
+    programAnalyser.fftSize = 2048;
+    programAnalyser.smoothingTimeConstant = 0.72;
+  }
+
+  if (!programDestination) {
+    programDestination = audioContext.createMediaStreamDestination();
+  }
+
+  try { programGain.disconnect(); } catch (error) {}
+  try { programAnalyser.disconnect(); } catch (error) {}
+
+  programGain.connect(programAnalyser);
+  programAnalyser.connect(programDestination);
+
+  return programGain;
+}
+
+function connectNodeToProgram(node) {
+  if (!node) {
+    throw new Error("Se necesita un nodo de audio para conectarlo al Program.");
+  }
+
+  ensureProgramBus();
+  node.connect(programGain);
+  return node;
+}
+
+function getProgramStream() {
+  return programDestination?.stream || null;
+}
+
+function getProgramState() {
+  return {
+    ready: Boolean(programGain && programAnalyser && programDestination),
+    hasStream: Boolean(programDestination?.stream)
+  };
+}
+
 /* ========================================================= MICRÓFONOS
 DISPONIBLES ========================================================= */
 
@@ -431,6 +495,10 @@ por los parlantes * y provocar eco o acople. */
 microphoneSource.connect( microphoneGain );
 
 microphoneGain.connect( microphoneAnalyser );
+
+/* V8: el micrófono entra al Program, pero NO al Master/parlantes. */
+ensureProgramBus();
+microphoneAnalyser.connect( programGain );
 
 const audioTrack = microphoneStream .getAudioTracks()[0];
 
@@ -753,6 +821,10 @@ async function ensureMusicChannel() {
    */
   ensureMasterBus();
   musicAnalyser.connect(masterGain);
+
+  /* V8: la misma señal post-volumen/crossfade alimenta Program. */
+  ensureProgramBus();
+  musicAnalyser.connect(programGain);
 
   applyMusicMasterGain();
 
@@ -1650,6 +1722,10 @@ ensureMasterBus();
 
 curtainAnalyser.connect( masterGain );
 
+/* V8: la misma señal post-volumen alimenta Program. */
+ensureProgramBus();
+curtainAnalyser.connect( programGain );
+
 updateCurtainGain();
 
 return curtainAudioElement;
@@ -2141,6 +2217,24 @@ curtainAnalyser = null; curtainObjectUrl = null;
 }
 
 /* =========================================================
+   LIMPIEZA DEL PROGRAM
+========================================================= */
+
+function destroyProgramBus() {
+  if (programGain) {
+    try { programGain.disconnect(); } catch (error) { console.warn(error); }
+  }
+
+  if (programAnalyser) {
+    try { programAnalyser.disconnect(); } catch (error) { console.warn(error); }
+  }
+
+  programGain = null;
+  programAnalyser = null;
+  programDestination = null;
+}
+
+/* =========================================================
    LIMPIEZA DEL MASTER
 ========================================================= */
 
@@ -2179,6 +2273,8 @@ destroyMusicChannel();
 
 destroyCurtainChannel();
 
+destroyProgramBus();
+
 destroyMasterBus();
 
 if (audioContext) {
@@ -2213,6 +2309,8 @@ export {
 
 /* Master */ setMasterVolume, setMasterMuted, toggleMasterMute,
 getMasterLevel, getMasterDecibels, getMasterState, connectNodeToMaster,
+
+/* Program */ connectNodeToProgram, getProgramStream, getProgramState,
 
 /* Micrófono */ getMicrophones, startMicrophone, stopMicrophone,
 setMicrophoneVolume, setMicrophoneMuted, toggleMicrophoneMute,
