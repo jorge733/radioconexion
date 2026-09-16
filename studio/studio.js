@@ -65,10 +65,6 @@ const episodeNotes =
 const saveStatus =
   document.getElementById("saveStatus");
 
-const newSessionBtn =
-  document.getElementById("newSessionBtn");
-
-
 /* MODAL */
 
 const markModal =
@@ -725,100 +721,6 @@ function finishRecording() {
   saveState();
 }
 
-
-/* ==========================================
-   NUEVA SESIÓN
-========================================== */
-
-async function newSession() {
-
-  const hasWork =
-    elapsedSeconds > 0 ||
-    marks.length > 0;
-
-
-  if (hasWork) {
-
-    const confirmed =
-      await confirmModal({
-        title: "¿Comenzar una nueva sesión?",
-        message:
-          "Se reiniciará el cronómetro y se eliminarán las marcas de edición actuales.\n\n" +
-          "La pauta y los datos del episodio se conservarán.",
-        confirmText: "COMENZAR NUEVA SESIÓN",
-        cancelText: "CANCELAR",
-        type: "warning"
-      });
-
-
-    if (!confirmed) return;
-  }
-
-
-  clearInterval(timerInterval);
-
-  timerInterval = null;
-
-  elapsedSeconds = 0;
-
-  running = false;
-
-  paused = false;
-
-  finished = false;
-
-  if (
-    mediaRecorder &&
-    mediaRecorder.state !== "inactive"
-  ) {
-
-    mediaRecorder.stop();
-  }
-
-  mediaRecorder = null;
-  recordingChunks = [];
-  recordingBlob = null;
-
-  revokeRecordingUrl();
-  removeRecordingPreview();
-
-  marks = [];
-
-  currentBlockIndex = 0;
-
-
-  updateTimer();
-
-  renderMarks();
-
-  renderPauta();
-
-
-  recordingStatus.textContent =
-    "LISTO PARA GRABAR";
-
-  recordingStatus.classList.remove("active");
-
-
-  startBtn.disabled = false;
-
-  startBtn.textContent =
-    "● INICIAR";
-
-
-  pauseBtn.disabled = true;
-
-  finishBtn.disabled = true;
-
-  markBtn.disabled = true;
-
-
-  saveState();
-
-  document.dispatchEvent(
-    new CustomEvent("studio:newsession")
-  );
-}
 
 
 /* ==========================================
@@ -1657,12 +1559,6 @@ pauseBtn.addEventListener(
 finishBtn.addEventListener(
   "click",
   finishRecording
-);
-
-
-newSessionBtn.addEventListener(
-  "click",
-  newSession
 );
 
 
