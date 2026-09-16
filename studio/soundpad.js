@@ -887,7 +887,7 @@ async function playSound(id) {
 
   audio.addEventListener(
     "error",
-    () => {
+    async () => {
 
       const active =
         activeSounds.get(id);
