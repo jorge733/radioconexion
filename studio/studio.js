@@ -107,6 +107,395 @@ let currentBlockIndex = 0;
 let pendingMark = null;
 
 
+/* ==========================================
+   GRABACIÓN REAL · MEDIARECORDER
+========================================== */
+
+let mediaRecorder = null;
+let recordingChunks = [];
+let recordingBlob = null;
+let recordingObjectUrl = null;
+let audioEngineModule = null;
+let recordingPreview = null;
+
+
+async function getAudioEngineModule() {
+
+  if (!audioEngineModule) {
+
+    audioEngineModule =
+      await import("./audio-engine.js");
+  }
+
+  return audioEngineModule;
+}
+
+
+function getSupportedRecordingMimeType() {
+
+  const candidates = [
+    "audio/webm;codecs=opus",
+    "audio/webm",
+    "audio/ogg;codecs=opus",
+    "audio/mp4"
+  ];
+
+
+  return candidates.find(
+    type =>
+      window.MediaRecorder &&
+      MediaRecorder.isTypeSupported(type)
+  ) || "";
+}
+
+
+function formatFileSize(bytes) {
+
+  const value = Number(bytes) || 0;
+
+  if (value < 1024) {
+    return `${value} B`;
+  }
+
+  if (value < 1024 * 1024) {
+    return `${(value / 1024).toFixed(1)} KB`;
+  }
+
+  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+
+function revokeRecordingUrl() {
+
+  if (recordingObjectUrl) {
+
+    URL.revokeObjectURL(
+      recordingObjectUrl
+    );
+
+    recordingObjectUrl = null;
+  }
+}
+
+
+function removeRecordingPreview() {
+
+  if (recordingPreview) {
+
+    recordingPreview.remove();
+
+    recordingPreview = null;
+  }
+}
+
+
+function renderRecordingPreview() {
+
+  removeRecordingPreview();
+
+  if (!recordingBlob) {
+    return;
+  }
+
+
+  recordingObjectUrl =
+    URL.createObjectURL(
+      recordingBlob
+    );
+
+
+  const card =
+    document.createElement("section");
+
+  card.id =
+    "recordingResult";
+
+  card.style.marginTop =
+    "18px";
+
+  card.style.padding =
+    "18px";
+
+  card.style.border =
+    "1px solid rgba(217, 150, 20, 0.28)";
+
+  card.style.borderRadius =
+    "18px";
+
+  card.style.background =
+    "rgba(255, 255, 255, 0.82)";
+
+  card.style.boxShadow =
+    "0 12px 32px rgba(23, 25, 29, 0.08)";
+
+
+  const title =
+    document.createElement("strong");
+
+  title.textContent =
+    "Grabación del episodio";
+
+  title.style.display =
+    "block";
+
+  title.style.marginBottom =
+    "10px";
+
+
+  const info =
+    document.createElement("div");
+
+  info.textContent =
+    `${formatTime(elapsedSeconds)} · ${formatFileSize(recordingBlob.size)}`;
+
+  info.style.marginBottom =
+    "12px";
+
+  info.style.color =
+    "#667085";
+
+
+  const audio =
+    document.createElement("audio");
+
+  audio.controls = true;
+
+  audio.src =
+    recordingObjectUrl;
+
+  audio.style.width =
+    "100%";
+
+
+  const download =
+    document.createElement("a");
+
+  const cleanEpisode =
+    String(
+      episodeNumber.value || "episodio"
+    )
+      .trim()
+      .replace(/[^a-zA-Z0-9_-]+/g, "-");
+
+
+  download.href =
+    recordingObjectUrl;
+
+  download.download =
+    `Radio-Conexión-Episodio-${cleanEpisode}.webm`;
+
+  download.textContent =
+    "DESCARGAR GRABACIÓN";
+
+  download.style.display =
+    "inline-block";
+
+  download.style.marginTop =
+    "12px";
+
+  download.style.fontWeight =
+    "700";
+
+  download.style.color =
+    "#a96500";
+
+
+  card.appendChild(title);
+  card.appendChild(info);
+  card.appendChild(audio);
+  card.appendChild(download);
+
+
+  const anchor =
+    recordingStatus.closest("section") ||
+    recordingStatus.parentElement;
+
+  if (anchor) {
+
+    anchor.insertAdjacentElement(
+      "afterend",
+      card
+    );
+  }
+  else {
+
+    recordingStatus.parentElement
+      ?.appendChild(card);
+  }
+
+
+  recordingPreview = card;
+}
+
+
+function finalizeRecordingBlob() {
+
+  if (recordingChunks.length === 0) {
+    return;
+  }
+
+
+  const mimeType =
+    mediaRecorder?.mimeType ||
+    recordingChunks[0]?.type ||
+    "audio/webm";
+
+
+  recordingBlob =
+    new Blob(
+      recordingChunks,
+      { type: mimeType }
+    );
+
+
+  revokeRecordingUrl();
+
+  renderRecordingPreview();
+}
+
+
+async function createMediaRecorder() {
+
+  if (!window.MediaRecorder) {
+
+    throw new Error(
+      "Este navegador no admite grabación de audio con MediaRecorder."
+    );
+  }
+
+
+  const engine =
+    await getAudioEngineModule();
+
+
+  const programStream =
+    engine.getProgramStream();
+
+
+  if (
+    !programStream ||
+    programStream.getAudioTracks().length === 0
+  ) {
+
+    throw new Error(
+      "El bus Program todavía no está activo. Activa primero el micrófono en la consola de audio."
+    );
+  }
+
+
+  const mimeType =
+    getSupportedRecordingMimeType();
+
+
+  mediaRecorder =
+    mimeType
+      ? new MediaRecorder(
+          programStream,
+          { mimeType }
+        )
+      : new MediaRecorder(
+          programStream
+        );
+
+
+  recordingChunks = [];
+
+
+  mediaRecorder.addEventListener(
+    "dataavailable",
+    event => {
+
+      if (
+        event.data &&
+        event.data.size > 0
+      ) {
+
+        recordingChunks.push(
+          event.data
+        );
+      }
+    }
+  );
+
+
+  mediaRecorder.addEventListener(
+    "stop",
+    finalizeRecordingBlob
+  );
+
+
+  mediaRecorder.addEventListener(
+    "error",
+    event => {
+
+      console.error(
+        "Error de MediaRecorder:",
+        event.error || event
+      );
+
+      alert(
+        "Se produjo un error durante la grabación del episodio."
+      );
+    }
+  );
+
+
+  return mediaRecorder;
+}
+
+
+async function startOrResumeMediaRecording() {
+
+  if (
+    mediaRecorder &&
+    mediaRecorder.state === "paused"
+  ) {
+
+    mediaRecorder.resume();
+
+    return;
+  }
+
+
+  if (
+    mediaRecorder &&
+    mediaRecorder.state === "recording"
+  ) {
+
+    return;
+  }
+
+
+  await createMediaRecorder();
+
+  mediaRecorder.start(1000);
+}
+
+
+function pauseMediaRecording() {
+
+  if (
+    mediaRecorder &&
+    mediaRecorder.state === "recording"
+  ) {
+
+    mediaRecorder.pause();
+  }
+}
+
+
+function stopMediaRecording() {
+
+  if (
+    mediaRecorder &&
+    mediaRecorder.state !== "inactive"
+  ) {
+
+    mediaRecorder.stop();
+  }
+}
+
+
 let blocks = [
   "Apertura",
   "Presentación",
@@ -161,10 +550,9 @@ function updateTimer() {
    GRABACIÓN
 ========================================== */
 
-function startRecording() {
+async function startRecording() {
 
   if (running) return;
-
 
   /*
     Si estaba finalizada, no reiniciamos.
@@ -172,6 +560,27 @@ function startRecording() {
   */
 
   if (finished) return;
+
+
+  try {
+
+    await startOrResumeMediaRecording();
+
+  }
+  catch (error) {
+
+    console.error(
+      "No fue posible iniciar la grabación real:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "No fue posible iniciar la grabación."
+    );
+
+    return;
+  }
 
 
   running = true;
@@ -219,7 +628,6 @@ function startRecording() {
   saveState();
 }
 
-
 function pauseRecording() {
 
   if (!running) return;
@@ -232,6 +640,8 @@ function pauseRecording() {
   running = false;
 
   paused = true;
+
+  pauseMediaRecording();
 
 
   recordingStatus.textContent =
@@ -276,6 +686,8 @@ function finishRecording() {
   paused = false;
 
   finished = true;
+
+  stopMediaRecording();
 
 
   recordingStatus.textContent =
@@ -338,6 +750,21 @@ function newSession() {
   paused = false;
 
   finished = false;
+
+  if (
+    mediaRecorder &&
+    mediaRecorder.state !== "inactive"
+  ) {
+
+    mediaRecorder.stop();
+  }
+
+  mediaRecorder = null;
+  recordingChunks = [];
+  recordingBlob = null;
+
+  revokeRecordingUrl();
+  removeRecordingPreview();
 
   marks = [];
 
@@ -1173,7 +1600,17 @@ episodeNotes.addEventListener(
 
 startBtn.addEventListener(
   "click",
-  startRecording
+  () => {
+
+    startRecording()
+      .catch(error => {
+
+        console.error(
+          "Error inesperado al iniciar grabación:",
+          error
+        );
+      });
+  }
 );
 
 
@@ -1273,6 +1710,12 @@ document.addEventListener(
     }
 
   }
+);
+
+
+window.addEventListener(
+  "beforeunload",
+  revokeRecordingUrl
 );
 
 
