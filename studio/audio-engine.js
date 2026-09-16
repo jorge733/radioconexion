@@ -1,9 +1,9 @@
 /* ========================================================= RADIO
-CONEXIÓN STUDIO AUDIO ENGINE V8
+CONEXIÓN STUDIO AUDIO ENGINE V9
 
 Canales actuales: - Micrófono - Música con playlist + crossfade automático - Cortina - Master
 
-Program de grabación preparado para futura MediaRecorder.
+Program de grabación con protección de picos para MediaRecorder.
 ========================================================= */
 
 /* =========================================================
@@ -24,11 +24,12 @@ let masterMuted = false;
  */
 
 /* =========================================================
-   PROGRAM · BUS DE GRABACIÓN V8
+   PROGRAM · BUS DE GRABACIÓN V9
 ========================================================= */
 
 let programGain = null;
 let programAnalyser = null;
+let programLimiter = null;
 let programDestination = null;
 
 /* ========================================================= AUDIO
@@ -309,7 +310,13 @@ function ensureProgramBus() {
 
   if (!programGain) {
     programGain = audioContext.createGain();
-    programGain.gain.value = 1;
+
+    /*
+      Dejamos 1 dB de margen antes del limitador.
+      Esto evita trabajar permanentemente contra 0 dBFS.
+    */
+    programGain.gain.value =
+      Math.pow(10, -1 / 20);
   }
 
   if (!programAnalyser) {
@@ -318,15 +325,62 @@ function ensureProgramBus() {
     programAnalyser.smoothingTimeConstant = 0.72;
   }
 
-  if (!programDestination) {
-    programDestination = audioContext.createMediaStreamDestination();
+  if (!programLimiter) {
+    programLimiter =
+      audioContext.createDynamicsCompressor();
+
+    /*
+      Limitador de seguridad del Program.
+
+      No busca "aplastar" ni normalizar la mezcla:
+      solamente controla los picos cuando coinciden
+      voz + música + cortina + Soundpad.
+    */
+    programLimiter.threshold.value = -3;
+    programLimiter.knee.value = 0;
+    programLimiter.ratio.value = 20;
+    programLimiter.attack.value = 0.003;
+    programLimiter.release.value = 0.18;
   }
 
-  try { programGain.disconnect(); } catch (error) {}
-  try { programAnalyser.disconnect(); } catch (error) {}
+  if (!programDestination) {
+    programDestination =
+      audioContext.createMediaStreamDestination();
+  }
 
+  try {
+    programGain.disconnect();
+  }
+  catch (error) {
+    /* Puede no estar conectado todavía. */
+  }
+
+  try {
+    programAnalyser.disconnect();
+  }
+  catch (error) {
+    /* Puede no estar conectado todavía. */
+  }
+
+  try {
+    programLimiter.disconnect();
+  }
+  catch (error) {
+    /* Puede no estar conectado todavía. */
+  }
+
+  /*
+    Cadena de grabación:
+
+    Canales
+      → Program Gain (-1 dB de margen)
+      → Analyser
+      → Limitador de picos
+      → MediaRecorder
+  */
   programGain.connect(programAnalyser);
-  programAnalyser.connect(programDestination);
+  programAnalyser.connect(programLimiter);
+  programLimiter.connect(programDestination);
 
   return programGain;
 }
@@ -347,7 +401,7 @@ function getProgramStream() {
 
 function getProgramState() {
   return {
-    ready: Boolean(programGain && programAnalyser && programDestination),
+    ready: Boolean(programGain && programAnalyser && programLimiter && programDestination),
     hasStream: Boolean(programDestination?.stream)
   };
 }
@@ -2229,8 +2283,13 @@ function destroyProgramBus() {
     try { programAnalyser.disconnect(); } catch (error) { console.warn(error); }
   }
 
+  if (programLimiter) {
+    try { programLimiter.disconnect(); } catch (error) { console.warn(error); }
+  }
+
   programGain = null;
   programAnalyser = null;
+  programLimiter = null;
   programDestination = null;
 }
 
