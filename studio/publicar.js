@@ -8,6 +8,10 @@ import {
   isStudioAdministrator
 } from "./studio-auth.js";
 
+import {
+  confirmModal
+} from "./modal.js";
+
 
 /* =========================================================
    ESTADO
@@ -983,9 +987,13 @@ async function quitarPostBlog(
 
 
   const confirmed =
-    window.confirm(
-      "¿Quieres retirar esta publicación del Blog?"
-    );
+    await confirmModal({
+      title: "Retirar publicación",
+      message: "¿Quieres retirar esta publicación del Blog?",
+      confirmText: "RETIRAR",
+      cancelText: "CANCELAR",
+      danger: true
+    });
 
 
   if (!confirmed) {

@@ -1,3 +1,9 @@
+import {
+  showModal,
+  confirmModal,
+  promptModal
+} from "./modal.js";
+
 /* ==========================================
    RADIO CONEXIÓN STUDIO
 ========================================== */
@@ -433,9 +439,12 @@ async function createMediaRecorder() {
         event.error || event
       );
 
-      alert(
-        "Se produjo un error durante la grabación del episodio."
-      );
+      showModal({
+        title: "Error de grabación",
+        message: "Se produjo un error durante la grabación del episodio.",
+        type: "danger",
+        confirmText: "ENTENDIDO"
+      });
     }
   );
 
@@ -574,10 +583,14 @@ async function startRecording() {
       error
     );
 
-    alert(
-      error.message ||
-      "No fue posible iniciar la grabación."
-    );
+    await showModal({
+      title: "No fue posible iniciar la grabación",
+      message:
+        error.message ||
+        "No fue posible iniciar la grabación.",
+      type: "danger",
+      confirmText: "ENTENDIDO"
+    });
 
     return;
   }
@@ -717,7 +730,7 @@ function finishRecording() {
    NUEVA SESIÓN
 ========================================== */
 
-function newSession() {
+async function newSession() {
 
   const hasWork =
     elapsedSeconds > 0 ||
@@ -727,12 +740,15 @@ function newSession() {
   if (hasWork) {
 
     const confirmed =
-      confirm(
-        "¿Crear una nueva sesión?\n\n" +
-        "Se reiniciará el cronómetro y " +
-        "se eliminarán las marcas de edición actuales.\n\n" +
-        "La pauta y los datos del episodio se conservarán."
-      );
+      await confirmModal({
+        title: "¿Comenzar una nueva sesión?",
+        message:
+          "Se reiniciará el cronómetro y se eliminarán las marcas de edición actuales.\n\n" +
+          "La pauta y los datos del episodio se conservarán.",
+        confirmText: "COMENZAR NUEVA SESIÓN",
+        cancelText: "CANCELAR",
+        type: "warning"
+      });
 
 
     if (!confirmed) return;
@@ -798,6 +814,10 @@ function newSession() {
 
 
   saveState();
+
+  document.dispatchEvent(
+    new CustomEvent("studio:newsession")
+  );
 }
 
 
@@ -979,12 +999,19 @@ function nextBlock() {
 }
 
 
-function addBlock() {
+async function addBlock() {
 
   const name =
-    prompt(
-      "Nombre del nuevo bloque:"
-    );
+    await promptModal({
+      title: "Agregar bloque",
+      message: "Escribe el nombre del nuevo bloque de la pauta.",
+      label: "NOMBRE DEL BLOQUE",
+      placeholder: "Ej: Entrevista, conversación, cierre...",
+      confirmText: "AGREGAR BLOQUE",
+      cancelText: "CANCELAR",
+      required: true,
+      maxLength: 80
+    });
 
 
   if (!name) return;
@@ -1006,24 +1033,31 @@ function addBlock() {
 }
 
 
-function deleteBlock(index) {
+async function deleteBlock(index) {
 
   if (
     blocks.length <= 1
   ) {
 
-    alert(
-      "La pauta debe tener al menos un bloque."
-    );
+    await showModal({
+      title: "No se puede eliminar",
+      message: "La pauta debe tener al menos un bloque.",
+      type: "warning",
+      confirmText: "ENTENDIDO"
+    });
 
     return;
   }
 
 
   const confirmed =
-    confirm(
-      `¿Eliminar "${blocks[index]}" de la pauta?`
-    );
+    await confirmModal({
+      title: "Eliminar bloque",
+      message: `¿Quieres eliminar "${blocks[index]}" de la pauta?`,
+      confirmText: "ELIMINAR",
+      cancelText: "CANCELAR",
+      danger: true
+    });
 
 
   if (!confirmed) return;

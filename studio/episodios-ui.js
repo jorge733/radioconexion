@@ -16,6 +16,10 @@ import {
   formatSavedDate
 } from "./episodios.js";
 
+import {
+  confirmModal
+} from "./modal.js";
+
 
 /* =========================================================
    ESTADO
@@ -347,7 +351,7 @@ function handleOpenEpisode(
    ELIMINAR EPISODIO
 ========================================================= */
 
-function handleDeleteEpisode(
+async function handleDeleteEpisode(
   episode
 ) {
 
@@ -362,9 +366,15 @@ function handleDeleteEpisode(
       : "";
 
   const confirmed =
-    window.confirm(
-      `¿Quieres eliminar el episodio${number}${title} del historial?\n\nEsta acción no se puede deshacer.`
-    );
+    await confirmModal({
+      title: "Eliminar episodio",
+      message:
+        `¿Quieres eliminar el episodio${number}${title} del historial?\n\n` +
+        "Esta acción no se puede deshacer.",
+      confirmText: "ELIMINAR",
+      cancelText: "CANCELAR",
+      danger: true
+    });
 
   if (!confirmed) {
 
@@ -761,12 +771,17 @@ function archiveCurrentProduction(
    NUEVO EPISODIO
 ========================================================= */
 
-function createNewEpisode() {
+async function createNewEpisode() {
 
   const confirmed =
-    window.confirm(
-      "¿Quieres comenzar un episodio nuevo?\n\nLa producción actual se guardará en el historial antes de crear la nueva sesión."
-    );
+    await confirmModal({
+      title: "Comenzar episodio nuevo",
+      message:
+        "La producción actual se guardará en el historial antes de crear la nueva sesión.",
+      confirmText: "COMENZAR EPISODIO",
+      cancelText: "CANCELAR",
+      type: "warning"
+    });
 
   if (!confirmed) {
 

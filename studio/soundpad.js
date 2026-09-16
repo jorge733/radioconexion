@@ -5,6 +5,11 @@ import {
   connectNodeToProgram
 } from "./audio-engine.js";
 
+import {
+  showModal,
+  confirmModal
+} from "./modal.js";
+
 
 /* =========================================================
    RADIO CONEXIÓN STUDIO
@@ -840,9 +845,12 @@ async function playSound(id) {
     );
 
 
-    alert(
-      `No se pudo preparar "${sound.name}" para la consola de audio.`
-    );
+    await showModal({
+      title: "No se pudo preparar el audio",
+      message: `No se pudo preparar "${sound.name}" para la consola de audio.`,
+      type: "danger",
+      confirmText: "ENTENDIDO"
+    });
 
     return;
   }
@@ -850,7 +858,7 @@ async function playSound(id) {
 
   audio.addEventListener(
     "ended",
-    () => {
+    async () => {
 
       const active =
         activeSounds.get(id);
@@ -904,9 +912,12 @@ async function playSound(id) {
       renderSoundpad();
 
 
-      alert(
-        `No se pudo reproducir "${sound.name}".`
-      );
+      await showModal({
+        title: "No se pudo reproducir el audio",
+        message: `No se pudo reproducir "${sound.name}".`,
+        type: "danger",
+        confirmText: "ENTENDIDO"
+      });
 
     }
   );
@@ -926,7 +937,7 @@ async function playSound(id) {
         renderSoundpad();
 
       })
-      .catch(error => {
+      .catch(async error => {
 
         console.error(
           "No se pudo reproducir el audio:",
@@ -957,9 +968,12 @@ async function playSound(id) {
         renderSoundpad();
 
 
-        alert(
-          `El navegador no pudo reproducir "${sound.name}".`
-        );
+        await showModal({
+          title: "El navegador no pudo reproducir el audio",
+          message: `El navegador no pudo reproducir "${sound.name}".`,
+          type: "danger",
+          confirmText: "ENTENDIDO"
+        });
 
       });
 
@@ -1203,7 +1217,7 @@ function closeSoundModal() {
    GUARDAR / ASIGNAR AUDIO
 ========================================================= */
 
-function saveSound() {
+async function saveSound() {
 
   const file =
     soundFile.files[0];
@@ -1211,9 +1225,12 @@ function saveSound() {
 
   if (!file) {
 
-    alert(
-      "Selecciona un archivo de audio."
-    );
+    await showModal({
+      title: "Falta seleccionar un audio",
+      message: "Selecciona un archivo de audio antes de continuar.",
+      type: "warning",
+      confirmText: "ENTENDIDO"
+    });
 
     return;
   }
@@ -1233,9 +1250,12 @@ function saveSound() {
     )
   ) {
 
-    alert(
-      "El archivo seleccionado no parece ser un audio."
-    );
+    await showModal({
+      title: "Archivo no válido",
+      message: "El archivo seleccionado no parece ser un audio.",
+      type: "warning",
+      confirmText: "ENTENDIDO"
+    });
 
     return;
   }
@@ -1385,7 +1405,7 @@ function saveSound() {
    ELIMINAR SONIDO PERSONALIZADO
 ========================================================= */
 
-function deleteSound(id) {
+async function deleteSound(id) {
 
   const sound =
     getSoundById(id);
@@ -1401,9 +1421,13 @@ function deleteSound(id) {
 
 
   const confirmed =
-    confirm(
-      `¿Eliminar "${sound.name}" del Soundpad?`
-    );
+    await confirmModal({
+      title: "Eliminar sonido",
+      message: `¿Quieres eliminar "${sound.name}" del Soundpad?`,
+      confirmText: "ELIMINAR",
+      cancelText: "CANCELAR",
+      danger: true
+    });
 
 
   if (!confirmed) return;
@@ -1568,33 +1592,19 @@ document.addEventListener(
 ========================================================= */
 
 /*
-  Studio ya tiene su propio botón NUEVA SESIÓN.
+  Studio emite "studio:newsession" únicamente después de que
+  la nueva sesión fue confirmada y reiniciada correctamente.
 
-  Añadimos un listener independiente.
-
-  No modificamos la función newSession() del archivo
-  studio.js para evitar tocar el sistema que ya funciona.
-
-  Al hacer clic se detienen todos los audios.
+  Si el usuario cancela la confirmación, los sonidos del
+  Soundpad continúan reproduciéndose.
 */
 
-const studioNewSessionBtn =
-  document.getElementById(
-    "newSessionBtn"
-  );
-
-
-if (studioNewSessionBtn) {
-
-  studioNewSessionBtn.addEventListener(
-    "click",
-    () => {
-
-      stopAllSounds();
-
-    }
-  );
-}
+document.addEventListener(
+  "studio:newsession",
+  () => {
+    stopAllSounds();
+  }
+);
 
 
 /* =========================================================

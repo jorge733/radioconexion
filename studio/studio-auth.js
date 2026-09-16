@@ -20,6 +20,10 @@ import {
   firebaseConfig
 } from "../firebase-config.js";
 
+import {
+  showModal
+} from "./modal.js";
+
 
 /* =========================================================
    CONFIGURACIÓN
@@ -375,9 +379,12 @@ async function logoutFromStudio() {
       error
     );
 
-    alert(
-      "No pudimos cerrar la sesión. Inténtalo nuevamente."
-    );
+    await showModal({
+      title: "No fue posible cerrar la sesión",
+      message: "No pudimos cerrar la sesión. Inténtalo nuevamente.",
+      type: "danger",
+      confirmText: "ENTENDIDO"
+    });
 
   }
   finally {
