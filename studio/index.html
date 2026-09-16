@@ -1241,6 +1241,189 @@
 
             </div>
 
+            <!-- CANAL 2 · MÚSICA -->
+
+            <div class="audio-channel">
+
+              <div class="audio-channel-identity">
+
+                <div
+                  class="audio-channel-icon"
+                  aria-hidden="true"
+                >
+                  🎵
+                </div>
+
+                <div class="audio-channel-name">
+
+                  <span>
+                    CANAL 2
+                  </span>
+
+                  <strong id="musicTrackName">
+                    Sin canción cargada
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="audio-meter-area">
+
+                <div class="audio-meter-labels">
+
+                  <span>
+                    NIVEL DE MÚSICA
+                  </span>
+
+                  <span
+                    id="musicDb"
+                    class="audio-meter-db"
+                  >
+                    — dB
+                  </span>
+
+                </div>
+
+                <div
+                  class="audio-meter"
+                  role="meter"
+                  aria-label="Nivel de música"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+
+                  <div
+                    id="musicMeterFill"
+                    class="audio-meter-fill"
+                  ></div>
+
+                </div>
+
+                <div class="audio-meter-scale">
+                  <span>-60</span>
+                  <span>-30</span>
+                  <span>-18</span>
+                  <span>-6</span>
+                  <span>0 dB</span>
+                </div>
+
+              </div>
+
+
+              <div class="audio-channel-controls">
+
+                <input
+                  id="musicFileInput"
+                  type="file"
+                  accept="audio/*"
+                  hidden
+                >
+
+                <div class="audio-control-row">
+
+                  <button
+                    id="musicLoadBtn"
+                    class="audio-activate-button"
+                    type="button"
+                  >
+                    CARGAR CANCIÓN
+                  </button>
+
+                  <button
+                    id="musicPlayBtn"
+                    class="audio-activate-button"
+                    type="button"
+                    disabled
+                  >
+                    ▶ PLAY
+                  </button>
+
+                  <button
+                    id="musicStopBtn"
+                    class="audio-mute-button"
+                    type="button"
+                    disabled
+                  >
+                    ■ STOP
+                  </button>
+
+                  <button
+                    id="musicMuteBtn"
+                    class="audio-mute-button"
+                    type="button"
+                    disabled
+                  >
+                    MUTE
+                  </button>
+
+                </div>
+
+
+                <div class="audio-gain-control">
+
+                  <label for="musicVolume">
+                    VOLUMEN
+                  </label>
+
+                  <input
+                    id="musicVolume"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="70"
+                    step="1"
+                  >
+
+                  <span
+                    id="musicVolumeValue"
+                    class="audio-gain-value"
+                  >
+                    70%
+                  </span>
+
+                </div>
+
+
+                <div class="audio-gain-control">
+
+                  <span>
+                    POSICIÓN
+                  </span>
+
+                  <span
+                    id="musicCurrentTime"
+                    class="audio-gain-value"
+                  >
+                    0:00
+                  </span>
+
+                  <input
+                    id="musicProgress"
+                    type="range"
+                    min="0"
+                    max="1"
+                    value="0"
+                    step="0.1"
+                    disabled
+                    aria-label="Posición de la canción"
+                  >
+
+                  <span
+                    id="musicDuration"
+                    class="audio-gain-value"
+                  >
+                    0:00
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
             <p
               id="audioConsoleMessage"
               class="audio-console-message"

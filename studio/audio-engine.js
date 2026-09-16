@@ -1,31 +1,56 @@
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   AUDIO ENGINE V1
-   Micrófono + Web Audio API
+   AUDIO ENGINE V2
+
+   Canales actuales:
+   - Micrófono
+   - Música
+
+   Próximamente:
+   - Cortina
+   - Soundpad
+   - Master
+   - Grabación
 ========================================================= */
 
 
 /* =========================================================
-   ESTADO
+   AUDIO CONTEXT
 ========================================================= */
 
 let audioContext = null;
 
+
+/* =========================================================
+   MICRÓFONO
+========================================================= */
+
 let microphoneStream = null;
-
 let microphoneSource = null;
-
 let microphoneGain = null;
-
 let microphoneAnalyser = null;
 
 let microphoneMuted = false;
-
 let microphoneVolume = 1;
 
 
 /* =========================================================
-   CREAR AUDIO CONTEXT
+   MÚSICA
+========================================================= */
+
+let musicAudioElement = null;
+let musicSource = null;
+let musicGain = null;
+let musicAnalyser = null;
+
+let musicObjectUrl = null;
+
+let musicVolume = 0.7;
+let musicMuted = false;
+
+
+/* =========================================================
+   AUDIO CONTEXT
 ========================================================= */
 
 async function ensureAudioContext() {
@@ -49,6 +74,7 @@ async function ensureAudioContext() {
 
   }
 
+
   if (
     audioContext.state ===
     "suspended"
@@ -58,13 +84,14 @@ async function ensureAudioContext() {
 
   }
 
+
   return audioContext;
 
 }
 
 
 /* =========================================================
-   LISTAR MICRÓFONOS
+   MICRÓFONOS DISPONIBLES
 ========================================================= */
 
 async function getMicrophones() {
@@ -75,14 +102,16 @@ async function getMicrophones() {
   ) {
 
     throw new Error(
-      "Este navegador no permite consultar dispositivos de audio."
+      "El navegador no permite consultar dispositivos de audio."
     );
 
   }
 
+
   const devices =
     await navigator.mediaDevices
       .enumerateDevices();
+
 
   return devices.filter(
     device =>
@@ -94,7 +123,7 @@ async function getMicrophones() {
 
 
 /* =========================================================
-   DETENER MICRÓFONO ACTUAL
+   DETENER MICRÓFONO
 ========================================================= */
 
 function stopMicrophone() {
@@ -102,47 +131,53 @@ function stopMicrophone() {
   if (microphoneSource) {
 
     try {
-
       microphoneSource.disconnect();
-
     }
-    catch {
-      // Ya estaba desconectado.
+    catch (error) {
+      console.warn(
+        "No fue posible desconectar la fuente del micrófono:",
+        error
+      );
     }
 
     microphoneSource = null;
 
   }
 
+
   if (microphoneGain) {
 
     try {
-
       microphoneGain.disconnect();
-
     }
-    catch {
-      // Ya estaba desconectado.
+    catch (error) {
+      console.warn(
+        "No fue posible desconectar la ganancia del micrófono:",
+        error
+      );
     }
 
     microphoneGain = null;
 
   }
 
+
   if (microphoneAnalyser) {
 
     try {
-
       microphoneAnalyser.disconnect();
-
     }
-    catch {
-      // Ya estaba desconectado.
+    catch (error) {
+      console.warn(
+        "No fue posible desconectar el analizador del micrófono:",
+        error
+      );
     }
 
     microphoneAnalyser = null;
 
   }
+
 
   if (microphoneStream) {
 
@@ -161,7 +196,7 @@ function stopMicrophone() {
 
 
 /* =========================================================
-   INICIAR MICRÓFONO
+   ACTIVAR MICRÓFONO
 ========================================================= */
 
 async function startMicrophone(
@@ -174,65 +209,79 @@ async function startMicrophone(
   ) {
 
     throw new Error(
-      "Este navegador no permite utilizar el micrófono."
+      "El navegador no permite acceder al micrófono."
     );
 
   }
 
-  await ensureAudioContext();
+
+  const context =
+    await ensureAudioContext();
+
 
   stopMicrophone();
 
+
   const audioConstraints = {
 
-    echoCancellation:
-      false,
-
-    noiseSuppression:
-      false,
-
-    autoGainControl:
-      false
+    echoCancellation: false,
+    noiseSuppression: false,
+    autoGainControl: false
 
   };
+
 
   if (deviceId) {
 
     audioConstraints.deviceId = {
-      exact:
-        deviceId
+      exact: deviceId
     };
 
   }
 
+
   microphoneStream =
     await navigator.mediaDevices
       .getUserMedia({
-        audio:
-          audioConstraints,
-        video:
-          false
+        audio: audioConstraints,
+        video: false
       });
 
+
   microphoneSource =
-    audioContext
-      .createMediaStreamSource(
-        microphoneStream
-      );
+    context.createMediaStreamSource(
+      microphoneStream
+    );
+
 
   microphoneGain =
-    audioContext
-      .createGain();
+    context.createGain();
+
 
   microphoneAnalyser =
-    audioContext
-      .createAnalyser();
+    context.createAnalyser();
+
 
   microphoneAnalyser.fftSize =
     2048;
 
   microphoneAnalyser.smoothingTimeConstant =
     0.72;
+
+
+  updateMicrophoneGain();
+
+
+  /*
+   * IMPORTANTE:
+   *
+   * El micrófono NO se conecta todavía
+   * a context.destination.
+   *
+   * De esa forma evitamos escuchar
+   * nuestra propia voz por los parlantes
+   * y provocar eco o acople.
+   */
 
   microphoneSource.connect(
     microphoneGain
@@ -242,33 +291,37 @@ async function startMicrophone(
     microphoneAnalyser
   );
 
-  updateMicrophoneGain();
+
+  const audioTrack =
+    microphoneStream
+      .getAudioTracks()[0];
+
 
   return {
+
     stream:
       microphoneStream,
 
     deviceId:
-      microphoneStream
-        .getAudioTracks()[0]
+      audioTrack
         ?.getSettings()
-        ?.deviceId || ""
+        ?.deviceId || deviceId
+
   };
 
 }
 
 
 /* =========================================================
-   GANANCIA MICRÓFONO
+   GANANCIA DEL MICRÓFONO
 ========================================================= */
 
 function updateMicrophoneGain() {
 
   if (!microphoneGain) {
-
     return;
-
   }
+
 
   microphoneGain.gain.value =
     microphoneMuted
@@ -282,32 +335,29 @@ function setMicrophoneVolume(
   value
 ) {
 
-  const numericValue =
+  const number =
     Number(value);
 
+
+  if (!Number.isFinite(number)) {
+    return;
+  }
+
+
   microphoneVolume =
-    Number.isFinite(
-      numericValue
-    )
-      ? Math.min(
-          2,
-          Math.max(
-            0,
-            numericValue
-          )
-        )
-      : 1;
+    Math.max(
+      0,
+      Math.min(
+        2,
+        number
+      )
+    );
+
 
   updateMicrophoneGain();
 
-  return microphoneVolume;
-
 }
 
-
-/* =========================================================
-   MUTE
-========================================================= */
 
 function setMicrophoneMuted(
   muted
@@ -316,18 +366,20 @@ function setMicrophoneMuted(
   microphoneMuted =
     Boolean(muted);
 
-  updateMicrophoneGain();
 
-  return microphoneMuted;
+  updateMicrophoneGain();
 
 }
 
 
 function toggleMicrophoneMute() {
 
-  return setMicrophoneMuted(
+  setMicrophoneMuted(
     !microphoneMuted
   );
+
+
+  return microphoneMuted;
 
 }
 
@@ -336,148 +388,732 @@ function toggleMicrophoneMute() {
    NIVEL DEL MICRÓFONO
 ========================================================= */
 
-function getMicrophoneLevel() {
+function getMicrophoneRms() {
 
-  if (
-    !microphoneAnalyser
-  ) {
-
+  if (!microphoneAnalyser) {
     return 0;
-
   }
 
-  const buffer =
-    new Float32Array(
+
+  const data =
+    new Uint8Array(
       microphoneAnalyser
         .fftSize
     );
 
+
   microphoneAnalyser
-    .getFloatTimeDomainData(
-      buffer
+    .getByteTimeDomainData(
+      data
     );
+
 
   let sumSquares = 0;
 
-  for (
-    let index = 0;
-    index < buffer.length;
-    index += 1
-  ) {
-
-    const sample =
-      buffer[index];
-
-    sumSquares +=
-      sample *
-      sample;
-
-  }
-
-  const rms =
-    Math.sqrt(
-      sumSquares /
-      buffer.length
-    );
-
-  /*
-   * Convertimos el RMS a una escala
-   * práctica 0–1 para el medidor visual.
-   */
-
-  const level =
-    Math.min(
-      1,
-      rms * 4
-    );
-
-  return level;
-
-}
-
-
-/* =========================================================
-   NIVEL EN DECIBELES
-========================================================= */
-
-function getMicrophoneDecibels() {
-
-  if (
-    !microphoneAnalyser
-  ) {
-
-    return -Infinity;
-
-  }
-
-  const buffer =
-    new Float32Array(
-      microphoneAnalyser
-        .fftSize
-    );
-
-  microphoneAnalyser
-    .getFloatTimeDomainData(
-      buffer
-    );
-
-  let sumSquares = 0;
 
   for (
     let index = 0;
-    index < buffer.length;
+    index < data.length;
     index += 1
   ) {
 
+    const normalized =
+      (
+        data[index] -
+        128
+      ) /
+      128;
+
+
     sumSquares +=
-      buffer[index] *
-      buffer[index];
+      normalized *
+      normalized;
 
   }
 
-  const rms =
-    Math.sqrt(
-      sumSquares /
-      buffer.length
-    );
 
-  if (
-    rms <= 0.00001
-  ) {
-
-    return -Infinity;
-
-  }
-
-  return (
-    20 *
-    Math.log10(
-      rms
-    )
+  return Math.sqrt(
+    sumSquares /
+    data.length
   );
 
 }
 
 
+function getMicrophoneLevel() {
+
+  const rms =
+    getMicrophoneRms();
+
+
+  return Math.min(
+    1,
+    rms * 4
+  );
+
+}
+
+
+function getMicrophoneDecibels() {
+
+  const rms =
+    getMicrophoneRms();
+
+
+  if (rms <= 0) {
+
+    return -Infinity;
+
+  }
+
+
+  return 20 *
+    Math.log10(rms);
+
+}
+
+
 /* =========================================================
-   INFORMACIÓN
+   ESTADO DEL MICRÓFONO
 ========================================================= */
 
 function isMicrophoneActive() {
 
-  return Boolean(
-    microphoneStream &&
-    microphoneStream
-      .getAudioTracks()
-      .some(
-        track =>
-          track.readyState ===
-          "live"
-      )
+  if (!microphoneStream) {
+    return false;
+  }
+
+
+  return microphoneStream
+    .getAudioTracks()
+    .some(
+      track =>
+        track.readyState ===
+        "live"
+    );
+
+}
+
+
+/* =========================================================
+   CREAR CANAL DE MÚSICA
+========================================================= */
+
+async function ensureMusicChannel() {
+
+  const context =
+    await ensureAudioContext();
+
+
+  if (!musicAudioElement) {
+
+    musicAudioElement =
+      new Audio();
+
+
+    musicAudioElement.preload =
+      "metadata";
+
+
+    musicAudioElement.crossOrigin =
+      "anonymous";
+
+  }
+
+
+  if (!musicSource) {
+
+    musicSource =
+      context
+        .createMediaElementSource(
+          musicAudioElement
+        );
+
+  }
+
+
+  if (!musicGain) {
+
+    musicGain =
+      context.createGain();
+
+  }
+
+
+  if (!musicAnalyser) {
+
+    musicAnalyser =
+      context.createAnalyser();
+
+
+    musicAnalyser.fftSize =
+      2048;
+
+
+    musicAnalyser
+      .smoothingTimeConstant =
+      0.72;
+
+  }
+
+
+  /*
+   * Cadena del canal:
+   *
+   * Archivo
+   *   ↓
+   * Gain
+   *   ↓
+   * Analyser
+   *   ↓
+   * Parlantes
+   *
+   * Más adelante, en vez de ir
+   * directamente a destination,
+   * todos los canales pasarán por
+   * el MASTER.
+   */
+
+  try {
+    musicSource.disconnect();
+  }
+  catch (error) {
+    // Puede no estar conectado todavía.
+  }
+
+
+  try {
+    musicGain.disconnect();
+  }
+  catch (error) {
+    // Puede no estar conectado todavía.
+  }
+
+
+  try {
+    musicAnalyser.disconnect();
+  }
+  catch (error) {
+    // Puede no estar conectado todavía.
+  }
+
+
+  musicSource.connect(
+    musicGain
+  );
+
+
+  musicGain.connect(
+    musicAnalyser
+  );
+
+
+  musicAnalyser.connect(
+    context.destination
+  );
+
+
+  updateMusicGain();
+
+
+  return musicAudioElement;
+
+}
+
+
+/* =========================================================
+   CARGAR MÚSICA
+========================================================= */
+
+async function loadMusicFile(
+  file
+) {
+
+  if (!(file instanceof File)) {
+
+    throw new Error(
+      "Debes seleccionar un archivo de audio válido."
+    );
+
+  }
+
+
+  if (
+    file.type &&
+    !file.type.startsWith(
+      "audio/"
+    )
+  ) {
+
+    throw new Error(
+      "El archivo seleccionado no parece ser un archivo de audio."
+    );
+
+  }
+
+
+  const audio =
+    await ensureMusicChannel();
+
+
+  /*
+   * Liberamos el Object URL
+   * anterior para no acumular
+   * memoria en el navegador.
+   */
+
+  if (musicObjectUrl) {
+
+    URL.revokeObjectURL(
+      musicObjectUrl
+    );
+
+    musicObjectUrl = null;
+
+  }
+
+
+  musicObjectUrl =
+    URL.createObjectURL(
+      file
+    );
+
+
+  audio.pause();
+
+
+  audio.src =
+    musicObjectUrl;
+
+
+  audio.currentTime = 0;
+
+
+  audio.load();
+
+
+  return new Promise(
+    (resolve, reject) => {
+
+      const handleLoaded =
+        () => {
+
+          cleanup();
+
+          resolve({
+            name:
+              file.name,
+
+            duration:
+              Number.isFinite(
+                audio.duration
+              )
+                ? audio.duration
+                : 0
+          });
+
+        };
+
+
+      const handleError =
+        () => {
+
+          cleanup();
+
+          reject(
+            new Error(
+              "El navegador no pudo cargar este archivo de audio."
+            )
+          );
+
+        };
+
+
+      const cleanup =
+        () => {
+
+          audio.removeEventListener(
+            "loadedmetadata",
+            handleLoaded
+          );
+
+
+          audio.removeEventListener(
+            "error",
+            handleError
+          );
+
+        };
+
+
+      audio.addEventListener(
+        "loadedmetadata",
+        handleLoaded
+      );
+
+
+      audio.addEventListener(
+        "error",
+        handleError
+      );
+
+    }
   );
 
 }
 
+
+/* =========================================================
+   REPRODUCCIÓN DE MÚSICA
+========================================================= */
+
+async function playMusic() {
+
+  if (
+    !musicAudioElement ||
+    !musicAudioElement.src
+  ) {
+
+    throw new Error(
+      "Primero debes cargar una canción."
+    );
+
+  }
+
+
+  await ensureAudioContext();
+
+
+  await musicAudioElement.play();
+
+}
+
+
+function pauseMusic() {
+
+  if (!musicAudioElement) {
+    return;
+  }
+
+
+  musicAudioElement.pause();
+
+}
+
+
+function stopMusic() {
+
+  if (!musicAudioElement) {
+    return;
+  }
+
+
+  musicAudioElement.pause();
+
+
+  try {
+
+    musicAudioElement.currentTime =
+      0;
+
+  }
+  catch (error) {
+
+    console.warn(
+      "No fue posible volver al inicio de la canción:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   POSICIÓN DE MÚSICA
+========================================================= */
+
+function seekMusic(
+  seconds
+) {
+
+  if (!musicAudioElement) {
+    return;
+  }
+
+
+  const duration =
+    musicAudioElement.duration;
+
+
+  if (
+    !Number.isFinite(duration) ||
+    duration <= 0
+  ) {
+    return;
+  }
+
+
+  const value =
+    Number(seconds);
+
+
+  if (!Number.isFinite(value)) {
+    return;
+  }
+
+
+  musicAudioElement.currentTime =
+    Math.max(
+      0,
+      Math.min(
+        duration,
+        value
+      )
+    );
+
+}
+
+
+/* =========================================================
+   VOLUMEN DE MÚSICA
+========================================================= */
+
+function updateMusicGain() {
+
+  if (!musicGain) {
+    return;
+  }
+
+
+  musicGain.gain.value =
+    musicMuted
+      ? 0
+      : musicVolume;
+
+}
+
+
+function setMusicVolume(
+  value
+) {
+
+  const number =
+    Number(value);
+
+
+  if (!Number.isFinite(number)) {
+    return;
+  }
+
+
+  musicVolume =
+    Math.max(
+      0,
+      Math.min(
+        1,
+        number
+      )
+    );
+
+
+  updateMusicGain();
+
+}
+
+
+function setMusicMuted(
+  muted
+) {
+
+  musicMuted =
+    Boolean(muted);
+
+
+  updateMusicGain();
+
+}
+
+
+function toggleMusicMute() {
+
+  setMusicMuted(
+    !musicMuted
+  );
+
+
+  return musicMuted;
+
+}
+
+
+/* =========================================================
+   NIVEL DE MÚSICA
+========================================================= */
+
+function getMusicRms() {
+
+  if (!musicAnalyser) {
+    return 0;
+  }
+
+
+  const data =
+    new Uint8Array(
+      musicAnalyser
+        .fftSize
+    );
+
+
+  musicAnalyser
+    .getByteTimeDomainData(
+      data
+    );
+
+
+  let sumSquares = 0;
+
+
+  for (
+    let index = 0;
+    index < data.length;
+    index += 1
+  ) {
+
+    const normalized =
+      (
+        data[index] -
+        128
+      ) /
+      128;
+
+
+    sumSquares +=
+      normalized *
+      normalized;
+
+  }
+
+
+  return Math.sqrt(
+    sumSquares /
+    data.length
+  );
+
+}
+
+
+function getMusicLevel() {
+
+  const rms =
+    getMusicRms();
+
+
+  return Math.min(
+    1,
+    rms * 3
+  );
+
+}
+
+
+function getMusicDecibels() {
+
+  const rms =
+    getMusicRms();
+
+
+  if (rms <= 0) {
+
+    return -Infinity;
+
+  }
+
+
+  return 20 *
+    Math.log10(rms);
+
+}
+
+
+/* =========================================================
+   INFORMACIÓN DEL CANAL MÚSICA
+========================================================= */
+
+function getMusicState() {
+
+  if (!musicAudioElement) {
+
+    return {
+      loaded: false,
+      playing: false,
+      paused: true,
+      ended: false,
+      currentTime: 0,
+      duration: 0,
+      volume: musicVolume,
+      muted: musicMuted
+    };
+
+  }
+
+
+  return {
+
+    loaded:
+      Boolean(
+        musicAudioElement.src
+      ),
+
+    playing:
+      !musicAudioElement.paused &&
+      !musicAudioElement.ended,
+
+    paused:
+      musicAudioElement.paused,
+
+    ended:
+      musicAudioElement.ended,
+
+    currentTime:
+      Number.isFinite(
+        musicAudioElement.currentTime
+      )
+        ? musicAudioElement.currentTime
+        : 0,
+
+    duration:
+      Number.isFinite(
+        musicAudioElement.duration
+      )
+        ? musicAudioElement.duration
+        : 0,
+
+    volume:
+      musicVolume,
+
+    muted:
+      musicMuted
+
+  };
+
+}
+
+
+/* =========================================================
+   ELEMENTO DE MÚSICA
+========================================================= */
+
+function getMusicAudioElement() {
+
+  return musicAudioElement;
+
+}
+
+
+/* =========================================================
+   GETTERS
+========================================================= */
 
 function getAudioContext() {
 
@@ -494,16 +1130,107 @@ function getMicrophoneStream() {
 
 
 /* =========================================================
-   CIERRE
+   LIMPIEZA DEL CANAL MÚSICA
 ========================================================= */
 
-function destroyAudioEngine() {
+function destroyMusicChannel() {
+
+  if (musicAudioElement) {
+
+    musicAudioElement.pause();
+
+
+    musicAudioElement.removeAttribute(
+      "src"
+    );
+
+
+    musicAudioElement.load();
+
+  }
+
+
+  if (musicSource) {
+
+    try {
+      musicSource.disconnect();
+    }
+    catch (error) {
+      console.warn(error);
+    }
+
+  }
+
+
+  if (musicGain) {
+
+    try {
+      musicGain.disconnect();
+    }
+    catch (error) {
+      console.warn(error);
+    }
+
+  }
+
+
+  if (musicAnalyser) {
+
+    try {
+      musicAnalyser.disconnect();
+    }
+    catch (error) {
+      console.warn(error);
+    }
+
+  }
+
+
+  if (musicObjectUrl) {
+
+    URL.revokeObjectURL(
+      musicObjectUrl
+    );
+
+  }
+
+
+  musicAudioElement = null;
+  musicSource = null;
+  musicGain = null;
+  musicAnalyser = null;
+  musicObjectUrl = null;
+
+}
+
+
+/* =========================================================
+   DESTRUIR MOTOR
+========================================================= */
+
+async function destroyAudioEngine() {
 
   stopMicrophone();
 
+  destroyMusicChannel();
+
+
   if (audioContext) {
 
-    audioContext.close();
+    try {
+
+      await audioContext.close();
+
+    }
+    catch (error) {
+
+      console.warn(
+        "No fue posible cerrar AudioContext:",
+        error
+      );
+
+    }
+
 
     audioContext = null;
 
@@ -513,25 +1240,40 @@ function destroyAudioEngine() {
 
 
 /* =========================================================
-   EXPORTACIONES
+   EXPORTS
 ========================================================= */
 
 export {
+
+  /* Motor */
   ensureAudioContext,
   getAudioContext,
-  getMicrophones,
+  destroyAudioEngine,
 
+  /* Micrófono */
+  getMicrophones,
   startMicrophone,
   stopMicrophone,
-  getMicrophoneStream,
-  isMicrophoneActive,
-
   setMicrophoneVolume,
   setMicrophoneMuted,
   toggleMicrophoneMute,
-
   getMicrophoneLevel,
   getMicrophoneDecibels,
+  isMicrophoneActive,
+  getMicrophoneStream,
 
-  destroyAudioEngine
+  /* Música */
+  loadMusicFile,
+  playMusic,
+  pauseMusic,
+  stopMusic,
+  seekMusic,
+  setMusicVolume,
+  setMusicMuted,
+  toggleMusicMute,
+  getMusicLevel,
+  getMusicDecibels,
+  getMusicState,
+  getMusicAudioElement
+
 };
