@@ -57,6 +57,7 @@ let musicAnalyser = null;
 let musicActiveSlot = "A";
 let musicTransitioning = false;
 let musicTransitionPromise = null;
+let musicTransitionGeneration = 0;
 let musicAutoAdvanceEnabled = true;
 
 let musicObjectUrl = null;
@@ -887,6 +888,7 @@ async function loadMusicPlaylistIndex(index) {
 
   await ensureMusicChannel();
 
+  musicTransitionGeneration += 1;
   musicTransitioning = false;
   musicTransitionPromise = null;
 
@@ -982,6 +984,7 @@ async function crossfadeToMusicIndex(
   }
 
   musicTransitioning = true;
+  const transitionGeneration = ++musicTransitionGeneration;
 
   musicTransitionPromise = (async () => {
     const context = await ensureAudioContext();
@@ -997,6 +1000,12 @@ async function crossfadeToMusicIndex(
       incomingAudio,
       numericIndex
     );
+
+    if (transitionGeneration !== musicTransitionGeneration) {
+      incomingAudio.pause();
+      safeSetAudioTime(incomingAudio, 0);
+      return null;
+    }
 
     const outgoingWasPlaying =
       outgoingAudio &&
@@ -1038,6 +1047,12 @@ async function crossfadeToMusicIndex(
 
     await incomingAudio.play();
 
+    if (transitionGeneration !== musicTransitionGeneration) {
+      incomingAudio.pause();
+      safeSetAudioTime(incomingAudio, 0);
+      return null;
+    }
+
     if (fadeSeconds > 0) {
       incomingGain.gain.linearRampToValueAtTime(
         1,
@@ -1055,6 +1070,12 @@ async function crossfadeToMusicIndex(
           Math.ceil(fadeSeconds * 1000) + 40
         );
       });
+
+      if (transitionGeneration !== musicTransitionGeneration) {
+        incomingAudio.pause();
+        safeSetAudioTime(incomingAudio, 0);
+        return null;
+      }
     }
     else {
       incomingGain.gain.setValueAtTime(1, now);
@@ -1328,6 +1349,7 @@ function pauseMusic() {
 
 
 function stopMusic() {
+  musicTransitionGeneration += 1;
   musicTransitioning = false;
   musicTransitionPromise = null;
 

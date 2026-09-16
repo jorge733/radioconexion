@@ -759,7 +759,7 @@ function handleSoundButton(id) {
    REPRODUCCIÓN
 ========================================================= */
 
-function playSound(id) {
+async function playSound(id) {
 
   const sound =
     getSoundById(id);
@@ -795,7 +795,7 @@ function playSound(id) {
 
     const context =
       getAudioContext() ||
-      ensureAudioContext();
+      await ensureAudioContext();
 
 
     if (
@@ -803,7 +803,7 @@ function playSound(id) {
       "suspended"
     ) {
 
-      context.resume();
+      await context.resume();
     }
 
 
