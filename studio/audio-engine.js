@@ -1,5 +1,5 @@
 /* ========================================================= RADIO
-CONEXIÓN STUDIO AUDIO ENGINE V9
+CONEXIÓN STUDIO AUDIO ENGINE V10
 
 Canales actuales: - Micrófono - Música con playlist + crossfade automático - Cortina - Master
 
@@ -73,6 +73,21 @@ let musicObjectUrl = null;
 
 let musicVolume = 0.7;
 let musicMuted = false;
+
+/* =========================================================
+   AUTO-DUCKING V10 · SOLO MÚSICA
+========================================================= */
+
+const AUTO_DUCK_THRESHOLD_DB = -38;
+const AUTO_DUCK_RELEASE_DB = -44;
+const AUTO_DUCK_GAIN = Math.pow(10, -12 / 20);
+const AUTO_DUCK_ATTACK_SECONDS = 0.12;
+const AUTO_DUCK_RELEASE_SECONDS = 0.9;
+const AUTO_DUCK_HOLD_MS = 320;
+
+let autoDuckEnabled = true;
+let autoDuckActive = false;
+let autoDuckLastVoiceAt = 0;
 
 let musicPlaylist = [];
 let musicPlaylistIndex = -1;
@@ -431,6 +446,8 @@ MICRÓFONO ========================================================= */
 
 function stopMicrophone() {
 
+setAutoDuckActive(false);
+
 if (microphoneSource) {
 
     try {
@@ -598,6 +615,10 @@ function setMicrophoneMuted( muted ) {
 
 microphoneMuted = Boolean(muted);
 
+if (microphoneMuted) {
+  setAutoDuckActive(false);
+}
+
 updateMicrophoneGain();
 
 }
@@ -731,19 +752,151 @@ function setFadeGainImmediately(gainNode, value) {
   gainNode.gain.setValueAtTime(value, now);
 }
 
-function applyMusicMasterGain() {
+function getMusicTargetGain() {
+  if (musicMuted) {
+    return 0;
+  }
+
+  return (
+    musicVolume *
+    (autoDuckEnabled && autoDuckActive
+      ? AUTO_DUCK_GAIN
+      : 1)
+  );
+}
+
+
+function applyMusicMasterGain(
+  transitionSeconds = 0
+) {
   if (!musicGain) { return; }
 
-  const target = musicMuted ? 0 : musicVolume;
-  const now = audioContext ? audioContext.currentTime : 0;
+  const target = getMusicTargetGain();
 
-  if (audioContext) {
-    musicGain.gain.cancelScheduledValues(now);
-    musicGain.gain.setValueAtTime(target, now);
+  if (!audioContext) {
+    musicGain.gain.value = target;
+    return;
+  }
+
+  const now = audioContext.currentTime;
+  const duration =
+    Math.max(0, Number(transitionSeconds) || 0);
+
+  musicGain.gain.cancelScheduledValues(now);
+
+  /*
+    Conservamos el valor instantáneo para que el cambio
+    de ducking no produzca saltos ni clicks.
+  */
+  musicGain.gain.setValueAtTime(
+    musicGain.gain.value,
+    now
+  );
+
+  if (duration > 0) {
+    musicGain.gain.linearRampToValueAtTime(
+      target,
+      now + duration
+    );
   }
   else {
-    musicGain.gain.value = target;
+    musicGain.gain.setValueAtTime(
+      target,
+      now
+    );
   }
+}
+
+
+function setAutoDuckActive(active) {
+  const nextActive =
+    Boolean(active) && autoDuckEnabled;
+
+  if (nextActive === autoDuckActive) {
+    return autoDuckActive;
+  }
+
+  autoDuckActive = nextActive;
+
+  applyMusicMasterGain(
+    autoDuckActive
+      ? AUTO_DUCK_ATTACK_SECONDS
+      : AUTO_DUCK_RELEASE_SECONDS
+  );
+
+  return autoDuckActive;
+}
+
+
+function setAutoDuckEnabled(enabled) {
+  autoDuckEnabled = Boolean(enabled);
+
+  if (!autoDuckEnabled) {
+    autoDuckActive = false;
+    applyMusicMasterGain(
+      AUTO_DUCK_RELEASE_SECONDS
+    );
+  }
+
+  return autoDuckEnabled;
+}
+
+
+function updateAutoDucking(
+  microphoneDb = -Infinity
+) {
+  if (
+    !autoDuckEnabled ||
+    microphoneMuted ||
+    !isMicrophoneActive()
+  ) {
+    if (autoDuckActive) {
+      setAutoDuckActive(false);
+    }
+
+    return autoDuckActive;
+  }
+
+  const db = Number(microphoneDb);
+  const now = performance.now();
+
+  if (
+    Number.isFinite(db) &&
+    db >= AUTO_DUCK_THRESHOLD_DB
+  ) {
+    autoDuckLastVoiceAt = now;
+
+    if (!autoDuckActive) {
+      setAutoDuckActive(true);
+    }
+
+    return autoDuckActive;
+  }
+
+  if (
+    autoDuckActive &&
+    (
+      !Number.isFinite(db) ||
+      db <= AUTO_DUCK_RELEASE_DB
+    ) &&
+    now - autoDuckLastVoiceAt >=
+      AUTO_DUCK_HOLD_MS
+  ) {
+    setAutoDuckActive(false);
+  }
+
+  return autoDuckActive;
+}
+
+
+function getAutoDuckState() {
+  return {
+    enabled: autoDuckEnabled,
+    active: autoDuckActive,
+    reductionDb: 12,
+    thresholdDb: AUTO_DUCK_THRESHOLD_DB,
+    releaseDb: AUTO_DUCK_RELEASE_DB
+  };
 }
 
 function attachMusicAutomationListeners(audio) {
@@ -1158,7 +1311,7 @@ async function crossfadeToMusicIndex(
     }
 
     const now = context.currentTime;
-    const masterTarget = musicMuted ? 0 : musicVolume;
+    const masterTarget = getMusicTargetGain();
 
     applyMusicMasterGain();
 
@@ -2381,6 +2534,8 @@ nextMusicTrack, previousMusicTrack, removeMusicTrack, clearMusicPlaylist,
 getMusicPlaylistState, playMusic, pauseMusic, stopMusic, seekMusic,
 setMusicVolume, setMusicMuted, toggleMusicMute, getMusicLevel,
 getMusicDecibels, getMusicState, getMusicAudioElement,
+
+/* Auto-ducking */ updateAutoDucking, setAutoDuckEnabled, getAutoDuckState,
 
 /* Cortina */ loadCurtainFile, playCurtain, pauseCurtain, stopCurtain,
 seekCurtain, setCurtainVolume, setCurtainMuted, toggleCurtainMute,

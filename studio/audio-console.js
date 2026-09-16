@@ -1,6 +1,6 @@
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   CONSOLA DE AUDIO V6
+   CONSOLA DE AUDIO V7
 
    Canales:
    - Micrófono
@@ -38,6 +38,9 @@ import {
   getMusicDecibels,
   getMusicState,
   getMusicAudioElement,
+
+  /* Auto-ducking */
+  updateAutoDucking,
 
   /* Master */
   setMasterVolume,
@@ -2721,6 +2724,12 @@ function renderMeters() {
     const db =
       getMicrophoneDecibels();
 
+    /*
+      V7: el medidor del micrófono también alimenta
+      el detector de voz del Auto-Ducking.
+    */
+    updateAutoDucking(db);
+
 
     if (
       microphoneMeterFill
@@ -2755,6 +2764,8 @@ function renderMeters() {
 
   }
   else {
+
+    updateAutoDucking(-Infinity);
 
     if (
       microphoneMeterFill
