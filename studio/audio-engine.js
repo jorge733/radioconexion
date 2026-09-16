@@ -1,10 +1,27 @@
 /* ========================================================= RADIO
-CONEXIÓN STUDIO AUDIO ENGINE V5
+CONEXIÓN STUDIO AUDIO ENGINE V6
 
-Canales actuales: - Micrófono - Música con playlist + crossfade automático - Cortina
+Canales actuales: - Micrófono - Música con playlist + crossfade automático - Cortina - Master
 
-Próximamente: - Soundpad - Master - Grabación
+Próximamente: - Soundpad - Grabación
 ========================================================= */
+
+/* =========================================================
+   MASTER V6
+========================================================= */
+
+let masterGain = null;
+let masterAnalyser = null;
+
+let masterVolume = 1;
+let masterMuted = false;
+
+/*
+ * El MASTER controla la salida audible de Música y Cortina.
+ * El micrófono NO se conecta a esta salida para evitar eco/acople.
+ * Más adelante el micrófono se sumará a un bus de grabación
+ * independiente que podrá reutilizar el nivel del MASTER.
+ */
 
 /* ========================================================= AUDIO
 CONTEXT ========================================================= */
@@ -94,6 +111,167 @@ if ( audioContext.state === "suspended" ) {
 return audioContext;
 
 }
+
+/* =========================================================
+   CREAR / ACTUALIZAR MASTER
+========================================================= */
+
+function ensureMasterBus() {
+  if (!audioContext) {
+    throw new Error(
+      "El AudioContext debe estar activo antes de crear el Master."
+    );
+  }
+
+  if (!masterGain) {
+    masterGain = audioContext.createGain();
+  }
+
+  if (!masterAnalyser) {
+    masterAnalyser = audioContext.createAnalyser();
+    masterAnalyser.fftSize = 2048;
+    masterAnalyser.smoothingTimeConstant = 0.72;
+  }
+
+  try {
+    masterGain.disconnect();
+  }
+  catch (error) {
+    /* Puede no estar conectado todavía. */
+  }
+
+  try {
+    masterAnalyser.disconnect();
+  }
+  catch (error) {
+    /* Puede no estar conectado todavía. */
+  }
+
+  masterGain.connect(masterAnalyser);
+  masterAnalyser.connect(audioContext.destination);
+
+  updateMasterGain();
+
+  return masterGain;
+}
+
+
+function updateMasterGain() {
+  if (!masterGain) { return; }
+
+  const target =
+    masterMuted ? 0 : masterVolume;
+
+  if (audioContext) {
+    const now = audioContext.currentTime;
+
+    masterGain.gain.cancelScheduledValues(now);
+    masterGain.gain.setValueAtTime(target, now);
+  }
+  else {
+    masterGain.gain.value = target;
+  }
+}
+
+
+function setMasterVolume(value) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return;
+  }
+
+  masterVolume =
+    Math.max(
+      0,
+      Math.min(1, number)
+    );
+
+  updateMasterGain();
+}
+
+
+function setMasterMuted(muted) {
+  masterMuted = Boolean(muted);
+  updateMasterGain();
+}
+
+
+function toggleMasterMute() {
+  setMasterMuted(!masterMuted);
+  return masterMuted;
+}
+
+
+/* =========================================================
+   NIVEL MASTER
+========================================================= */
+
+function getMasterRms() {
+  if (!masterAnalyser) {
+    return 0;
+  }
+
+  const data =
+    new Uint8Array(
+      masterAnalyser.fftSize
+    );
+
+  masterAnalyser.getByteTimeDomainData(data);
+
+  let sumSquares = 0;
+
+  for (
+    let index = 0;
+    index < data.length;
+    index += 1
+  ) {
+    const normalized =
+      (data[index] - 128) / 128;
+
+    sumSquares +=
+      normalized * normalized;
+  }
+
+  return Math.sqrt(
+    sumSquares / data.length
+  );
+}
+
+
+function getMasterLevel() {
+  const rms = getMasterRms();
+  return Math.min(1, rms * 3);
+}
+
+
+function getMasterDecibels() {
+  const rms = getMasterRms();
+
+  if (rms <= 0) {
+    return -Infinity;
+  }
+
+  return 20 * Math.log10(rms);
+}
+
+
+function getMasterState() {
+  return {
+    ready:
+      Boolean(
+        masterGain &&
+        masterAnalyser
+      ),
+
+    volume:
+      masterVolume,
+
+    muted:
+      masterMuted
+  };
+}
+
 
 /* ========================================================= MICRÓFONOS
 DISPONIBLES ========================================================= */
@@ -553,7 +731,13 @@ async function ensureMusicChannel() {
   musicFadeGainB.connect(musicGain);
 
   musicGain.connect(musicAnalyser);
-  musicAnalyser.connect(context.destination);
+
+  /*
+   * V6: Música ya no va directamente a los parlantes.
+   * Entra al bus MASTER.
+   */
+  ensureMasterBus();
+  musicAnalyser.connect(masterGain);
 
   applyMusicMasterGain();
 
@@ -1410,9 +1594,8 @@ if (!curtainAnalyser) {
 
 }
 
-/* Cadena del canal: Archivo * ↓ * Gain * ↓ * Analyser * ↓ * Parlantes
-Más adelante, en vez de ir * directamente a destination, * todos los
-canales pasarán por * el MASTER. */
+/* Cadena V6 del canal: Archivo → Gain → Analyser → MASTER → Parlantes.
+El micrófono permanece fuera de la salida audible para evitar eco/acople. */
 
 try { curtainSource.disconnect(); } catch (error) { /* Puede no estar conectado todavía. */ }
 
@@ -1424,7 +1607,12 @@ curtainSource.connect( curtainGain );
 
 curtainGain.connect( curtainAnalyser );
 
-curtainAnalyser.connect( context.destination );
+/*
+ * V6: Cortina entra al bus MASTER.
+ */
+ensureMasterBus();
+
+curtainAnalyser.connect( masterGain );
 
 updateCurtainGain();
 
@@ -1916,6 +2104,34 @@ curtainAnalyser = null; curtainObjectUrl = null;
 
 }
 
+/* =========================================================
+   LIMPIEZA DEL MASTER
+========================================================= */
+
+function destroyMasterBus() {
+  if (masterGain) {
+    try {
+      masterGain.disconnect();
+    }
+    catch (error) {
+      console.warn(error);
+    }
+  }
+
+  if (masterAnalyser) {
+    try {
+      masterAnalyser.disconnect();
+    }
+    catch (error) {
+      console.warn(error);
+    }
+  }
+
+  masterGain = null;
+  masterAnalyser = null;
+}
+
+
 /* ========================================================= DESTRUIR
 MOTOR ========================================================= */
 
@@ -1926,6 +2142,8 @@ stopMicrophone();
 destroyMusicChannel();
 
 destroyCurtainChannel();
+
+destroyMasterBus();
 
 if (audioContext) {
 
@@ -1956,6 +2174,9 @@ if (audioContext) {
 export {
 
 /* Motor */ ensureAudioContext, getAudioContext, destroyAudioEngine,
+
+/* Master */ setMasterVolume, setMasterMuted, toggleMasterMute,
+getMasterLevel, getMasterDecibels, getMasterState,
 
 /* Micrófono */ getMicrophones, startMicrophone, stopMicrophone,
 setMicrophoneVolume, setMicrophoneMuted, toggleMicrophoneMute,

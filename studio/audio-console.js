@@ -1,6 +1,6 @@
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   CONSOLA DE AUDIO V5
+   CONSOLA DE AUDIO V6
 
    Canales:
    - Micrófono
@@ -39,6 +39,13 @@ import {
   getMusicState,
   getMusicAudioElement,
 
+  /* Master */
+  setMasterVolume,
+  setMasterMuted,
+  getMasterLevel,
+  getMasterDecibels,
+  getMasterState,
+
   /* Cortina */
   loadCurtainFile,
   playCurtain,
@@ -74,9 +81,12 @@ let musicFileName = "";
 let curtainMuted = false;
 let curtainFileName = "";
 
+let masterMuted = false;
+
 const DEFAULT_MIC_GAIN_PERCENT = 100;
 const DEFAULT_MUSIC_VOLUME_PERCENT = 70;
 const DEFAULT_CURTAIN_VOLUME_PERCENT = 35;
+const DEFAULT_MASTER_VOLUME_PERCENT = 100;
 
 
 /* =========================================================
@@ -233,6 +243,34 @@ function getElements() {
     musicPlaylistCount:
       document.getElementById(
         "musicPlaylistCount"
+      ),
+
+
+    /* Master */
+
+    masterMuteButton:
+      document.getElementById(
+        "masterMuteBtn"
+      ),
+
+    masterVolume:
+      document.getElementById(
+        "masterVolume"
+      ),
+
+    masterVolumeValue:
+      document.getElementById(
+        "masterVolumeValue"
+      ),
+
+    masterMeterFill:
+      document.getElementById(
+        "masterMeterFill"
+      ),
+
+    masterDecibels:
+      document.getElementById(
+        "masterDb"
       ),
 
 
@@ -1990,6 +2028,105 @@ function syncMusicV5Interface() {
 
 
 /* =========================================================
+   MASTER — INTERFAZ
+========================================================= */
+
+function updateMasterInterface() {
+
+  const {
+    masterMuteButton
+  } = getElements();
+
+  const state =
+    getMasterState();
+
+  masterMuted =
+    Boolean(state.muted);
+
+  if (masterMuteButton) {
+
+    masterMuteButton.classList.toggle(
+      "muted",
+      masterMuted
+    );
+
+    masterMuteButton.textContent =
+      masterMuted
+        ? "ACTIVAR"
+        : "MUTE";
+
+  }
+
+}
+
+
+function toggleMasterMuteUI() {
+
+  masterMuted =
+    !masterMuted;
+
+  setMasterMuted(
+    masterMuted
+  );
+
+  updateMasterInterface();
+
+  setMessage(
+    masterMuted
+      ? "Salida Master silenciada."
+      : "Salida Master nuevamente activa.",
+    masterMuted
+      ? ""
+      : "ok"
+  );
+
+}
+
+
+function updateMasterVolumeUI() {
+
+  const {
+    masterVolume,
+    masterVolumeValue
+  } = getElements();
+
+  if (!masterVolume) {
+    return;
+  }
+
+  const rawValue =
+    Number(
+      masterVolume.value
+    );
+
+  const percentage =
+    Number.isFinite(rawValue)
+      ? Math.max(
+          0,
+          Math.min(
+            100,
+            rawValue
+          )
+        )
+      : DEFAULT_MASTER_VOLUME_PERCENT;
+
+  setMasterVolume(
+    percentage / 100
+  );
+
+  if (masterVolumeValue) {
+
+    masterVolumeValue.textContent =
+      `${Math.round(
+        percentage
+      )}%`;
+
+  }
+
+}
+
+
+/* =========================================================
    CORTINA — INTERFAZ
 ========================================================= */
 
@@ -2558,6 +2695,9 @@ function renderMeters() {
     musicCurrentTime,
     musicDuration,
 
+    masterMeterFill,
+    masterDecibels,
+
     curtainMeterFill,
     curtainDecibels,
     curtainProgress,
@@ -2772,6 +2912,59 @@ function renderMeters() {
 
 
   /* -------------------------
+     MASTER
+  ------------------------- */
+
+  const masterState =
+    getMasterState();
+
+  if (masterState.ready) {
+
+    const level =
+      getMasterLevel();
+
+    const db =
+      getMasterDecibels();
+
+    if (masterMeterFill) {
+
+      masterMeterFill.style.width =
+        `${Math.max(
+          0,
+          Math.min(
+            100,
+            level * 100
+          )
+        )}%`;
+
+    }
+
+    if (masterDecibels) {
+
+      masterDecibels.textContent =
+        Number.isFinite(db)
+          ? `${Math.round(db)} dB`
+          : "— dB";
+
+    }
+
+  }
+  else {
+
+    if (masterMeterFill) {
+      masterMeterFill.style.width =
+        "0%";
+    }
+
+    if (masterDecibels) {
+      masterDecibels.textContent =
+        "— dB";
+    }
+
+  }
+
+
+  /* -------------------------
      CORTINA
   ------------------------- */
 
@@ -2980,6 +3173,9 @@ async function initializeAudioConsole() {
     musicNextButton,
     musicClearButton,
     musicPlaylist,
+
+    masterMuteButton,
+    masterVolume,
 
     curtainFileInput,
     curtainLoadButton,
@@ -3199,6 +3395,31 @@ async function initializeAudioConsole() {
 
 
   /* -------------------------
+     MASTER
+  ------------------------- */
+
+  if (masterMuteButton) {
+
+    masterMuteButton
+      .addEventListener(
+        "click",
+        toggleMasterMuteUI
+      );
+
+  }
+
+  if (masterVolume) {
+
+    masterVolume
+      .addEventListener(
+        "input",
+        updateMasterVolumeUI
+      );
+
+  }
+
+
+  /* -------------------------
      CORTINA
   ------------------------- */
 
@@ -3307,11 +3528,15 @@ async function initializeAudioConsole() {
 
   updateMusicVolumeUI();
 
+  updateMasterVolumeUI();
+
   updateCurtainVolumeUI();
 
   updateMicrophoneInterface();
 
   updateMusicInterface();
+
+  updateMasterInterface();
 
   updateCurtainInterface();
 

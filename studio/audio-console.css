@@ -1,11 +1,12 @@
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   CONSOLA DE AUDIO V4
+   CONSOLA DE AUDIO V6
 
    Canales:
    - Micrófono
-   - Música con playlist
+   - Música con playlist + crossfade automático
    - Cortina
+   - Master
 ========================================================= */
 
 .audio-console-panel {
@@ -547,6 +548,53 @@
   color: #b42318;
   border-color: rgba(215, 68, 68, .16);
   background: rgba(215, 68, 68, .05);
+}
+
+
+/* =========================================================
+   MASTER V6
+========================================================= */
+
+.audio-master-channel {
+  border-color: rgba(217, 150, 20, .22);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(229, 169, 25, .09),
+      rgba(255, 255, 255, .82)
+    );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .45);
+}
+
+.audio-master-channel .audio-channel-icon {
+  border-color: rgba(217, 150, 20, .28);
+  background: rgba(229, 169, 25, .14);
+}
+
+.audio-master-channel .audio-channel-name strong {
+  color: var(--rc-gold-dark);
+}
+
+.audio-master-channel .audio-meter {
+  height: 14px;
+}
+
+.audio-master-channel .audio-meter-fill {
+  box-shadow:
+    0 0 10px rgba(217, 150, 20, .10);
+}
+
+.audio-master-channel .audio-channel-controls {
+  justify-content: center;
+}
+
+#masterMuteBtn {
+  width: 100%;
+}
+
+#masterVolume {
+  cursor: pointer;
 }
 
 

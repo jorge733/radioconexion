@@ -1660,6 +1660,121 @@
             </div>
 
 
+            <!-- MASTER · SALIDA GENERAL -->
+
+            <div class="audio-channel audio-master-channel">
+
+              <div class="audio-channel-identity">
+
+                <div
+                  class="audio-channel-icon"
+                  aria-hidden="true"
+                >
+                  🎛️
+                </div>
+
+                <div class="audio-channel-name">
+
+                  <span>
+                    SALIDA GENERAL
+                  </span>
+
+                  <strong>
+                    Master
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="audio-meter-area">
+
+                <div class="audio-meter-labels">
+
+                  <span>
+                    NIVEL MASTER
+                  </span>
+
+                  <span
+                    id="masterDb"
+                    class="audio-meter-db"
+                  >
+                    — dB
+                  </span>
+
+                </div>
+
+                <div
+                  class="audio-meter"
+                  role="meter"
+                  aria-label="Nivel Master"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+
+                  <div
+                    id="masterMeterFill"
+                    class="audio-meter-fill"
+                  ></div>
+
+                </div>
+
+                <div class="audio-meter-scale">
+                  <span>-60</span>
+                  <span>-30</span>
+                  <span>-18</span>
+                  <span>-6</span>
+                  <span>0 dB</span>
+                </div>
+
+              </div>
+
+
+              <div class="audio-channel-controls">
+
+                <div class="audio-control-row">
+
+                  <button
+                    id="masterMuteBtn"
+                    class="audio-mute-button"
+                    type="button"
+                  >
+                    MUTE
+                  </button>
+
+                </div>
+
+
+                <div class="audio-gain-control">
+
+                  <label for="masterVolume">
+                    VOLUMEN GENERAL
+                  </label>
+
+                  <input
+                    id="masterVolume"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="100"
+                    step="1"
+                  >
+
+                  <span
+                    id="masterVolumeValue"
+                    class="audio-gain-value"
+                  >
+                    100%
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
             <p
               id="audioConsoleMessage"
               class="audio-console-message"
