@@ -238,7 +238,7 @@
                 <ul>
                     <li><a href="inicio.html">Inicio</a></li>
                     <li><a href="episodios.html">Episodios</a></li>
-                    <li><a href="noticias.html">Noticias</a></li>
+<li><a href="blog.html">Blog</a></li>
                     <li><a href="tiempo.html">Tiempo</a></li>
                     <li><a href="historia.html">Historia</a></li>
                     <li><a class="profile-link" id="profile-link" href="suscriptores.html" aria-label="Abrir acceso de suscriptores" title="Suscriptores"><span id="profile-avatar-fallback" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 21c.5-4.1 3.2-6.3 7.5-6.3s7 2.2 7.5 6.3"></path></svg></span><img id="profile-avatar" class="profile-avatar" alt="Foto de perfil" hidden></a></li>
@@ -360,6 +360,15 @@
                 <button type="button" class="btn-custom" id="btn-enviar-aviso" onclick="enviarAviso()">Enviar aviso</button>
                 <p class="notification-status" id="estado-publicacion" role="status" aria-live="polite"></p>
             </section>
+            <section class="member-card publisher-card seccion-oculta" id="panel-publicar-blog">
+                <p class="card-kicker"><span>Blog e Instagram</span><span class="card-number">Equipo Radio Conexión</span></p>
+                <h2>Publicar en el Blog</h2>
+                <p class="rc-subtitle">Copia el enlace de una publicación de Instagram y pégalo aquí. Aparecerá primero en el Blog.</p>
+                <div class="form-group"><label for="enlace-instagram-blog">Enlace de la publicación</label><input id="enlace-instagram-blog" type="url" inputmode="url" placeholder="https://www.instagram.com/p/.../"></div>
+                <button type="button" class="btn-custom" id="btn-publicar-blog" onclick="publicarPostBlog()">Publicar en el Blog</button>
+                <p class="notification-status" id="estado-blog" role="status" aria-live="polite"></p>
+                <div id="lista-posts-blog" style="display:grid; gap:10px; margin-top:14px;"></div>
+            </section>
             <section class="member-card publisher-card seccion-oculta" id="panel-cabina">
                 <p class="card-kicker"><span>Cabina privada</span><span class="card-number">Equipo Radio Conexión</span></p>
                 <h2>Solicitudes y mensajes</h2>
@@ -453,8 +462,10 @@
             actualizarEstadoAvisos();
             if (user.email?.toLowerCase() === ADMIN_EMAIL) {
                 document.getElementById('panel-publicar-aviso').classList.remove('seccion-oculta');
+                document.getElementById('panel-publicar-blog').classList.remove('seccion-oculta');
                 document.getElementById('panel-cabina').classList.remove('seccion-oculta');
                 cargarSolicitudesCabina();
+                cargarPostsBlog();
             }
             try { await llamarApi('/api/newsletter', { action: 'subscribe' }); }
             catch (error) { console.warn('No se pudo activar el boletín todavía.', error); }
@@ -537,6 +548,76 @@
             } catch (error) { status.textContent = error.message || 'No pudimos enviar el aviso.'; status.dataset.state = 'error'; }
             finally { button.disabled = false; }
         }
+
+        let postsBlog = [];
+
+        function mostrarEstadoBlog(texto, state = '') {
+            const status = document.getElementById('estado-blog');
+            status.textContent = texto;
+            status.dataset.state = state;
+        }
+
+        function renderizarPostsBlog() {
+            const list = document.getElementById('lista-posts-blog');
+            list.replaceChildren();
+            if (!postsBlog.length) {
+                const empty = document.createElement('p');
+                empty.className = 'rc-subtitle';
+                empty.textContent = 'Aún no hay publicaciones añadidas desde este panel.';
+                list.appendChild(empty);
+                return;
+            }
+            postsBlog.forEach((post) => {
+                const item = document.createElement('div');
+                item.style.cssText = 'display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border:1px solid rgba(199,127,13,.22); border-radius:10px;';
+                const link = document.createElement('a');
+                link.href = post.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+                link.textContent = 'Ver publicación en Instagram'; link.style.fontWeight = '600';
+                const remove = document.createElement('button');
+                remove.type = 'button'; remove.className = 'btn-logout'; remove.style.cssText = 'margin:0; padding:7px 11px;'; remove.textContent = 'Quitar';
+                remove.addEventListener('click', () => quitarPostBlog(post.id, remove));
+                item.append(link, remove); list.appendChild(item);
+            });
+        }
+
+        async function cargarPostsBlog() {
+            try {
+                const result = await llamarApi('/api/blog-posts', null, 'GET');
+                postsBlog = result.posts || [];
+                renderizarPostsBlog();
+            } catch (error) {
+                mostrarEstadoBlog(error.message || 'No pudimos cargar las publicaciones.', 'error');
+            }
+        }
+
+        async function publicarPostBlog() {
+            const input = document.getElementById('enlace-instagram-blog');
+            const button = document.getElementById('btn-publicar-blog');
+            const url = input.value.trim();
+            if (!url) { mostrarEstadoBlog('Pega el enlace de una publicación de Instagram.', 'error'); return; }
+            button.disabled = true; mostrarEstadoBlog('Publicando…');
+            try {
+                await llamarApi('/api/blog-posts', { url });
+                input.value = ''; mostrarEstadoBlog('La publicación ya aparece primero en el Blog.', 'ok');
+                await cargarPostsBlog();
+            } catch (error) {
+                mostrarEstadoBlog(error.message || 'No pudimos publicar este enlace.', 'error');
+            } finally { button.disabled = false; }
+        }
+
+        async function quitarPostBlog(id, button) {
+            button.disabled = true; button.textContent = 'Quitando…';
+            try {
+                await llamarApi('/api/blog-posts', { id }, 'DELETE');
+                postsBlog = postsBlog.filter((post) => post.id !== id);
+                renderizarPostsBlog(); mostrarEstadoBlog('Publicación retirada del Blog.', 'ok');
+            } catch (error) {
+                button.disabled = false; button.textContent = 'Quitar';
+                mostrarEstadoBlog(error.message || 'No pudimos retirar la publicación.', 'error');
+            }
+        }
+
+        window.publicarPostBlog = publicarPostBlog;
 
         function buscarCancionesGlobales() {
             const query = document.getElementById('rc-music-search').value.trim();
@@ -763,6 +844,7 @@
 
         function cerrarInterfazSesion() {
             document.getElementById('panel-publicar-aviso').classList.add('seccion-oculta');
+            document.getElementById('panel-publicar-blog').classList.add('seccion-oculta');
             document.getElementById('panel-cabina').classList.add('seccion-oculta');
             document.getElementById("portal-abierto").classList.add("seccion-oculta");
             document.getElementById("portal-login").classList.remove("seccion-oculta");

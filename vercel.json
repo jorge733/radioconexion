@@ -1,6 +1,27 @@
 {
   "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/api/blog-posts",
+      "destination": "/api/member-action?route=blog-posts"
+    }
+  ],
   "redirects": [
+    {
+      "source": "/studio",
+      "destination": "/studio/",
+      "permanent": true
+    },
+    {
+      "source": "/noticias.html",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/noticias",
+      "destination": "/blog",
+      "permanent": true
+    },
     {
       "source": "/",
       "destination": "/inicio",
