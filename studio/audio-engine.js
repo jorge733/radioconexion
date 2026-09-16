@@ -63,7 +63,7 @@ if (!audioContext) {
 
 }
 
-if ( audioContext.state === “suspended” ) {
+if ( audioContext.state === "suspended" ) {
 
     await audioContext.resume();
 
@@ -89,7 +89,7 @@ if ( !navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices
 
 const devices = await navigator.mediaDevices .enumerateDevices();
 
-return devices.filter( device => device.kind === “audioinput” );
+return devices.filter( device => device.kind === "audioinput" );
 
 }
 
@@ -164,7 +164,7 @@ if (microphoneStream) {
 /* ========================================================= ACTIVAR
 MICRÓFONO ========================================================= */
 
-async function startMicrophone( deviceId = “” ) {
+async function startMicrophone( deviceId = "" ) {
 
 if ( !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia ) {
 
@@ -209,7 +209,7 @@ microphoneAnalyser.smoothingTimeConstant = 0.72;
 
 updateMicrophoneGain();
 
-/ IMPORTANTE: El micrófono NO se conecta todavía * a
+/* IMPORTANTE: El micrófono NO se conecta todavía * a
 context.destination. De esa forma evitamos escuchar * nuestra propia voz
 por los parlantes * y provocar eco o acople. */
 
@@ -336,7 +336,7 @@ function isMicrophoneActive() {
 if (!microphoneStream) { return false; }
 
 return microphoneStream .getAudioTracks() .some( track =>
-track.readyState === “live” );
+track.readyState === "live" );
 
 }
 
@@ -395,18 +395,15 @@ if (!musicAnalyser) {
 
 }
 
-/ Cadena del canal: Archivo * ↓ * Gain * ↓ * Analyser * ↓ * Parlantes
+/* Cadena del canal: Archivo * ↓ * Gain * ↓ * Analyser * ↓ * Parlantes
 Más adelante, en vez de ir * directamente a destination, * todos los
 canales pasarán por * el MASTER. */
 
-try { musicSource.disconnect(); } catch (error) { // Puede no estar
-conectado todavía. }
+try { musicSource.disconnect(); } catch (error) { /* Puede no estar conectado todavía. */ }
 
-try { musicGain.disconnect(); } catch (error) { // Puede no estar
-conectado todavía. }
+try { musicGain.disconnect(); } catch (error) { /* Puede no estar conectado todavía. */ }
 
-try { musicAnalyser.disconnect(); } catch (error) { // Puede no estar
-conectado todavía. }
+try { musicAnalyser.disconnect(); } catch (error) { /* Puede no estar conectado todavía. */ }
 
 musicSource.connect( musicGain );
 
@@ -433,7 +430,7 @@ if (!(file instanceof File)) {
 
 }
 
-if ( file.type && !file.type.startsWith( “audio/” ) ) {
+if ( file.type && !file.type.startsWith( "audio/" ) ) {
 
     throw new Error(
       "El archivo seleccionado no parece ser un archivo de audio."
@@ -443,7 +440,7 @@ if ( file.type && !file.type.startsWith( “audio/” ) ) {
 
 const audio = await ensureMusicChannel();
 
-/ Liberamos el Object URL * anterior para no acumular * memoria en el
+/* Liberamos el Object URL * anterior para no acumular * memoria en el
 navegador. */
 
 if (musicObjectUrl) {
@@ -826,18 +823,15 @@ if (!curtainAnalyser) {
 
 }
 
-/ Cadena del canal: Archivo * ↓ * Gain * ↓ * Analyser * ↓ * Parlantes
+/* Cadena del canal: Archivo * ↓ * Gain * ↓ * Analyser * ↓ * Parlantes
 Más adelante, en vez de ir * directamente a destination, * todos los
 canales pasarán por * el MASTER. */
 
-try { curtainSource.disconnect(); } catch (error) { // Puede no estar
-conectado todavía. }
+try { curtainSource.disconnect(); } catch (error) { /* Puede no estar conectado todavía. */ }
 
-try { curtainGain.disconnect(); } catch (error) { // Puede no estar
-conectado todavía. }
+try { curtainGain.disconnect(); } catch (error) { /* Puede no estar conectado todavía. */ }
 
-try { curtainAnalyser.disconnect(); } catch (error) { // Puede no estar
-conectado todavía. }
+try { curtainAnalyser.disconnect(); } catch (error) { /* Puede no estar conectado todavía. */ }
 
 curtainSource.connect( curtainGain );
 
@@ -864,7 +858,7 @@ if (!(file instanceof File)) {
 
 }
 
-if ( file.type && !file.type.startsWith( “audio/” ) ) {
+if ( file.type && !file.type.startsWith( "audio/" ) ) {
 
     throw new Error(
       "El archivo seleccionado no parece ser un archivo de audio."
@@ -874,7 +868,7 @@ if ( file.type && !file.type.startsWith( “audio/” ) ) {
 
 const audio = await ensureCurtainChannel();
 
-/ Liberamos el Object URL * anterior para no acumular * memoria en el
+/* Liberamos el Object URL * anterior para no acumular * memoria en el
 navegador. */
 
 if (curtainObjectUrl) {
