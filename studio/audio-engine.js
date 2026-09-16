@@ -1,5 +1,5 @@
 /* ========================================================= RADIO
-CONEXIÓN STUDIO AUDIO ENGINE V6
+CONEXIÓN STUDIO AUDIO ENGINE V7
 
 Canales actuales: - Micrófono - Música con playlist + crossfade automático - Cortina - Master
 
@@ -153,6 +153,20 @@ function ensureMasterBus() {
   updateMasterGain();
 
   return masterGain;
+}
+
+
+function connectNodeToMaster(node) {
+
+  if (!node) {
+    throw new Error("Se necesita un nodo de audio para conectarlo al Master.");
+  }
+
+  ensureMasterBus();
+
+  node.connect(masterGain);
+
+  return node;
 }
 
 
@@ -2176,7 +2190,7 @@ export {
 /* Motor */ ensureAudioContext, getAudioContext, destroyAudioEngine,
 
 /* Master */ setMasterVolume, setMasterMuted, toggleMasterMute,
-getMasterLevel, getMasterDecibels, getMasterState,
+getMasterLevel, getMasterDecibels, getMasterState, connectNodeToMaster,
 
 /* Micrófono */ getMicrophones, startMicrophone, stopMicrophone,
 setMicrophoneVolume, setMicrophoneMuted, toggleMicrophoneMute,

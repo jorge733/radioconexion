@@ -1,6 +1,13 @@
+import {
+  ensureAudioContext,
+  getAudioContext,
+  connectNodeToMaster
+} from "./audio-engine.js";
+
+
 /* =========================================================
    RADIO CONEXIÓN STUDIO
-   SOUNDPAD V1
+   SOUNDPAD V2 · MASTER
 ========================================================= */
 
 
@@ -140,6 +147,8 @@ const activeSounds =
   new Map();
 
 
+let soundpadBusGain = null;
+
 let masterVolume = 0.8;
 
 
@@ -226,6 +235,65 @@ function getCategoryLabel(category) {
 
 
 /* =========================================================
+   BUS DE AUDIO DEL SOUNDPAD
+========================================================= */
+
+function ensureSoundpadBus() {
+
+  ensureAudioContext();
+
+  const context =
+    getAudioContext();
+
+
+  if (!context) {
+
+    throw new Error(
+      "No fue posible iniciar el motor de audio."
+    );
+  }
+
+
+  if (!soundpadBusGain) {
+
+    soundpadBusGain =
+      context.createGain();
+
+
+    soundpadBusGain.gain.value =
+      masterVolume;
+
+
+    connectNodeToMaster(
+      soundpadBusGain
+    );
+  }
+
+
+  return soundpadBusGain;
+}
+
+
+function applySoundpadBusVolume() {
+
+  if (!soundpadBusGain) return;
+
+
+  const context =
+    getAudioContext();
+
+
+  if (!context) return;
+
+
+  soundpadBusGain.gain.setValueAtTime(
+    masterVolume,
+    context.currentTime
+  );
+}
+
+
+/* =========================================================
    VOLUMEN
 ========================================================= */
 
@@ -278,14 +346,7 @@ function updateVolumeDisplay() {
     `${value}%`;
 
 
-  activeSounds.forEach(
-    audio => {
-
-      audio.volume =
-        masterVolume;
-
-    }
-  );
+  applySoundpadBusVolume();
 
 
   localStorage.setItem(
@@ -726,23 +787,80 @@ function playSound(id) {
     );
 
 
-  audio.volume =
-    masterVolume;
-
-
   audio.preload =
     "auto";
 
 
-  activeSounds.set(
-    id,
-    audio
-  );
+  try {
+
+    const context =
+      getAudioContext() ||
+      ensureAudioContext();
+
+
+    if (
+      context.state ===
+      "suspended"
+    ) {
+
+      context.resume();
+    }
+
+
+    const source =
+      context.createMediaElementSource(
+        audio
+      );
+
+
+    source.connect(
+      ensureSoundpadBus()
+    );
+
+
+    activeSounds.set(
+      id,
+      {
+        audio,
+        source
+      }
+    );
+
+  }
+  catch (error) {
+
+    console.error(
+      "No se pudo conectar el Soundpad al Master:",
+      error
+    );
+
+
+    alert(
+      `No se pudo preparar "${sound.name}" para la consola de audio.`
+    );
+
+    return;
+  }
 
 
   audio.addEventListener(
     "ended",
     () => {
+
+      const active =
+        activeSounds.get(id);
+
+
+      if (active?.source) {
+
+        try {
+          active.source.disconnect();
+        }
+        catch (error) {
+          console.warn(error);
+        }
+      }
+
 
       activeSounds.delete(
         id
@@ -757,6 +875,21 @@ function playSound(id) {
   audio.addEventListener(
     "error",
     () => {
+
+      const active =
+        activeSounds.get(id);
+
+
+      if (active?.source) {
+
+        try {
+          active.source.disconnect();
+        }
+        catch (disconnectError) {
+          console.warn(disconnectError);
+        }
+      }
+
 
       activeSounds.delete(
         id
@@ -796,6 +929,21 @@ function playSound(id) {
         );
 
 
+        const active =
+          activeSounds.get(id);
+
+
+        if (active?.source) {
+
+          try {
+            active.source.disconnect();
+          }
+          catch (disconnectError) {
+            console.warn(disconnectError);
+          }
+        }
+
+
         activeSounds.delete(
           id
         );
@@ -823,25 +971,39 @@ function playSound(id) {
 
 function stopSound(id) {
 
-  const audio =
+  const active =
     activeSounds.get(id);
 
 
-  if (!audio) return;
+  if (!active) return;
 
 
-  audio.pause();
+  active.audio.pause();
 
 
   try {
 
-    audio.currentTime = 0;
+    active.audio.currentTime = 0;
 
   }
   catch (error) {
 
     console.warn(
       "No se pudo reiniciar el audio:",
+      error
+    );
+  }
+
+
+  try {
+
+    active.source.disconnect();
+
+  }
+  catch (error) {
+
+    console.warn(
+      "No se pudo desconectar el audio:",
       error
     );
   }
@@ -861,20 +1023,34 @@ function stopSound(id) {
 function stopAllSounds() {
 
   activeSounds.forEach(
-    audio => {
+    active => {
 
-      audio.pause();
+      active.audio.pause();
 
 
       try {
 
-        audio.currentTime = 0;
+        active.audio.currentTime = 0;
 
       }
       catch (error) {
 
         console.warn(
           "No se pudo reiniciar un audio:",
+          error
+        );
+      }
+
+
+      try {
+
+        active.source.disconnect();
+
+      }
+      catch (error) {
+
+        console.warn(
+          "No se pudo desconectar un audio:",
           error
         );
       }
@@ -1271,6 +1447,20 @@ function releaseSoundpadFiles() {
 
     }
   );
+
+
+  if (soundpadBusGain) {
+
+    try {
+      soundpadBusGain.disconnect();
+    }
+    catch (error) {
+      console.warn(error);
+    }
+
+
+    soundpadBusGain = null;
+  }
 }
 
 
