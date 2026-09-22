@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const { requireFirebaseUser, allow } = require('./firebase-auth');
-const { firestore, documentFields, valueOf } = require('./firebase-admin');
+const { firestore, documentFields, valueOf, credential, accessToken } = require('./firebase-admin');
 
 function send(response, status, body) { response.status(status).json(body); }
 
@@ -76,8 +76,65 @@ async function handleBlogPosts(request, response) {
   return send(response, 405, { error: 'Método no permitido.' });
 }
 
+function episodeFrom(document) {
+  return {
+    id: document.name.split('/').pop(), number: valueOf(document, 'number'), title: valueOf(document, 'title'),
+    date: valueOf(document, 'date'), summary: valueOf(document, 'summary'), duration: valueOf(document, 'duration'),
+    audioPath: valueOf(document, 'audioPath'), coverPath: valueOf(document, 'coverPath'),
+    publishedAt: valueOf(document, 'publishedAt'), isLatest: valueOf(document, 'isLatest') === 'true'
+  };
+}
+
+async function listEpisodes() {
+  const result = await firestore('podcastEpisodes?pageSize=200&orderBy=publishedAt%20desc');
+  return (result.documents || []).map(episodeFrom);
+}
+
+async function updateEpisodeAudioAccess(path, isPublic) {
+  const { projectId } = credential();
+  const token = await accessToken();
+  const bucket = process.env.FIREBASE_STORAGE_BUCKET || `${projectId}.firebasestorage.app`;
+  const result = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o/${encodeURIComponent(path)}`, {
+    method: 'PATCH', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ metadata: { isPublic: isPublic ? 'true' : 'false' } })
+  });
+  if (!result.ok) throw new Error('No pudimos actualizar el acceso del audio.');
+}
+
+async function handleEpisodes(request, response) {
+  if (request.method === 'GET') {
+    try { return send(response, 200, { episodes: await listEpisodes() }); }
+    catch (error) { console.error('Episodes list failed:', error.message); return send(response, 200, { episodes: [] }); }
+  }
+  if (request.method !== 'POST') return send(response, 405, { error: 'Método no permitido.' });
+  if (!await radioAdmin(request, response)) return;
+  const value = (item, limit) => typeof item === 'string' ? item.trim().slice(0, limit) : '';
+  const number = value(request.body?.number, 12), title = value(request.body?.title, 140);
+  const date = value(request.body?.date, 10), summary = value(request.body?.summary, 900);
+  const duration = value(request.body?.duration, 30), audioPath = value(request.body?.audioPath, 300);
+  const coverPath = value(request.body?.coverPath, 300);
+  if (!number || !title || !date || !/^podcast\/audio\/[A-Za-z0-9._-]+$/.test(audioPath)) return send(response, 400, { error: 'Completa número, título, fecha y un archivo de audio válido.' });
+  if (coverPath && !/^podcast\/covers\/[A-Za-z0-9._-]+$/.test(coverPath)) return send(response, 400, { error: 'La portada no es válida.' });
+  try {
+    for (const episode of (await listEpisodes()).filter(item => item.isLatest)) {
+      const { id, isLatest, ...fields } = episode;
+      await firestore(`podcastEpisodes/${id}`, { method: 'PATCH', body: JSON.stringify(documentFields({ ...fields, isLatest: 'false' })) });
+      if (episode.audioPath) await updateEpisodeAudioAccess(episode.audioPath, false);
+    }
+    const id = crypto.randomUUID(), publishedAt = new Date().toISOString();
+    const episode = { number, title, date, summary, duration, audioPath, coverPath, publishedAt, isLatest: 'true' };
+    await firestore(`podcastEpisodes/${id}`, { method: 'PATCH', body: JSON.stringify(documentFields(episode)) });
+    await updateEpisodeAudioAccess(audioPath, true);
+    return send(response, 201, { ok: true, episode: { id, ...episode, isLatest: true } });
+  } catch (error) {
+    console.error('Episode publish failed:', error.message);
+    return send(response, 503, { error: 'No pudimos publicar el episodio ahora.' });
+  }
+}
+
 module.exports = async (request, response) => {
   if (request.query?.route === 'blog-posts') return handleBlogPosts(request, response);
+  if (request.query?.route === 'episodes') return handleEpisodes(request, response);
   if (request.method !== 'POST') return send(response, 405, { error: 'Método no permitido.' });
   let user;
   try { user = await requireFirebaseUser(request); } catch { return send(response, 401, { error: 'Debes iniciar sesión con Firebase.' }); }

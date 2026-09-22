@@ -4,6 +4,10 @@
     {
       "source": "/api/blog-posts",
       "destination": "/api/member-action?route=blog-posts"
+    },
+    {
+      "source": "/api/episodes",
+      "destination": "/api/member-action?route=episodes"
     }
   ],
   "redirects": [
