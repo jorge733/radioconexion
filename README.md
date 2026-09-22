@@ -5,7 +5,7 @@ Sitio estático en español, compatible con GitHub Pages y Vercel. La portada es
 ## Contenido
 
 - Inicio: presentación, accesos a episodios y comunidad, suscripción y WhatsApp.
-- Episodios: reproductor de Spotify.
+- Episodios: Podcast Hub propio. El último episodio es público; la fonoteca requiere iniciar sesión.
 - Blog: selección editorial de actualidad y contenidos de Radio Conexión.
 - Suscriptores: acceso, solicitudes de canciones, mensajes y fonoteca.
 - Historia: información de la radio y su fundador.
@@ -19,6 +19,12 @@ El portal de suscriptores usa Firebase Authentication con Google. Las solicitude
 Antes de publicar, completa `firebase-config.js` y configura en Vercel las variables de `.env.example`. Activa Google como proveedor de Firebase Authentication y añade el dominio publicado en **Authorized domains**. El alta automática del boletín se delega al Apps Script de Google Workspace, que debe ejecutarse con una cuenta administradora. Configura el mismo valor aleatorio de `APPS_SCRIPT_SHARED_SECRET` como secreto de Vercel y como propiedad de script `SUSCRIPTORES_SHARED_SECRET`; así el Apps Script no acepta altas directas. Esta alternativa evita almacenar claves privadas en Vercel.
 
 Las rutas de cabina aplican un límite básico de un envío por minuto y usuario. Para una protección persistente entre instancias de Vercel, reemplaza el limitador en memoria por Redis/Upstash antes de una campaña o de aumentar la audiencia.
+
+## Podcast Hub y Studio
+
+Desde **Studio > Publicar** la cuenta administradora puede subir el audio final, una portada opcional y los datos del episodio. Al publicarlo, ese episodio pasa a ser el único abierto al público y los anteriores requieren una sesión de Firebase.
+
+Antes de usarlo en producción, configura `FIREBASE_STORAGE_BUCKET` en Vercel, conserva las credenciales de la cuenta de servicio ya usadas por las APIs y publica las reglas de `storage.rules` con `firebase deploy --only storage`. Las reglas permiten leer el último audio sin sesión y el catálogo completo solo con sesión iniciada; no publiques los MP3 fuera de Firebase Storage porque eso evitaría la protección.
 
 ## Notificaciones del navegador
 

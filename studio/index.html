@@ -2360,6 +2360,29 @@
 
         <div class="publicar-grid">
 
+          <section class="panel publicar-card publicar-episode-card">
+            <div class="publicar-card-header">
+              <div class="publicar-card-heading">
+                <span class="section-label">PODCAST HUB</span>
+                <h2>Publicar episodio</h2>
+                <p>El episodio nuevo quedará abierto para todos. Los anteriores serán solo para suscriptores.</p>
+              </div>
+              <span class="publicar-card-icon" aria-hidden="true">▶</span>
+            </div>
+            <div class="publicar-form">
+              <div class="publicar-blog-top">
+                <div class="publicar-field"><label for="studioEpisodeNumber">NÚMERO</label><input id="studioEpisodeNumber" type="number" min="1" placeholder="Ej: 98"></div>
+                <div class="publicar-field"><label for="studioEpisodeDate">FECHA</label><input id="studioEpisodeDate" type="date"></div>
+              </div>
+              <div class="publicar-field"><label for="studioEpisodeTitle">TÍTULO</label><input id="studioEpisodeTitle" type="text" maxlength="140" placeholder="Tema principal del episodio"></div>
+              <div class="publicar-field"><label for="studioEpisodeSummary">RESUMEN</label><textarea id="studioEpisodeSummary" maxlength="900" placeholder="Cuenta brevemente de qué trata el episodio..."></textarea></div>
+              <div class="publicar-field"><label for="studioEpisodeAudio">ARCHIVO DE AUDIO</label><input id="studioEpisodeAudio" type="file" accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/ogg,audio/wav"></div>
+              <div class="publicar-field"><label for="studioEpisodeCover">PORTADA (OPCIONAL)</label><input id="studioEpisodeCover" type="file" accept="image/jpeg,image/png,image/webp"></div>
+              <button id="studioPublishEpisodeBtn" class="publicar-primary-button" type="button">SUBIR Y PUBLICAR EPISODIO</button>
+              <p id="studioEpisodeStatus" class="publicar-status" role="status" aria-live="polite">Completa los datos y selecciona el audio final.</p>
+            </div>
+          </section>
+
           <section class="panel publicar-card">
             <div class="publicar-card-header">
               <div class="publicar-card-heading">

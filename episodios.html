@@ -362,24 +362,15 @@
     </header>
 
     <main class="container" id="contenido" tabindex="-1">
-        <div class="page-title-section">
-            <h1>Episodios</h1>
-            <p>Disfruta de nuestro catálogo de contenidos sonoros grabados en alta definición.<br><br>
-               Para escuchar todos los episodios, <a href="suscriptores.html" class="desc-link">inicia sesión como suscriptor</a>. Con tu sesión Firebase activa tendrás acceso a la colección completa, desde el primer episodio hasta el más reciente.
-            </p>
-
-            <div style="margin-top: 35px; border-radius: 16px; overflow: hidden; padding: 3px; background: #c77f0d; box-shadow: 0 8px 24px rgba(199, 127, 13, 0.25); transition: all 0.3s ease-out;">
-                <iframe title="Reproductor de Radio Conexión" id="spotify-iframe" style="border-radius:12px; display: block;"
-                        src="https://open.spotify.com/embed/show/6CDimSvVahr4PZSiypB0vp?utm_source=generator&theme=0"
-                        width="100%"
-                        height="232"
-                        frameBorder="0"
-                        allowfullscreen=""
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy">
-                </iframe>
+        <section class="podcast-hub" aria-labelledby="podcast-hub-title">
+            <div class="podcast-hub__intro">
+                <span class="eyebrow">PODCAST HUB</span>
+                <h1 id="podcast-hub-title">Todas nuestras conexiones, en un solo lugar.</h1>
+                <p>El episodio más reciente está abierto para todos. <a href="suscriptores.html" class="desc-link">Inicia sesión como suscriptor</a> para escuchar la fonoteca completa.</p>
             </div>
-        </div>
+            <p id="podcast-hub-status" class="podcast-hub__status" role="status" aria-live="polite">Cargando episodios…</p>
+            <div id="podcast-hub-list" class="podcast-hub__list" aria-live="polite"></div>
+        </section>
     </main>
     <footer class="site-footer"><a href="inicio.html">Radio Conexión</a><p>Conectados con tus sentidos.</p><a href="historia.html">Nuestra historia</a><span aria-hidden="true"> · </span><a href="inicio.html#subscription-form">Recibe el boletín</a></footer>
 
@@ -393,6 +384,7 @@
         </div>
         <a href="inicio.html#subscription-form" class="btn-custom" style="padding: 6px 14px; font-size: 11px;">Recibir boletín</a>
     </div>
+    <script type="module" src="episodios-hub.js"></script>
     <script>
 
 

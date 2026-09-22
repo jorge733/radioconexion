@@ -1,0 +1,21 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /podcast/audio/{fileName} {
+      allow read: if resource.metadata.isPublic == 'true' || request.auth != null;
+      allow create: if request.auth != null
+        && request.auth.token.email == 'sabenedettoa@radioconexionweb.com'
+        && request.resource.size < 500 * 1024 * 1024
+        && request.resource.contentType.matches('audio/.*');
+      allow update, delete: if false;
+    }
+    match /podcast/covers/{fileName} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.auth.token.email == 'sabenedettoa@radioconexionweb.com'
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow update, delete: if false;
+    }
+  }
+}

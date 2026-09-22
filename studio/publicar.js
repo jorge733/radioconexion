@@ -7,6 +7,12 @@ import {
   auth,
   isStudioAdministrator
 } from "./studio-auth.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getStorage, ref, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
+import { firebaseConfig } from "../firebase-config.js";
+
+const firebaseApp = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const storage = getStorage(firebaseApp);
 
 import {
   confirmModal
@@ -94,7 +100,16 @@ function getPublicarElements() {
     blogCount:
       document.getElementById(
         "studioBlogCount"
-      )
+      ),
+
+    episodeNumber: document.getElementById("studioEpisodeNumber"),
+    episodeTitle: document.getElementById("studioEpisodeTitle"),
+    episodeDate: document.getElementById("studioEpisodeDate"),
+    episodeSummary: document.getElementById("studioEpisodeSummary"),
+    episodeAudio: document.getElementById("studioEpisodeAudio"),
+    episodeCover: document.getElementById("studioEpisodeCover"),
+    publishEpisodeButton: document.getElementById("studioPublishEpisodeBtn"),
+    episodeStatus: document.getElementById("studioEpisodeStatus")
 
   };
 }
@@ -293,6 +308,73 @@ function setBlogStatus(
 
   blogStatus.dataset.state =
     state;
+}
+
+function setEpisodeStatus(message, state = "") {
+  const { episodeStatus } = getPublicarElements();
+  if (!episodeStatus) return;
+  episodeStatus.textContent = message;
+  episodeStatus.dataset.state = state;
+}
+
+function safeFileName(file) {
+  const extension = (file.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "");
+  return `${crypto.randomUUID()}.${extension || "bin"}`;
+}
+
+function uploadFile(path, file, isPublic) {
+  return new Promise((resolve, reject) => {
+    const task = uploadBytesResumable(ref(storage, path), file, { contentType: file.type, customMetadata: { isPublic: String(isPublic) } });
+    task.on("state_changed", snapshot => {
+      const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+      setEpisodeStatus(`Subiendo archivos… ${percent}%`);
+    }, reject, () => resolve(path));
+  });
+}
+
+async function publicarEpisodio() {
+  const elements = getPublicarElements();
+  const audio = elements.episodeAudio?.files?.[0];
+  const cover = elements.episodeCover?.files?.[0];
+  const number = elements.episodeNumber?.value.trim();
+  const title = elements.episodeTitle?.value.trim();
+  const date = elements.episodeDate?.value;
+  const summary = elements.episodeSummary?.value.trim();
+  if (!number || !title || !date || !audio) {
+    setEpisodeStatus("Completa número, título, fecha y el archivo de audio.", "error");
+    return;
+  }
+  if (audio.size > 500 * 1024 * 1024) {
+    setEpisodeStatus("El audio supera el límite de 500 MB.", "error");
+    return;
+  }
+  const user = auth.currentUser;
+  if (!user || !isStudioAdministrator(user)) {
+    setEpisodeStatus("Tu sesión no tiene permiso para publicar.", "error");
+    return;
+  }
+  const button = elements.publishEpisodeButton;
+  const originalText = button.textContent;
+  button.disabled = true;
+  try {
+    const audioPath = `podcast/audio/${safeFileName(audio)}`;
+    const coverPath = cover ? `podcast/covers/${safeFileName(cover)}` : "";
+    setEpisodeStatus("Subiendo audio…");
+    await uploadFile(audioPath, audio, false);
+    if (cover) await uploadFile(coverPath, cover, true);
+    setEpisodeStatus("Guardando y publicando el episodio…");
+    const result = await llamarApiPublicar("/api/episodes", { number, title, date, summary, audioPath, coverPath, duration: "" });
+    if (!result.ok) throw new Error("No pudimos publicar el episodio.");
+    setEpisodeStatus("Publicado. Este es ahora el episodio abierto para toda la audiencia.", "ok");
+    elements.episodeAudio.value = "";
+    elements.episodeCover.value = "";
+  } catch (error) {
+    console.error("Episode publish failed:", error);
+    setEpisodeStatus(error.message || "No pudimos subir el episodio.", "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
 }
 
 
@@ -1127,6 +1209,10 @@ document.addEventListener(
 
     }
 
+    if (elements.publishEpisodeButton) {
+      elements.publishEpisodeButton.addEventListener("click", publicarEpisodio);
+    }
+
 
     if (elements.refreshBlogButton) {
 
@@ -1221,5 +1307,6 @@ export {
   cargarPostsBlog,
   publicarPostBlog,
   quitarPostBlog,
-  prepararPublicar
+  prepararPublicar,
+  publicarEpisodio
 };

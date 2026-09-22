@@ -15,7 +15,7 @@ async function accessToken() {
   const now = Math.floor(Date.now() / 1000);
   const header = base64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
   const claims = base64url(JSON.stringify({
-    iss: email, scope: 'https://www.googleapis.com/auth/firebase.messaging https://www.googleapis.com/auth/datastore',
+    iss: email, scope: 'https://www.googleapis.com/auth/firebase.messaging https://www.googleapis.com/auth/datastore https://www.googleapis.com/auth/devstorage.read_write',
     aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600
   }));
   const input = `${header}.${claims}`;
