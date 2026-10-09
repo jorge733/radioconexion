@@ -832,7 +832,7 @@
     </style>
     <meta name="description" content="Blog de Radio Conexión: una selección editorial de actualidad, cultura y comunidad.">
     <meta property="og:description" content="Blog de Radio Conexión: una selección editorial de actualidad, cultura y comunidad.">
-    <link rel="stylesheet" href="site.css">
+    <script>try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('rc-dark-preload')}catch(e){}</script><link rel="stylesheet" href="site.css">
     <link rel="manifest" href="manifest.json">
     <script src="site.js" defer></script>
 </head>
@@ -913,78 +913,6 @@
     <script>
         (function () {
             "use strict";
-
-            var menuButton = document.getElementById("menu-toggle");
-            var navMenu = document.getElementById("nav-menu");
-            var themeButton = document.getElementById("dark-mode-toggle");
-
-            function setMenuState(open) {
-                if (!menuButton || !navMenu) {
-                    return;
-                }
-                if (open) {
-                    navMenu.classList.add("nav-open");
-                    menuButton.textContent = "✕";
-                    menuButton.setAttribute("aria-expanded", "true");
-                    menuButton.setAttribute("aria-label", "Cerrar menú");
-                } else {
-                    navMenu.classList.remove("nav-open");
-                    menuButton.textContent = "☰";
-                    menuButton.setAttribute("aria-expanded", "false");
-                    menuButton.setAttribute("aria-label", "Abrir menú");
-                }
-            }
-
-            if (menuButton && navMenu) {
-                menuButton.addEventListener("click", function (event) {
-                    event.stopPropagation();
-                    setMenuState(!navMenu.classList.contains("nav-open"));
-                });
-
-                document.addEventListener("click", function (event) {
-                    if (!event.target.closest("#main-header")) {
-                        setMenuState(false);
-                    }
-                });
-
-                window.addEventListener("resize", function () {
-                    if (window.innerWidth > 768) {
-                        setMenuState(false);
-                    }
-                });
-            }
-
-            function applyTheme(theme) {
-                if (theme === "dark") {
-                    document.body.classList.add("dark-mode");
-                    if (themeButton) {
-                        themeButton.textContent = "☀️";
-                    }
-                } else {
-                    document.body.classList.remove("dark-mode");
-                    if (themeButton) {
-                        themeButton.textContent = "🌙";
-                    }
-                }
-            }
-
-            try {
-                applyTheme(localStorage.getItem("theme") === "dark" ? "dark" : "light");
-            } catch (error) {
-                applyTheme("light");
-            }
-
-            if (themeButton) {
-                themeButton.addEventListener("click", function () {
-                    var nextTheme = document.body.classList.contains("dark-mode") ? "light" : "dark";
-                    applyTheme(nextTheme);
-                    try {
-                        localStorage.setItem("theme", nextTheme);
-                    } catch (error) {
-                        console.warn("No se pudo guardar el tema.", error);
-                    }
-                });
-            }
 
             var noticias = {
                 "robot-bomberos": {

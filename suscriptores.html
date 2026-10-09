@@ -215,7 +215,7 @@
     </style>
     <meta name="description" content="Accede a la fonoteca, pide tus canciones y comparte tus mensajes con Radio Conexión.">
     <meta property="og:description" content="Accede a la fonoteca, pide tus canciones y comparte tus mensajes con Radio Conexión.">
-    <link rel="stylesheet" href="site.css">
+    <script>try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('rc-dark-preload')}catch(e){}</script><link rel="stylesheet" href="site.css">
     <link rel="manifest" href="manifest.json">
     <script src="site.js" defer></script>
 </head>
@@ -859,40 +859,13 @@
             document.getElementById('rc-txt-mensaje').value = '';
         }
 
-        const menuToggleBtn = document.getElementById('menu-toggle');
-        const navMenu = document.getElementById('nav-menu');
-
-        menuToggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            navMenu.classList.toggle('nav-open');
-            const estaAbierto = navMenu.classList.contains('nav-open');
-            menuToggleBtn.innerHTML = estaAbierto ? '✕' : '☰';
-        });
-
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('#main-header')) {
-                if (navMenu.classList.contains('nav-open')) {
-                    navMenu.classList.remove('nav-open');
-                    menuToggleBtn.innerHTML = '☰';
-                }
-            }
             if (!e.target.closest('.search-container')) {
                 const box = document.getElementById('rc-search-results');
                 if(box) box.style.display = 'none';
             }
         });
 
-        const themeBtn = document.getElementById('dark-mode-toggle');
-        themeBtn.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            themeBtn.innerText = isDark ? '☀️' : '🌙';
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        });
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            themeBtn.innerText = '☀️';
-        }
         window.buscarCancionesGlobales = buscarCancionesGlobales;
         window.removerCancion = removerCancion;
         window.enviarMisCanciones = enviarMisCanciones;
@@ -905,8 +878,5 @@
         window.enviarAviso = enviarAviso;
     </script>
     <script type="module" src="profile-avatar.js"></script>
-    <script>
-
-    </script>
 </body>
 </html>

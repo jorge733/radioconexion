@@ -244,7 +244,8 @@ body.dark-mode #main-header .dark-btn { background: rgba(255,255,255,.06); borde
   html body #main-header .brand-tagline { display: none; }
   html body #main-header nav ul { padding: 8px; border: 0; background: transparent; }
   html body #main-header nav ul li a:not(.profile-link) { width: 100%; justify-content: center; }
-  html body #main-header .profile-link { margin: 4px auto; }
+  html body #main-header .profile-link { display: grid; margin: 4px auto; }
+  html body #main-header nav ul li:has(> .dark-btn) { display: flex; justify-content: center; }
 }
 /* Podcast Hub */
 .podcast-hub { max-width: 980px; margin: 34px auto 90px; }
@@ -268,3 +269,4 @@ body.dark-mode .podcast-episode h2 { color: #fff; }
 @media (max-width: 600px) { .podcast-hub { margin-top: 18px; } .podcast-episode { grid-template-columns: 1fr; gap: 12px; padding: 19px; } .podcast-episode__number { justify-self: start; } }
 
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+html.rc-dark-preload body { background: #101216 !important; }

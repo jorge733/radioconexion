@@ -27,8 +27,8 @@
   async function loadWeather() {
     try {
       const response = await fetch(endpoint, { headers: { Accept: 'application/json' } });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.current) throw new Error(data.error);
       renderCurrent(data);
       renderForecast(data);
       const update = data.updatedAt ? `Actualizado: ${updatedFormat.format(new Date(data.updatedAt.replace(' ', 'T') + 'Z'))}` : 'Actualización reciente';
@@ -38,19 +38,6 @@
     }
   }
   document.addEventListener('DOMContentLoaded', () => {
-    if ($('#forecast-days')) {
-      const menuToggle = $('#menu-toggle');
-      const menu = $('#nav-menu');
-      menuToggle?.addEventListener('click', () => {
-        const open = menu?.classList.toggle('nav-open');
-        menuToggle.textContent = open ? '✕' : '☰';
-        menuToggle.setAttribute('aria-expanded', String(open));
-      });
-      menu?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
-        menu.classList.remove('nav-open');
-        if (menuToggle) { menuToggle.textContent = '☰'; menuToggle.setAttribute('aria-expanded', 'false'); }
-      }));
-    }
     loadWeather();
     $('#share-weather')?.addEventListener('click', async () => {
       const title = 'Pronóstico del tiempo · Radio Conexión';
