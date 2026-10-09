@@ -255,7 +255,7 @@
                 <div class="login-intro">
                     <span class="eyebrow">COMUNIDAD RADIO CONEXIÓN</span>
                     <h1 id="subscriber-title">Tu radio, más cerca.</h1>
-                    <p>Inicia sesión con Firebase para participar en la programación y activar tu suscripción.</p>
+                    <p>Inicia sesión con tu cuenta de Google para participar en la programación y activar tu suscripción.</p>
                     <ul class="benefit-list" aria-label="Beneficios para suscriptores">
                         <li><span class="benefit-icon" aria-hidden="true">♫</span> Elige hasta tres canciones para el próximo episodio.</li>
                         <li><span class="benefit-icon" aria-hidden="true">✦</span> Envía ideas, saludos y sugerencias directo a cabina.</li>
@@ -265,11 +265,11 @@
 
                 <div class="login-panel">
                     <h2>Acceso de suscriptores</h2>
-                    <p>Tu cuenta de Firebase identifica de forma segura tu acceso de suscriptor.</p>
+                    <p>Usamos tu cuenta de Google para identificar de forma segura tu acceso de suscriptor.</p>
                     <div class="login-box">
                         <button type="button" id="btn-entrar-firebase" class="btn-custom">Continuar con Google</button>
                         <p class="login-note">Al iniciar sesión te suscribes gratis y recibirás el boletín en el correo de tu cuenta.</p>
-                        <p class="login-privacy">Firebase gestiona el inicio de sesión; Radio Conexión usa tu correo únicamente para enviarte el boletín y registrar tus participaciones.</p>
+                        <p class="login-privacy">Google gestiona el inicio de sesión; Radio Conexión usa tu correo únicamente para enviarte el boletín y registrar tus participaciones.</p>
                         <div id="error-login-privado" class="login-error" role="alert" aria-live="polite"></div>
                     </div>
                 </div>
@@ -289,7 +289,7 @@
                     <h1>Haz sonar tu conexión</h1>
                     <p>Elige qué quieres compartir hoy con la radio.</p>
                 </div>
-                <span class="member-badge">Sesión Firebase activa</span>
+                <span class="member-badge">Sesión activa</span>
             </div>
 
             <div class="subscriber-grid">
@@ -437,11 +437,11 @@
             const errorBox = document.getElementById('error-login-privado');
             errorBox.style.display = 'none';
             if (!auth) {
-                errorBox.textContent = 'Firebase aún no está configurado para este sitio.';
+                errorBox.textContent = 'El inicio de sesión no está disponible en este momento.';
                 errorBox.style.display = 'block';
                 return;
             }
-            btn.innerText = 'Abriendo Firebase...';
+            btn.innerText = 'Abriendo Google...';
             btn.disabled = true;
             try {
                 await signInWithPopup(auth, provider);

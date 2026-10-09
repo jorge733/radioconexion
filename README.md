@@ -1,6 +1,6 @@
 # Radio Conexión
 
-Sitio estático en español, compatible con GitHub Pages y Vercel. La portada está en `index.html`; `inicio.html` conserva el acceso anterior. Las páginas utilizan enlaces relativos con extensión `.html` para funcionar también sin reglas de reescritura.
+Sitio estático en español, compatible con GitHub Pages y Vercel. La portada está en `inicio.html`; `index.html` solo redirige a ella (Vercel hace lo mismo con `/`). Las páginas utilizan enlaces relativos con extensión `.html` para funcionar también sin reglas de reescritura.
 
 ## Contenido
 
@@ -14,7 +14,7 @@ Los ajustes visuales compartidos están en `site.css`; las mejoras de accesibili
 
 ## Servicios externos
 
-El portal de suscriptores usa Firebase Authentication con Google. Las solicitudes de canciones y los mensajes pasan por rutas de Vercel que validan el token Firebase antes de reenviarlos al Apps Script; el navegador ya no conoce esa URL. Spotify, las fuentes de noticias y las imágenes remotas necesitan conexión a Internet.ss
+El portal de suscriptores usa Firebase Authentication con Google. Las solicitudes de canciones y los mensajes pasan por rutas de Vercel que validan el token Firebase antes de reenviarlos al Apps Script; el navegador ya no conoce esa URL. Spotify, las fuentes de noticias y las imágenes remotas necesitan conexión a Internet.
 
 Antes de publicar, completa `firebase-config.js` y configura en Vercel las variables de `.env.example`. Activa Google como proveedor de Firebase Authentication y añade el dominio publicado en **Authorized domains**. El alta automática del boletín se delega al Apps Script de Google Workspace, que debe ejecutarse con una cuenta administradora. Configura el mismo valor aleatorio de `APPS_SCRIPT_SHARED_SECRET` como secreto de Vercel y como propiedad de script `SUSCRIPTORES_SHARED_SECRET`; así el Apps Script no acepta altas directas. Esta alternativa evita almacenar claves privadas en Vercel.
 
