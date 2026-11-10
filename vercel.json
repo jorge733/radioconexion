@@ -17,19 +17,14 @@
       "permanent": true
     },
     {
-      "source": "/noticias.html",
-      "destination": "/blog",
-      "permanent": true
-    },
-    {
-      "source": "/noticias",
-      "destination": "/blog",
-      "permanent": true
-    },
-    {
       "source": "/",
       "destination": "/inicio",
       "permanent": true
+    },
+    {
+      "source": "/(blog|episodios|noticias|noticias-del-dia)(\\.html)?",
+      "destination": "/inicio",
+      "permanent": false
     }
   ]
 }

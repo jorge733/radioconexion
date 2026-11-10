@@ -1,7 +1,7 @@
 const { requireFirebaseUser } = require('./firebase-auth');
 const { firestore, valueOf, credential, accessToken, tokenId } = require('./firebase-admin');
 
-const destinations = { episodio: '/episodios.html', boletin: '/noticias.html' };
+const destinations = { boletin: '/inicio.html' };
 
 module.exports = async (request, response) => {
   if (request.method !== 'POST') return response.status(405).json({ error: 'Método no permitido.' });
