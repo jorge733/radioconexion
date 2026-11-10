@@ -58,6 +58,49 @@
   // Año del pie de página
   document.querySelectorAll('[data-year]').forEach(el => { el.textContent = new Date().getFullYear(); });
 
+  // Sombra del encabezado al desplazarse
+  const header = document.getElementById('main-header');
+  if (header) {
+    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  // Aparición de bloques al entrar en pantalla
+  const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if (!reduceMotion && 'IntersectionObserver' in window) {
+    const selectors = [
+      'main .section .section-head',
+      'main .section .split > *',
+      'main .section .card:not(.weather-card)',
+      'main .section .weather-card',
+      'main .section .cta-band',
+      'main .section .check-list li',
+      'main .section .prose',
+      'main .section .pull-quote',
+      'main .section .signature',
+      '.site-footer__grid > *'
+    ];
+    const targets = [...new Set(document.querySelectorAll(selectors.join(',')))]
+      // Evita animar dos veces un bloque cuyo contenedor ya aparece
+      .filter((el, _, all) => !all.some(other => other !== el && other.contains(el)));
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    targets.forEach(el => {
+      // Escalonado entre hermanos (p. ej., tarjetas de una retícula)
+      const siblings = [...el.parentElement.children].filter(child => targets.includes(child));
+      const index = siblings.indexOf(el);
+      if (index > 0) el.style.setProperty('--reveal-delay', `${Math.min(index, 5) * 0.08}s`);
+      el.classList.add('reveal');
+      observer.observe(el);
+    });
+  }
+
   // Enlaces externos seguros
   document.querySelectorAll('a[target="_blank"]').forEach(link => {
     const rel = new Set((link.getAttribute('rel') || '').split(/\s+/).filter(Boolean));

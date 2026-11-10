@@ -466,10 +466,83 @@ dialog.modal p { color: var(--ink-2); }
 .not-found .lead { margin-inline: auto; }
 .not-found .actions { justify-content: center; }
 
+/* ---------- Animaciones ---------- */
+@keyframes rise-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes glow-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: .9; }
+  50% { transform: translate(-4%, -6%) scale(1.08); opacity: 1; }
+}
+@keyframes live-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+  70%, 100% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+@keyframes menu-drop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@keyframes spin-in { from { opacity: 0; transform: rotate(-90deg) scale(.6); } to { opacity: 1; transform: none; } }
+@keyframes float-404 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+/* Entrada de portadas al cargar la página */
+.hero__grid > div > *, .hero__grid > aside,
+.page-hero .wrap > *, .page-hero__row > *,
+.not-found > * {
+  animation: rise-in .7s cubic-bezier(.2, .7, .2, 1) both;
+}
+.hero__grid > div > :nth-child(2), .page-hero .wrap > :nth-child(2), .page-hero__row > :nth-child(2), .not-found > :nth-child(2) { animation-delay: .08s; }
+.hero__grid > div > :nth-child(3), .page-hero .wrap > :nth-child(3), .page-hero__row > :nth-child(3), .not-found > :nth-child(3) { animation-delay: .16s; }
+.hero__grid > div > :nth-child(4), .page-hero .wrap > :nth-child(4), .not-found > :nth-child(4) { animation-delay: .24s; }
+.hero__grid > aside { animation-delay: .3s; }
+.hero::before { animation: glow-drift 14s ease-in-out infinite; }
+.on-air__live::before { animation: live-pulse 2s ease-out infinite; }
+.newsletter-sample__list li { animation: rise-in .6s cubic-bezier(.2, .7, .2, 1) both; }
+.newsletter-sample__list li:nth-child(1) { animation-delay: .5s; }
+.newsletter-sample__list li:nth-child(2) { animation-delay: .62s; }
+.newsletter-sample__list li:nth-child(3) { animation-delay: .74s; }
+.not-found__code { animation: rise-in .7s cubic-bezier(.2, .7, .2, 1) both, float-404 5s ease-in-out .8s infinite; }
+
+/* Aparición al hacer scroll (site.js añade .reveal y luego .is-visible) */
+.reveal {
+  transition: opacity .7s cubic-bezier(.2, .7, .2, 1), transform .7s cubic-bezier(.2, .7, .2, 1);
+  transition-delay: var(--reveal-delay, 0s);
+}
+.reveal:not(.is-visible) { opacity: 0; transform: translateY(24px); }
+/* Las tarjetas conservan su transición de hover una vez visibles */
+.feature-card.reveal.is-visible { transition: opacity .7s ease var(--reveal-delay, 0s), transform .2s ease, border-color .2s ease; }
+
+/* Contenido cargado dinámicamente */
+.forecast-day { animation: rise-in .55s cubic-bezier(.2, .7, .2, 1) both; }
+.forecast-day:nth-child(2) { animation-delay: .07s; }
+.forecast-day:nth-child(3) { animation-delay: .14s; }
+.forecast-day:nth-child(4) { animation-delay: .21s; }
+.forecast-day:nth-child(5) { animation-delay: .28s; }
+.forecast-day:nth-child(n+6) { animation-delay: .35s; }
+.weather-card > * { animation: fade-in .5s ease both; }
+
+/* Detalles de interfaz */
+.site-header { transition: box-shadow .25s ease, background-color .25s ease; }
+.site-header.is-scrolled { box-shadow: 0 8px 24px rgba(0, 0, 0, .08); }
+html.dark .site-header.is-scrolled { box-shadow: 0 8px 24px rgba(0, 0, 0, .35); }
+.icon-btn, .profile-link { transition: border-color .15s ease, transform .2s ease; }
+.icon-btn:hover, .profile-link:hover { transform: translateY(-1px); }
+.icon-btn:active, .profile-link:active { transform: scale(.94); }
+html.dark .theme-icon-sun, html:not(.dark) .theme-icon-moon { animation: spin-in .4s cubic-bezier(.2, .7, .2, 1); }
+.menu-btn svg { animation: spin-in .25s ease; }
+.btn-primary:hover { box-shadow: 0 10px 24px rgba(199, 127, 13, .36); }
+.feature-card__go { transition: transform .2s ease; }
+.feature-card:hover .feature-card__go { transform: translateX(4px); }
+.site-nav a { position: relative; }
+@media (max-width: 860px) {
+  .site-nav.nav-open { animation: menu-drop .22s ease-out; }
+  .site-nav.nav-open li { animation: rise-in .35s cubic-bezier(.2, .7, .2, 1) both; }
+  .site-nav.nav-open li:nth-child(2) { animation-delay: .04s; }
+  .site-nav.nav-open li:nth-child(3) { animation-delay: .08s; }
+  .site-nav.nav-open li:nth-child(4) { animation-delay: .12s; }
+}
+
 /* ---------- Movimiento reducido ---------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
 }
 .podcast-episode.has-cover .podcast-episode__number { color: transparent; }
 html.dark .on-air, html.dark .cta-band, html.dark .weather-card--hero { border: 1px solid var(--line); }
