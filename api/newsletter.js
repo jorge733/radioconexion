@@ -120,13 +120,14 @@ function renderNewsletter({ subject, preheader, intro, closing, items }, { unsub
   const date = new Intl.DateTimeFormat('es-CL', { dateStyle: 'long', timeZone: 'America/Santiago' }).format(new Date());
   const font = "font-family:Georgia,'Times New Roman',serif;";
   const sans = "font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;";
+  const title = "font-family:'Unica One','Arial Narrow',Arial,sans-serif;letter-spacing:.5px;";
   const news = items.map((item, index) => `
           <tr><td style="padding:0 32px;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #e2dac8;">
               <tr><td style="padding:28px 0 6px;">
                 ${item.image ? `<img src="${escapeHTML(item.image)}" alt="" width="536" style="display:block;width:100%;max-width:536px;height:auto;border-radius:12px;margin:0 0 18px;">` : ''}
                 <p style="margin:0 0 8px;${sans}font-size:12px;font-weight:bold;letter-spacing:1.6px;text-transform:uppercase;color:#8a5605;">${String(index + 1).padStart(2, '0')}${item.source ? ` · ${escapeHTML(item.source)}` : ''}</p>
-                <h2 style="margin:0 0 10px;${font}font-size:23px;line-height:1.25;font-weight:600;color:#1d211d;">${item.url ? `<a href="${escapeHTML(item.url)}" style="color:#1d211d;text-decoration:none;">${escapeHTML(item.title)}</a>` : escapeHTML(item.title)}</h2>
+                <h2 style="margin:0 0 10px;${title}font-size:25px;line-height:1.2;font-weight:400;color:#1d211d;">${item.url ? `<a href="${escapeHTML(item.url)}" style="color:#1d211d;text-decoration:none;">${escapeHTML(item.title)}</a>` : escapeHTML(item.title)}</h2>
                 ${item.summary ? paragraphs(item.summary, `margin:0 0 14px;${sans}font-size:16px;line-height:1.6;color:#4f564e;`) : ''}
                 ${item.url ? `<p style="margin:0 0 8px;${sans}font-size:15px;font-weight:bold;"><a href="${escapeHTML(item.url)}" style="color:#8a5605;">Leer la noticia completa →</a></p>` : ''}
               </td></tr>
@@ -140,6 +141,7 @@ function renderNewsletter({ subject, preheader, intro, closing, items }, { unsub
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>${escapeHTML(subject)}</title>
+<style>@font-face{font-family:'Unica One';src:url('${SITE}/assets/fuentes/UnicaOne-Regular.ttf') format('truetype');font-weight:400;font-style:normal;}</style>
 </head>
 <body style="margin:0;padding:0;background:#f7f3ea;">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHTML(preheader || items[0]?.title || subject)}</div>
@@ -156,7 +158,7 @@ function renderNewsletter({ subject, preheader, intro, closing, items }, { unsub
           </tr></table>
         </td></tr>
         <tr><td style="padding:34px 32px 10px;">
-          <h1 style="margin:0 0 16px;${font}font-size:30px;line-height:1.2;font-weight:600;color:#1d211d;">${escapeHTML(subject)}</h1>
+          <h1 style="margin:0 0 16px;${title}font-size:34px;line-height:1.15;font-weight:400;color:#1d211d;">${escapeHTML(subject)}</h1>
           ${intro ? paragraphs(intro, `margin:0 0 14px;${sans}font-size:17px;line-height:1.65;color:#4f564e;`) : ''}
         </td></tr>
         ${news}
