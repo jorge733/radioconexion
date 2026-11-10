@@ -226,7 +226,7 @@ async function importContacts(list) {
   const results = [];
   for (const raw of list.slice(0, IMPORT_BATCH)) {
     const email = String(raw || '').trim().toLowerCase();
-    if (!EMAIL_RE.test(email)) { results.push({ email, result: 'invalid' }); continue; }
+    if (!EMAIL_RE.test(email) || /\.\.|^\.|\.@|@\./.test(email)) { results.push({ email, result: 'invalid' }); continue; }
     try {
       // Si alguien ya se había dado de baja, se respeta su decisión.
       results.push({ email, result: await subscribe(email, '', { keepUnsubscribed: true }) });

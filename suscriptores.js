@@ -594,7 +594,9 @@ $('btn-historial-boletin').addEventListener('click', cargarHistorialBoletin);
 /* ---------- Panel del equipo: importar suscriptores ---------- */
 
 const EMAIL_PATTERN = /[A-Z0-9._%+'-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
-const correosDetectados = () => [...new Set(($('importar-correos').value.match(EMAIL_PATTERN) || []).map(email => email.toLowerCase()))];
+// Descarta correos acortados (como "ana.b...@gmail.com", que exporta Google Groups) o con puntos mal puestos.
+const correoValido = email => !/\.\.|^\.|\.@|@\./.test(email);
+const correosDetectados = () => [...new Set(($('importar-correos').value.match(EMAIL_PATTERN) || []).map(email => email.toLowerCase()).filter(correoValido))];
 
 $('importar-correos').addEventListener('input', () => {
   const count = correosDetectados().length;
@@ -620,7 +622,10 @@ $('btn-importar').addEventListener('click', async () => {
     if (totals.invalid) parts.push(`${totals.invalid} no válidos`);
     if (totals.error) parts.push(`${totals.error} con error`);
     setStatus(status, `Importación terminada: ${parts.join(', ')}.`, totals.error ? 'error' : 'ok');
-    if (!totals.error) $('importar-correos').value = '';
+    if (!totals.error) {
+      $('importar-correos').value = '';
+      $('importar-correos').dispatchEvent(new Event('input'));
+    }
   } catch (error) {
     setStatus(status, `${error.message || 'La importación se detuvo.'} Puedes volver a intentarlo: los correos ya agregados no se duplican.`, 'error');
   } finally {
