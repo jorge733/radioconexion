@@ -30,15 +30,17 @@ import {
 ========================================================= */
 
 /*
-  Esta es la cuenta administrativa que ya utiliza
-  Radio Conexión.
-
-  Debe coincidir con la cuenta administrativa existente
-  en Firebase y con la utilizada actualmente por la cabina.
+  Quién puede entrar lo decide el servidor, con la variable
+  RADIO_ADMIN_EMAIL de Vercel (la misma que usan la cabina,
+  los avisos y el boletín). Así el correo no queda escrito
+  en el código público y se cambia sin tocar archivos.
 */
 
-const STUDIO_ADMIN_EMAIL =
-  "sabenedettoa@radioconexionweb.com";
+const ADMIN_CHECK_URL =
+  "/api/newsletter";
+
+let verifiedAdminUid =
+  null;
 
 
 /* =========================================================
@@ -110,16 +112,50 @@ function normalizeEmail(email) {
 }
 
 
+/*
+  Respuesta inmediata para los demás módulos (cabina,
+  publicar): vale para la sesión que ya comprobó el servidor.
+*/
+
 function isStudioAdministrator(user) {
 
-  if (!user) {
-    return false;
+  return Boolean(
+    user &&
+    verifiedAdminUid &&
+    user.uid === verifiedAdminUid
+  );
+}
+
+
+async function verifyStudioAdministrator(user) {
+
+  verifiedAdminUid =
+    null;
+
+  const token =
+    await user.getIdToken();
+
+  const response =
+    await fetch(ADMIN_CHECK_URL, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+  if (!response.ok) {
+    throw new Error(
+      `No pudimos comprobar el acceso (${response.status}).`
+    );
   }
 
-  return (
-    normalizeEmail(user.email) ===
-    normalizeEmail(STUDIO_ADMIN_EMAIL)
-  );
+  const data =
+    await response.json();
+
+  if (data.isAdmin === true) {
+    verifiedAdminUid = user.uid;
+  }
+
+  return data.isAdmin === true;
 }
 
 
@@ -257,38 +293,15 @@ async function loginToStudio() {
 
   try {
 
-    const result =
-      await signInWithPopup(
-        auth,
-        googleProvider
-      );
-
-    const user =
-      result.user;
-
-
     /*
-      El usuario puede autenticarse correctamente con Google,
-      pero eso NO significa que tenga permiso para Studio.
+      Google confirma la identidad; el permiso para Studio
+      lo comprueba el observador de sesión con el servidor.
     */
 
-    if (
-      !isStudioAdministrator(user)
-    ) {
-
-      await signOut(auth);
-
-      showLogin();
-
-      showLoginError(
-        "Esta cuenta no tiene autorización para acceder a Radio Conexión Studio."
-      );
-
-      return;
-    }
-
-
-    showStudio(user);
+    await signInWithPopup(
+      auth,
+      googleProvider
+    );
 
   }
   catch (error) {
@@ -422,6 +435,8 @@ onAuthStateChanged(
 
     if (!user) {
 
+      verifiedAdminUid = null;
+
       showLogin();
 
       return;
@@ -429,12 +444,41 @@ onAuthStateChanged(
 
 
     /*
-      SESIÓN AUTORIZADA
+      SESIÓN AUTORIZADA (lo confirma el servidor)
     */
 
-    if (
-      isStudioAdministrator(user)
-    ) {
+    showCheckingSession();
+
+    let authorized =
+      false;
+
+    try {
+
+      authorized =
+        await verifyStudioAdministrator(user);
+
+    }
+    catch (error) {
+
+      console.error(
+        "No se pudo comprobar el acceso a Studio:",
+        error
+      );
+
+      showLogin();
+
+      showLoginError(
+        "No pudimos comprobar tu acceso. Revisa tu conexión y vuelve a intentarlo."
+      );
+
+      return;
+    }
+
+    if (auth.currentUser !== user) {
+      return;
+    }
+
+    if (authorized) {
 
       showStudio(user);
 

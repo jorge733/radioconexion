@@ -18,15 +18,16 @@ import {
   confirmModal
 } from "./modal.js";
 
+import {
+  montarEditorBoletin
+} from "../boletin-editor.js";
+
 
 /* =========================================================
    ESTADO
 ========================================================= */
 
-let postsBlog = [];
-
-let blogCargado = false;
-let cargandoBlog = false;
+let editorBoletin = null;
 
 
 /* =========================================================
@@ -72,36 +73,6 @@ function getPublicarElements() {
         "studioNoticeStatus"
       ),
 
-    blogUrl:
-      document.getElementById(
-        "studioBlogUrl"
-      ),
-
-    publishBlogButton:
-      document.getElementById(
-        "studioPublishBlogBtn"
-      ),
-
-    refreshBlogButton:
-      document.getElementById(
-        "studioRefreshBlogBtn"
-      ),
-
-    blogStatus:
-      document.getElementById(
-        "studioBlogStatus"
-      ),
-
-    blogList:
-      document.getElementById(
-        "studioBlogList"
-      ),
-
-    blogCount:
-      document.getElementById(
-        "studioBlogCount"
-      ),
-
     episodeNumber: document.getElementById("studioEpisodeNumber"),
     episodeTitle: document.getElementById("studioEpisodeTitle"),
     episodeDate: document.getElementById("studioEpisodeDate"),
@@ -112,55 +83,6 @@ function getPublicarElements() {
     episodeStatus: document.getElementById("studioEpisodeStatus")
 
   };
-}
-
-
-/* =========================================================
-   UTILIDADES
-========================================================= */
-
-function escapeHTML(value) {
-
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-
-function normalizarInstagramUrl(value) {
-
-  return String(value || "")
-    .trim();
-}
-
-
-function esUrlInstagramValida(value) {
-
-  try {
-
-    const url =
-      new URL(value);
-
-
-    const hostname =
-      url.hostname
-        .toLowerCase()
-        .replace(/^www\./, "");
-
-
-    return (
-      hostname === "instagram.com" ||
-      hostname.endsWith(".instagram.com")
-    );
-
-  }
-  catch {
-
-    return false;
-  }
 }
 
 
@@ -286,29 +208,6 @@ function setNoticeStatus(
     state;
 }
 
-
-function setBlogStatus(
-  message,
-  state = ""
-) {
-
-  const {
-    blogStatus
-  } = getPublicarElements();
-
-
-  if (!blogStatus) {
-    return;
-  }
-
-
-  blogStatus.textContent =
-    message;
-
-
-  blogStatus.dataset.state =
-    state;
-}
 
 function setEpisodeStatus(message, state = "") {
   const { episodeStatus } = getPublicarElements();
@@ -547,614 +446,48 @@ async function enviarAviso() {
 
 
 /* =========================================================
-   BLOG
-========================================================= */
-
-function actualizarContadorBlog() {
-
-  const {
-    blogCount
-  } = getPublicarElements();
-
-
-  if (!blogCount) {
-    return;
-  }
-
-
-  blogCount.textContent =
-    postsBlog.length;
-}
-
-
-/* =========================================================
-   CREAR PUBLICACIÓN DEL BLOG
-========================================================= */
-
-function crearPostBlog(post) {
-
-  const article =
-    document.createElement(
-      "article"
-    );
-
-
-  article.className =
-    "publicar-blog-item";
-
-
-  const url =
-    String(
-      post.url || ""
-    );
-
-
-  article.innerHTML = `
-
-    <div class="publicar-blog-item-main">
-
-      <span
-        class="publicar-blog-instagram-icon"
-        aria-hidden="true"
-      >
-        ◎
-      </span>
-
-
-      <div class="publicar-blog-item-info">
-
-        <span>
-          PUBLICACIÓN DE INSTAGRAM
-        </span>
-
-        <a
-          href="${escapeHTML(url)}"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Ver publicación en Instagram ↗
-        </a>
-
-        <small>
-          ${escapeHTML(url)}
-        </small>
-
-      </div>
-
-    </div>
-
-
-    <button
-      class="publicar-remove-button"
-      type="button"
-    >
-      QUITAR
-    </button>
-
-  `;
-
-
-  const removeButton =
-    article.querySelector(
-      ".publicar-remove-button"
-    );
-
-
-  removeButton.addEventListener(
-    "click",
-    () => {
-
-      quitarPostBlog(
-        post.id,
-        removeButton
-      );
-
-    }
-  );
-
-
-  return article;
-}
-
-
-/* =========================================================
-   RENDERIZAR BLOG
-========================================================= */
-
-function renderizarPostsBlog() {
-
-  const {
-    blogList
-  } = getPublicarElements();
-
-
-  if (!blogList) {
-    return;
-  }
-
-
-  blogList.replaceChildren();
-
-
-  actualizarContadorBlog();
-
-
-  if (
-    postsBlog.length === 0
-  ) {
-
-    const empty =
-      document.createElement(
-        "div"
-      );
-
-
-    empty.className =
-      "publicar-empty";
-
-
-    empty.innerHTML = `
-
-      <span
-        class="publicar-empty-icon"
-        aria-hidden="true"
-      >
-        ◎
-      </span>
-
-      <strong>
-        No hay publicaciones añadidas
-      </strong>
-
-      <p>
-        Cuando agregues una publicación de Instagram
-        aparecerá aquí y también en el Blog de Radio Conexión.
-      </p>
-
-    `;
-
-
-    blogList.appendChild(
-      empty
-    );
-
-
-    return;
-  }
-
-
-  postsBlog.forEach(
-    post => {
-
-      blogList.appendChild(
-        crearPostBlog(post)
-      );
-
-    }
-  );
-}
-
-
-/* =========================================================
-   CARGAR BLOG
-========================================================= */
-
-async function cargarPostsBlog(
-  force = false
-) {
-
-  if (
-    cargandoBlog
-  ) {
-
-    return;
-  }
-
-
-  if (
-    blogCargado &&
-    !force
-  ) {
-
-    renderizarPostsBlog();
-
-    return;
-  }
-
-
-  const {
-    blogList,
-    refreshBlogButton
-  } = getPublicarElements();
-
-
-  cargandoBlog =
-    true;
-
-
-  if (refreshBlogButton) {
-
-    refreshBlogButton.disabled =
-      true;
-
-
-    refreshBlogButton.textContent =
-      "ACTUALIZANDO...";
-
-  }
-
-
-  if (blogList) {
-
-    blogList.innerHTML = `
-
-      <div class="publicar-loading">
-
-        <span class="publicar-loading-spinner"></span>
-
-        <span>
-          Cargando publicaciones...
-        </span>
-
-      </div>
-
-    `;
-
-  }
-
-
-  setBlogStatus(
-    "Consultando publicaciones..."
-  );
-
-
-  try {
-
-    const result =
-      await llamarApiPublicar(
-        "/api/blog-posts",
-        null,
-        "GET"
-      );
-
-
-    postsBlog =
-      Array.isArray(
-        result.posts
-      )
-        ? result.posts
-        : [];
-
-
-    blogCargado =
-      true;
-
-
-    renderizarPostsBlog();
-
-
-    if (
-      postsBlog.length === 0
-    ) {
-
-      setBlogStatus(
-        "El Blog no tiene publicaciones añadidas desde este panel.",
-        "ok"
-      );
-
-    }
-    else {
-
-      setBlogStatus(
-        `${postsBlog.length} publicación(es) en el Blog.`,
-        "ok"
-      );
-
-    }
-
-  }
-  catch (error) {
-
-    console.error(
-      "Error al cargar el Blog:",
-      error
-    );
-
-
-    if (blogList) {
-
-      blogList.innerHTML = `
-
-        <div class="publicar-error">
-
-          <strong>
-            No pudimos cargar el Blog
-          </strong>
-
-          <p>
-            ${escapeHTML(
-              error.message ||
-              "Ocurrió un error al consultar las publicaciones."
-            )}
-          </p>
-
-        </div>
-
-      `;
-
-    }
-
-
-    setBlogStatus(
-      error.message ||
-      "No pudimos cargar las publicaciones.",
-      "error"
-    );
-
-  }
-  finally {
-
-    cargandoBlog =
-      false;
-
-
-    if (refreshBlogButton) {
-
-      refreshBlogButton.disabled =
-        false;
-
-
-      refreshBlogButton.textContent =
-        "↻ ACTUALIZAR";
-
-    }
-
-  }
-}
-
-
-/* =========================================================
-   PUBLICAR EN BLOG
-========================================================= */
-
-async function publicarPostBlog() {
-
-  const {
-    blogUrl,
-    publishBlogButton
-  } = getPublicarElements();
-
-
-  if (
-    !blogUrl ||
-    !publishBlogButton
-  ) {
-
-    return;
-  }
-
-
-  const url =
-    normalizarInstagramUrl(
-      blogUrl.value
-    );
-
-
-  if (!url) {
-
-    setBlogStatus(
-      "Pega el enlace de una publicación de Instagram.",
-      "error"
-    );
-
-    blogUrl.focus();
-
-    return;
-  }
-
-
-  if (
-    !esUrlInstagramValida(url)
-  ) {
-
-    setBlogStatus(
-      "El enlace debe corresponder a Instagram.",
-      "error"
-    );
-
-    blogUrl.focus();
-
-    return;
-  }
-
-
-  const originalText =
-    publishBlogButton.textContent;
-
-
-  publishBlogButton.disabled =
-    true;
-
-
-  publishBlogButton.textContent =
-    "PUBLICANDO...";
-
-
-  setBlogStatus(
-    "Publicando..."
-  );
-
-
-  try {
-
-    await llamarApiPublicar(
-      "/api/blog-posts",
-      {
-        url
-      },
-      "POST"
-    );
-
-
-    blogUrl.value =
-      "";
-
-
-    setBlogStatus(
-      "La publicación ya aparece primero en el Blog.",
-      "ok"
-    );
-
-
-    /*
-      Forzamos una recarga para obtener exactamente
-      la lista guardada por el servidor.
-    */
-
-    blogCargado =
-      false;
-
-
-    await cargarPostsBlog(
-      true
-    );
-
-  }
-  catch (error) {
-
-    console.error(
-      "Error al publicar en el Blog:",
-      error
-    );
-
-
-    setBlogStatus(
-      error.message ||
-      "No pudimos publicar este enlace.",
-      "error"
-    );
-
-  }
-  finally {
-
-    publishBlogButton.disabled =
-      false;
-
-
-    publishBlogButton.textContent =
-      originalText;
-
-  }
-}
-
-
-/* =========================================================
-   QUITAR DEL BLOG
-========================================================= */
-
-async function quitarPostBlog(
-  id,
-  button
-) {
-
-  if (!id) {
-
-    setBlogStatus(
-      "Esta publicación no tiene un identificador válido.",
-      "error"
-    );
-
-    return;
-  }
-
-
-  const confirmed =
-    await confirmModal({
-      title: "Retirar publicación",
-      message: "¿Quieres retirar esta publicación del Blog?",
-      confirmText: "RETIRAR",
-      cancelText: "CANCELAR",
-      danger: true
-    });
-
-
-  if (!confirmed) {
-    return;
-  }
-
-
-  const originalText =
-    button.textContent;
-
-
-  button.disabled =
-    true;
-
-
-  button.textContent =
-    "QUITANDO...";
-
-
-  try {
-
-    await llamarApiPublicar(
-      "/api/blog-posts",
-      {
-        id
-      },
-      "DELETE"
-    );
-
-
-    postsBlog =
-      postsBlog.filter(
-        post =>
-          post.id !== id
-      );
-
-
-    renderizarPostsBlog();
-
-
-    setBlogStatus(
-      "Publicación retirada del Blog.",
-      "ok"
-    );
-
-  }
-  catch (error) {
-
-    console.error(
-      "Error al retirar publicación:",
-      error
-    );
-
-
-    button.disabled =
-      false;
-
-
-    button.textContent =
-      originalText;
-
-
-    setBlogStatus(
-      error.message ||
-      "No pudimos retirar la publicación.",
-      "error"
-    );
-
-  }
-}
-
-
-/* =========================================================
    ACTIVACIÓN DE LA SECCIÓN PUBLICAR
 ========================================================= */
 
 function prepararPublicar() {
 
-  cargarPostsBlog();
+  const root =
+    document.getElementById("studioNewsletterEditor");
+
+  if (!root) {
+    return;
+  }
+
+  if (!editorBoletin) {
+
+    editorBoletin =
+      montarEditorBoletin(root, {
+        llamarApi: llamarApiPublicar,
+        correo: () => auth.currentUser?.email || "tu correo",
+        clases: {
+          campo: "publicar-field",
+          boton: "publicar-secondary-button",
+          botonPequeno: "publicar-secondary-button publicar-small-button",
+          botonPrincipal: "publicar-primary-button",
+          acciones: "publicar-actions",
+          estado: "publicar-status",
+          etiqueta: "publicar-label",
+          nota: "publicar-muted",
+          fila: "publicar-history-row",
+          lista: "publicar-history-list",
+          vacio: "publicar-muted"
+        },
+        confirmar: message => confirmModal({
+          title: "Enviar boletín",
+          message,
+          confirmText: "ENVIAR",
+          cancelText: "CANCELAR",
+          type: "warning"
+        })
+      });
+  }
+
+  editorBoletin.iniciar();
 }
 
 
@@ -1200,59 +533,8 @@ document.addEventListener(
     }
 
 
-    if (elements.publishBlogButton) {
-
-      elements.publishBlogButton.addEventListener(
-        "click",
-        publicarPostBlog
-      );
-
-    }
-
     if (elements.publishEpisodeButton) {
       elements.publishEpisodeButton.addEventListener("click", publicarEpisodio);
-    }
-
-
-    if (elements.refreshBlogButton) {
-
-      elements.refreshBlogButton.addEventListener(
-        "click",
-        () => {
-
-          cargarPostsBlog(
-            true
-          );
-
-        }
-      );
-
-    }
-
-
-    /*
-      Enter en el campo del enlace publica el post.
-    */
-
-    if (elements.blogUrl) {
-
-      elements.blogUrl.addEventListener(
-        "keydown",
-        event => {
-
-          if (
-            event.key === "Enter"
-          ) {
-
-            event.preventDefault();
-
-            publicarPostBlog();
-
-          }
-
-        }
-      );
-
     }
 
 
@@ -1261,8 +543,8 @@ document.addEventListener(
       navegación principal de Studio.
 
       cabina.js sigue encargándose de mostrar/ocultar
-      las secciones. Aquí solamente cargamos los datos
-      específicos del Blog.
+      las secciones. Aquí solamente preparamos el
+      editor del boletín.
     */
 
     document
@@ -1304,9 +586,6 @@ document.addEventListener(
 
 export {
   enviarAviso,
-  cargarPostsBlog,
-  publicarPostBlog,
-  quitarPostBlog,
   prepararPublicar,
   publicarEpisodio
 };

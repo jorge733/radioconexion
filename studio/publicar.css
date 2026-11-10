@@ -965,3 +965,60 @@
   }
 
 }
+
+/* =========================================================
+   BOLETÍN
+========================================================= */
+
+.publicar-newsletter-card {
+  grid-column: 1 / -1;
+  order: -1;
+}
+
+.publicar-newsletter-card .nb-editor {
+  --nb-line: var(--rc-border-strong, #d8dde3);
+  --nb-soft: rgba(217, 150, 20, 0.06);
+  --nb-muted: var(--rc-muted, #667085);
+}
+
+.publicar-newsletter-card .nb-layout {
+  margin-top: 6px;
+}
+
+.publicar-newsletter-card .nb-group legend,
+.publicar-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--rc-muted, #667085);
+}
+
+.publicar-actions {
+  margin-top: 14px;
+}
+
+.publicar-small-button {
+  min-height: 34px;
+  padding: 6px 14px;
+  font-size: 11px;
+}
+
+.publicar-muted {
+  margin: 0;
+  color: var(--rc-muted, #667085);
+  font-size: 13px;
+}
+
+.publicar-history-list {
+  display: grid;
+  gap: 8px;
+}
+
+.publicar-history-row {
+  padding: 10px 14px;
+  border: 1px solid var(--rc-border, rgba(20, 24, 31, .08));
+  border-radius: 12px;
+  font-size: 14px;
+}

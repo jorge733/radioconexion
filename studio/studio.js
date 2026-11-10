@@ -116,6 +116,19 @@ let pendingMark = null;
 let mediaRecorder = null;
 let recordingChunks = [];
 let recordingBlob = null;
+
+/* Id del episodio en el historial: evita que dos episodios con el mismo número se pisen. */
+let currentEpisodeId = null;
+
+/* El reloj se calcula con la hora real, no contando ticks (los navegadores frenan los timers en pestañas ocultas). */
+let segmentStartedAt = 0;
+let segmentBaseSeconds = 0;
+
+/* Avisar antes de salir si hay audio sin descargar. */
+let recordingDownloaded = false;
+
+/* Tras recargar, el audio grabado antes no se puede recuperar. */
+let restoredWithoutAudio = false;
 let recordingObjectUrl = null;
 let audioEngineModule = null;
 let recordingPreview = null;
@@ -284,7 +297,11 @@ function renderRecordingPreview() {
     recordingObjectUrl;
 
   download.download =
-    `Radio-Conexión-Episodio-${cleanEpisode}.webm`;
+    `Radio-Conexión-Episodio-${cleanEpisode}.${recordingExtension(recordingBlob.type)}`;
+
+  download.addEventListener("click", () => {
+    recordingDownloaded = true;
+  });
 
   download.textContent =
     "DESCARGAR GRABACIÓN";
@@ -544,6 +561,29 @@ function formatTime(totalSeconds) {
 }
 
 
+function recordingExtension(type = "") {
+
+  if (/mp4|m4a|aac/i.test(type)) return "m4a";
+
+  if (/ogg/i.test(type)) return "ogg";
+
+  if (/mpeg|mp3/i.test(type)) return "mp3";
+
+  if (/wav/i.test(type)) return "wav";
+
+  return "webm";
+}
+
+
+function hasUnsavedRecording() {
+
+  return Boolean(
+    (mediaRecorder && mediaRecorder.state !== "inactive") ||
+    (recordingBlob && !recordingDownloaded)
+  );
+}
+
+
 function updateTimer() {
 
   timerElement.textContent =
@@ -565,6 +605,28 @@ async function startRecording() {
   */
 
   if (finished) return;
+
+
+  if (restoredWithoutAudio) {
+
+    const continuar =
+      await confirmModal({
+        title: "El audio anterior no se recuperó",
+        message:
+          "Al recargar la página se perdió lo grabado antes. Si continúas, el archivo final solo tendrá lo que grabes desde ahora. El reloj vuelve a cero para que coincida con el audio.",
+        confirmText: "GRABAR DESDE AHORA",
+        cancelText: "CANCELAR",
+        type: "warning"
+      });
+
+    if (!continuar) return;
+
+    restoredWithoutAudio = false;
+
+    elapsedSeconds = 0;
+
+    updateTimer();
+  }
 
 
   try {
@@ -596,10 +658,26 @@ async function startRecording() {
   paused = false;
 
 
+  segmentStartedAt =
+    Date.now();
+
+  segmentBaseSeconds =
+    elapsedSeconds;
+
+  recordingDownloaded =
+    false;
+
+
   timerInterval =
     setInterval(() => {
 
-      elapsedSeconds++;
+      const next =
+        segmentBaseSeconds +
+        Math.floor((Date.now() - segmentStartedAt) / 1000);
+
+      if (next === elapsedSeconds) return;
+
+      elapsedSeconds = next;
 
       updateTimer();
 
@@ -612,7 +690,7 @@ async function startRecording() {
         saveState();
       }
 
-    }, 1000);
+    }, 250);
 
 
   recordingStatus.textContent =
@@ -1239,7 +1317,24 @@ function renderMarks() {
 
 function saveState() {
 
+  /* El historial pudo asignar el id del episodio mientras tanto. */
+  if (!currentEpisodeId) {
+
+    try {
+
+      currentEpisodeId =
+        JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}").episodeId || null;
+
+    }
+    catch {
+      currentEpisodeId = null;
+    }
+  }
+
   const data = {
+
+    episodeId:
+      currentEpisodeId,
 
     episodeNumber:
       episodeNumber.value,
@@ -1300,9 +1395,14 @@ function loadState() {
       JSON.parse(stored);
 
 
+    currentEpisodeId =
+      data.episodeId
+      || null;
+
+
     episodeNumber.value =
       data.episodeNumber
-      || "98";
+      || "";
 
 
     episodeTitle.value =
@@ -1401,9 +1501,11 @@ function loadState() {
 
       paused = true;
 
+      restoredWithoutAudio = true;
+
 
       recordingStatus.textContent =
-        "PAUSADO";
+        "PAUSADO · AUDIO ANTERIOR NO RECUPERABLE";
 
 
       startBtn.disabled = false;
@@ -1645,7 +1747,19 @@ document.addEventListener(
 
 window.addEventListener(
   "beforeunload",
-  revokeRecordingUrl
+  event => {
+
+    if (hasUnsavedRecording()) {
+
+      event.preventDefault();
+
+      event.returnValue = "";
+
+      return;
+    }
+
+    revokeRecordingUrl();
+  }
 );
 
 

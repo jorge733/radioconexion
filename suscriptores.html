@@ -35,6 +35,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script>try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script>
     <link rel="preload" href="assets/fuentes/UnicaOne-Regular.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="stylesheet" href="boletin-editor.css">
     <link rel="stylesheet" href="site.css">
     <script src="site.js" defer></script>
     <script type="module" src="profile-avatar.js"></script>
@@ -261,43 +262,7 @@
                         <p class="member-card__kicker"><span>Boletín por correo</span><span>Equipo</span></p>
                         <h2 id="admin-boletin-title">Nuevo boletín</h2>
                         <p class="muted">Redacta el boletín, revisa la vista previa y envíate una prueba antes de mandarlo a todas las personas suscritas.</p>
-                        <form id="form-boletin" class="newsletter-editor" novalidate>
-                            <div class="newsletter-editor__fields">
-                                <div class="field"><label for="boletin-asunto">Asunto</label><input id="boletin-asunto" type="text" maxlength="120" required placeholder="Ej.: Cinco buenas noticias para empezar la semana"></div>
-                                <div class="field"><label for="boletin-preheader">Texto de vista previa <span class="muted small">(opcional)</span></label><input id="boletin-preheader" type="text" maxlength="160" placeholder="Lo que se ve junto al asunto en la bandeja de entrada"></div>
-                                <div class="field"><label for="boletin-intro">Introducción <span class="muted small">(opcional)</span></label><textarea id="boletin-intro" rows="3" maxlength="2000" placeholder="Un saludo breve para abrir el boletín."></textarea></div>
-
-                                <fieldset class="news-items">
-                                    <legend>Noticias <span class="muted small">(de 1 a 6)</span></legend>
-                                    <div id="boletin-items"></div>
-                                    <button type="button" class="btn btn-ghost btn-sm" id="btn-agregar-noticia">+ Agregar noticia</button>
-                                </fieldset>
-
-                                <div class="field"><label for="boletin-cierre">Despedida <span class="muted small">(opcional)</span></label><textarea id="boletin-cierre" rows="2" maxlength="800" placeholder="Ej.: Gracias por leernos. ¡Nos vemos la próxima semana!"></textarea></div>
-
-                                <fieldset class="send-mode">
-                                    <legend>¿Cuándo enviarlo?</legend>
-                                    <label><input type="radio" name="boletin-cuando" value="ahora" checked> Enviar ahora</label>
-                                    <label><input type="radio" name="boletin-cuando" value="programar"> Programar</label>
-                                    <div class="field" id="boletin-fecha-field" hidden><label for="boletin-fecha">Fecha y hora (según la hora de este dispositivo)</label><input id="boletin-fecha" type="datetime-local"></div>
-                                </fieldset>
-
-                                <div class="actions">
-                                    <button type="button" class="btn btn-ghost" id="btn-vista-previa">Actualizar vista previa</button>
-                                    <button type="button" class="btn btn-ghost" id="btn-prueba-boletin">Enviarme una prueba</button>
-                                    <button type="submit" class="btn btn-primary" id="btn-enviar-boletin">Enviar a todos</button>
-                                </div>
-                                <p class="status" id="estado-envio-boletin" role="status" aria-live="polite"></p>
-                            </div>
-                            <div class="newsletter-editor__preview">
-                                <span class="field-label">Vista previa</span>
-                                <iframe id="boletin-preview" title="Vista previa del boletín" sandbox=""></iframe>
-                            </div>
-                        </form>
-                        <div class="newsletter-history">
-                            <div class="selection-head"><span class="field-label">Últimos envíos</span><button type="button" class="btn btn-ghost btn-sm" id="btn-historial-boletin">Actualizar</button></div>
-                            <div id="lista-historial-boletin" class="admin-list"></div>
-                        </div>
+                        <div id="editor-boletin"></div>
                     </section>
 
                     <section class="card member-card member-card--admin" id="panel-importar" aria-labelledby="admin-importar-title" hidden>

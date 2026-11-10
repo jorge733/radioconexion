@@ -7,7 +7,8 @@ module.exports = async (request, response) => {
   if (request.method !== 'POST') return response.status(405).json({ error: 'Método no permitido.' });
   let user;
   try { user = await requireFirebaseUser(request); } catch { return response.status(401).json({ error: 'Debes iniciar sesión con Firebase.' }); }
-  if (!process.env.RADIO_ADMIN_EMAIL || user.email.toLowerCase() !== process.env.RADIO_ADMIN_EMAIL.toLowerCase()) return response.status(403).json({ error: 'No tienes permiso para publicar avisos.' });
+  const adminEmail = (process.env.RADIO_ADMIN_EMAIL || 'sabenedettoa@radioconexionweb.com').toLowerCase();
+  if ((user.email || '').toLowerCase() !== adminEmail) return response.status(403).json({ error: 'No tienes permiso para publicar avisos.' });
   const kind = request.body?.kind;
   const title = typeof request.body?.title === 'string' ? request.body.title.trim().slice(0, 90) : '';
   const body = typeof request.body?.body === 'string' ? request.body.body.trim().slice(0, 180) : '';

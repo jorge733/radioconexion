@@ -2,6 +2,7 @@ import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.14
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import { getMessaging, getToken, deleteToken } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js';
 import { firebaseConfig, firebaseMessagingVapidKey } from './firebase-config.js';
+import { montarEditorBoletin } from './boletin-editor.js';
 
 const $ = id => document.getElementById(id);
 const ADMIN_PANELS = ['panel-publicar-aviso', 'panel-boletin', 'panel-importar', 'panel-cabina'];
@@ -103,11 +104,7 @@ if (auth) onAuthStateChanged(auth, async user => {
   if (isAdmin && firebaseUser === user) {
     ADMIN_PANELS.forEach(id => { $(id).hidden = false; });
     cargarSolicitudesCabina();
-    cargarBorrador();
-    if (configured) {
-      actualizarVistaPrevia({ quiet: true });
-      cargarHistorialBoletin();
-    }
+    if (configured) editorBoletin.iniciar();
   }
 });
 
@@ -391,205 +388,11 @@ boletinToggle.addEventListener('change', async () => {
 
 /* ---------- Panel del equipo: redactar y enviar el boletín ---------- */
 
-const MAX_NOTICIAS = 6;
-const itemsBox = $('boletin-items');
-const envioStatus = $('estado-envio-boletin');
-const BORRADOR = 'radioConexionBoletinBorrador';
-
-function crearCampo(labelText, name, { type = 'text', rows = 0, maxLength = 160, placeholder = '' } = {}) {
-  const field = document.createElement('div');
-  field.className = 'field';
-  const id = `${name}-${crypto.randomUUID?.() || Math.random().toString(36).slice(2)}`;
-  const label = document.createElement('label');
-  label.htmlFor = id;
-  label.textContent = labelText;
-  const input = document.createElement(rows ? 'textarea' : 'input');
-  if (rows) input.rows = rows; else input.type = type;
-  input.id = id;
-  input.name = name;
-  input.maxLength = maxLength;
-  input.placeholder = placeholder;
-  if (type === 'url') input.inputMode = 'url';
-  field.append(label, input);
-  return field;
-}
-
-function agregarNoticia(data = {}) {
-  if (itemsBox.children.length >= MAX_NOTICIAS) return;
-  const item = document.createElement('div');
-  item.className = 'news-item';
-  const head = document.createElement('div');
-  head.className = 'news-item__head';
-  const title = document.createElement('strong');
-  const remove = document.createElement('button');
-  remove.type = 'button';
-  remove.className = 'btn btn-ghost btn-sm';
-  remove.textContent = 'Quitar';
-  remove.addEventListener('click', () => { item.remove(); numerarNoticias(); programarVistaPrevia(); });
-  head.append(title, remove);
-  item.append(
-    head,
-    crearCampo('Título', 'title', { maxLength: 160, placeholder: 'Titular de la noticia' }),
-    crearCampo('Resumen', 'summary', { rows: 3, maxLength: 900, placeholder: 'Dos o tres frases que cuenten lo esencial.' }),
-    crearCampo('Enlace a la noticia', 'url', { type: 'url', maxLength: 600, placeholder: 'https://…' }),
-    crearCampo('Imagen (enlace, opcional)', 'image', { type: 'url', maxLength: 600, placeholder: 'https://…/foto.jpg' }),
-    crearCampo('Fuente (opcional)', 'source', { maxLength: 60, placeholder: 'Ej.: BBC Mundo' })
-  );
-  Object.entries(data).forEach(([key, value]) => { const input = item.querySelector(`[name="${key}"]`); if (input) input.value = value || ''; });
-  itemsBox.appendChild(item);
-  numerarNoticias();
-}
-
-function numerarNoticias() {
-  [...itemsBox.children].forEach((item, index) => {
-    item.querySelector('.news-item__head strong').textContent = `Noticia ${index + 1}`;
-    item.querySelector('.news-item__head button').hidden = itemsBox.children.length === 1;
-  });
-  $('btn-agregar-noticia').hidden = itemsBox.children.length >= MAX_NOTICIAS;
-}
-
-function leerBoletin() {
-  return {
-    subject: $('boletin-asunto').value.trim(),
-    preheader: $('boletin-preheader').value.trim(),
-    intro: $('boletin-intro').value.trim(),
-    closing: $('boletin-cierre').value.trim(),
-    items: [...itemsBox.children].map(item => Object.fromEntries(
-      ['title', 'summary', 'url', 'image', 'source'].map(key => [key, item.querySelector(`[name="${key}"]`).value.trim()])
-    ))
-  };
-}
-
-function guardarBorrador() {
-  try { localStorage.setItem(BORRADOR, JSON.stringify(leerBoletin())); } catch (error) {}
-}
-
-function cargarBorrador() {
-  let draft = null;
-  try { draft = JSON.parse(localStorage.getItem(BORRADOR) || 'null'); } catch (error) {}
-  itemsBox.replaceChildren();
-  $('boletin-asunto').value = draft?.subject || '';
-  $('boletin-preheader').value = draft?.preheader || '';
-  $('boletin-intro').value = draft?.intro || '';
-  $('boletin-cierre').value = draft?.closing || '';
-  const items = draft?.items?.length ? draft.items : [{}];
-  items.slice(0, MAX_NOTICIAS).forEach(agregarNoticia);
-}
-
-let vistaTimer = null;
-async function actualizarVistaPrevia({ quiet = false } = {}) {
-  const newsletter = leerBoletin();
-  if (!newsletter.subject || !newsletter.items.some(item => item.title)) {
-    if (!quiet) setStatus(envioStatus, 'Escribe el asunto y al menos el título de una noticia para ver la vista previa.', 'error');
-    return false;
-  }
-  try {
-    const { html } = await llamarApi('/api/newsletter', { action: 'preview', newsletter });
-    $('boletin-preview').srcdoc = html;
-    if (!quiet) setStatus(envioStatus, '');
-    return true;
-  } catch (error) {
-    setStatus(envioStatus, error.message || 'No pudimos generar la vista previa.', 'error');
-    return false;
-  }
-}
-
-function programarVistaPrevia() {
-  guardarBorrador();
-  clearTimeout(vistaTimer);
-  vistaTimer = setTimeout(() => actualizarVistaPrevia({ quiet: true }), 900);
-}
-
-function fechaProgramada() {
-  if (document.querySelector('input[name="boletin-cuando"]:checked').value !== 'programar') return null;
-  const value = $('boletin-fecha').value;
-  if (!value) throw new Error('Elige la fecha y hora del envío.');
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime()) || date.getTime() < Date.now() + 2 * 60 * 1000) throw new Error('Elige una fecha y hora al menos 2 minutos en el futuro.');
-  return date;
-}
-
-$('btn-agregar-noticia').addEventListener('click', () => { agregarNoticia(); programarVistaPrevia(); itemsBox.lastElementChild?.querySelector('input')?.focus(); });
-$('form-boletin').addEventListener('input', programarVistaPrevia);
-$('btn-vista-previa').addEventListener('click', () => actualizarVistaPrevia());
-document.querySelectorAll('input[name="boletin-cuando"]').forEach(radio => radio.addEventListener('change', () => {
-  const programar = document.querySelector('input[name="boletin-cuando"]:checked').value === 'programar';
-  $('boletin-fecha-field').hidden = !programar;
-  $('btn-enviar-boletin').textContent = programar ? 'Programar envío' : 'Enviar a todos';
-}));
-
-$('btn-prueba-boletin').addEventListener('click', async () => {
-  const button = $('btn-prueba-boletin');
-  button.disabled = true;
-  setStatus(envioStatus, 'Enviando prueba…');
-  try {
-    await llamarApi('/api/newsletter', { action: 'test', newsletter: leerBoletin() });
-    setStatus(envioStatus, `Prueba enviada a ${firebaseUser.email}. Revisa tu bandeja de entrada.`, 'ok');
-  } catch (error) {
-    setStatus(envioStatus, error.message || 'No pudimos enviar la prueba.', 'error');
-  } finally {
-    button.disabled = false;
-  }
+// El editor es compartido con el Studio (boletin-editor.js).
+const editorBoletin = montarEditorBoletin($('editor-boletin'), {
+  llamarApi,
+  correo: () => firebaseUser?.email || 'tu correo'
 });
-
-$('form-boletin').addEventListener('submit', async event => {
-  event.preventDefault();
-  const button = $('btn-enviar-boletin');
-  let scheduledAt;
-  try { scheduledAt = fechaProgramada(); } catch (error) { return setStatus(envioStatus, error.message, 'error'); }
-  const newsletter = leerBoletin();
-  if (!(await actualizarVistaPrevia())) return;
-  const when = scheduledAt ? `el ${scheduledAt.toLocaleString('es-CL', { dateStyle: 'long', timeStyle: 'short' })}` : 'ahora mismo';
-  if (!window.confirm(`¿Enviar «${newsletter.subject}» a todas las personas suscritas ${when}? No se puede deshacer.`)) return;
-  button.disabled = true;
-  setStatus(envioStatus, scheduledAt ? 'Programando el envío…' : 'Enviando el boletín…');
-  try {
-    await llamarApi('/api/newsletter', { action: 'send', newsletter, scheduledAt: scheduledAt?.toISOString() || null });
-    setStatus(envioStatus, scheduledAt ? `Boletín programado para ${when.replace(/^el /, '')}.` : 'Boletín enviado. Resend lo está entregando a las personas suscritas.', 'ok');
-    try { localStorage.removeItem(BORRADOR); } catch (error) {}
-    cargarBorrador();
-    $('boletin-preview').srcdoc = '';
-    cargarHistorialBoletin();
-  } catch (error) {
-    setStatus(envioStatus, error.message || 'No pudimos enviar el boletín.', 'error');
-  } finally {
-    button.disabled = false;
-  }
-});
-
-const ESTADOS_ENVIO = { draft: 'Borrador', scheduled: 'Programado', queued: 'En cola', sending: 'Enviándose', sent: 'Enviado', failed: 'Falló', canceled: 'Cancelado' };
-
-async function cargarHistorialBoletin() {
-  const list = $('lista-historial-boletin');
-  try {
-    const { broadcasts = [] } = await llamarApi('/api/newsletter', { action: 'history' });
-    if (!broadcasts.length) {
-      const empty = document.createElement('p');
-      empty.className = 'empty-msg';
-      empty.textContent = 'Aún no se ha enviado ningún boletín.';
-      return list.replaceChildren(empty);
-    }
-    list.replaceChildren(...broadcasts.map(item => {
-      const row = document.createElement('div');
-      row.className = 'admin-row';
-      const name = document.createElement('span');
-      name.textContent = item.name || 'Boletín';
-      const meta = document.createElement('span');
-      meta.className = 'muted small';
-      const date = item.sentAt || item.scheduledAt || item.createdAt;
-      meta.textContent = [ESTADOS_ENVIO[item.status] || item.status, date ? new Date(date).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }) : ''].filter(Boolean).join(' · ');
-      row.append(name, meta);
-      return row;
-    }));
-  } catch (error) {
-    const note = document.createElement('p');
-    note.className = 'empty-msg';
-    note.textContent = error.message || 'No pudimos cargar el historial.';
-    list.replaceChildren(note);
-  }
-}
-
-$('btn-historial-boletin').addEventListener('click', cargarHistorialBoletin);
 
 /* ---------- Panel del equipo: importar suscriptores ---------- */
 

@@ -1,0 +1,537 @@
+/* =========================================================
+   RADIO CONEXIÓN STUDIO · MODO OSCURO
+   Generado a partir de los estilos del Studio: cada color claro
+   fijo se reemplaza por las variables oscuras de tema.css.
+========================================================= */
+
+html.dark body::before {
+  background-image: none !important;
+}
+
+html.dark .topbar {
+  background: var(--rc-card) !important;
+  border: 1px solid
+    var(--rc-border-strong) !important;
+}
+
+html.dark .field input {
+  background: var(--rc-card) !important;
+}
+
+html.dark .field input:focus {
+  background: var(--rc-card) !important;
+}
+
+html.dark .start-button {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .dark-button {
+  background: var(--rc-card) !important;
+}
+
+html.dark .dark-button:hover:not(:disabled) {
+  background: var(--rc-card) !important;
+}
+
+html.dark .pauta-item.completed {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .recording-status {
+  background: var(--rc-card) !important;
+}
+
+html.dark .recording-status.active {
+  background: var(--rc-card) !important;
+}
+
+html.dark .mark-button {
+  background: var(--rc-card) !important;
+}
+
+html.dark .next-button {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .mark-entry {
+  background: var(--rc-card) !important;
+}
+
+html.dark .danger-outline-button {
+  border: 1px solid
+    var(--rc-border-strong) !important;
+}
+
+html.dark .modal-card {
+  background: var(--rc-card) !important;
+  border: 1px solid
+    var(--rc-border-strong) !important;
+}
+
+html.dark .modal-card textarea {
+  background: var(--rc-card) !important;
+}
+
+html.dark .modal-card textarea:focus {
+  background: var(--rc-card) !important;
+}
+
+html.dark .soundpad-now-playing {
+  background: var(--rc-card) !important;
+}
+
+html.dark .sound-button {
+  background: var(--rc-card) !important;
+}
+
+html.dark .sound-button:hover {
+  background: var(--rc-card) !important;
+}
+
+html.dark .sound-form-field input,
+html.dark .sound-form-field select {
+  background: var(--rc-card) !important;
+}
+
+html.dark .sound-form-field input:focus,
+html.dark .sound-form-field select:focus {
+  background: var(--rc-card) !important;
+}
+
+html.dark .cabina-heading h1 {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .cabina-heading p {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .cabina-summary-card {
+  border: 1px solid var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .cabina-summary-card span {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .cabina-summary-card strong {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .cabina-summary-card.discarded strong {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .cabina-toolbar {
+  border-top: 1px solid var(--rc-border-strong) !important;
+  border-bottom: 1px solid var(--rc-border-strong) !important;
+}
+
+html.dark .cabina-filter-button {
+  border: 1px solid var(--rc-border-strong) !important;
+  color: var(--rc-muted) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .cabina-status-message {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .cabina-request-card {
+  border: 1px solid var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .cabina-request-type strong {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .cabina-status-descartada {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .cabina-request-meta {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .cabina-request-content {
+  border: 1px solid var(--rc-border-strong) !important;
+  color: var(--rc-ink) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .cabina-request-controls label > span {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .cabina-status-select {
+  border: 1px solid var(--rc-border-strong) !important;
+  color: var(--rc-ink) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .cabina-empty {
+  border: 1px dashed
+    var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .cabina-empty strong {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .cabina-empty p {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .cabina-loading {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .publicar-page-heading h1 {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .publicar-page-heading p {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .publicar-card-heading h2 {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .publicar-card-heading p {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .publicar-field label,
+html.dark .publicar-field-top label {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .publicar-field input,
+html.dark .publicar-field select,
+html.dark .publicar-field textarea {
+  border: 1px solid var(--rc-border-strong) !important;
+  color: var(--rc-ink) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .publicar-status {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .publicar-notice-preview {
+  border: 1px solid var(--rc-border-strong) !important;
+  color: var(--rc-muted) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .publicar-notice-preview strong {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .publicar-blog-item {
+  border: 1px solid var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .publicar-blog-item-info a {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .publicar-blog-item-info small {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .publicar-empty {
+  border: 1px dashed
+    var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .publicar-empty strong {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .publicar-empty p {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .publicar-loading {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .publicar-newsletter-card .nb-group legend,
+html.dark .publicar-label {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .publicar-muted {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .publicar-history-row {
+  border: 1px solid var(--rc-border, var(--rc-border-strong)) !important;
+}
+
+html.dark .episodes-heading h1 {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .episodes-heading p {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .episodes-summary-card {
+  border: 1px solid var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .episodes-summary-card span {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .episodes-summary-card strong {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .episodes-summary-card.draft strong {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .episodes-search input {
+  border: 1px solid var(--rc-border-strong) !important;
+  color: var(--rc-ink) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .episodes-search-icon {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .episodes-count {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .episode-history-card {
+  border: 1px solid var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .episode-history-title {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .episode-history-status.draft {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .episode-history-meta {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .episodes-empty {
+  border: 1px dashed
+    var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .episodes-empty strong {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .episodes-empty p {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .episodes-status {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .episodes-local-notice {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .audio-engine-status {
+  border: 1px solid var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .audio-channel {
+  background: var(--rc-card) !important;
+}
+
+html.dark .audio-meter {
+  border: 1px solid var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .audio-device-select {
+  background: var(--rc-card) !important;
+}
+
+html.dark .audio-activate-button {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .audio-mute-button {
+  background: var(--rc-card) !important;
+}
+
+html.dark .music-playlist-area {
+  border: 1px solid var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark #musicPreviousBtn,
+html.dark #musicNextBtn,
+html.dark #musicClearBtn {
+  background: var(--rc-card) !important;
+}
+
+html.dark .music-playlist-empty {
+  border: 1px dashed var(--rc-border-strong) !important;
+  color: var(--rc-muted) !important;
+}
+
+html.dark .music-playlist-item {
+  border: 1px solid var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .music-playlist-item:hover {
+  background: var(--rc-card) !important;
+}
+
+html.dark .music-playlist-duration {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .rc-modal__dialog {
+  background: var(--rc-card) !important;
+  border: 1px solid var(--rc-border-strong) !important;
+}
+
+html.dark .rc-modal__close {
+  color: var(--rc-muted) !important;
+  background: var(--rc-card) !important;
+  border: 1px solid var(--rc-border-strong) !important;
+}
+
+html.dark .rc-modal__close:hover {
+  color: var(--rc-ink) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .rc-modal__brand-copy {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .rc-modal__title {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .rc-modal__message {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .rc-modal__label {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .rc-modal__input {
+  color: var(--rc-ink) !important;
+  background: var(--rc-card) !important;
+  border: 1px solid var(--rc-border-strong) !important;
+}
+
+html.dark .rc-modal__input:focus {
+  background: var(--rc-card) !important;
+}
+
+html.dark .rc-modal__button--secondary {
+  color: var(--rc-ink) !important;
+  background: var(--rc-card) !important;
+  border: 1px solid var(--rc-border-strong) !important;
+}
+
+html.dark .rc-modal__button--secondary:hover {
+  background: var(--rc-card) !important;
+  border-color: var(--rc-border-strong) !important;
+}
+
+html.dark .rc-toast {
+  background: var(--rc-card) !important;
+  border: 1px solid var(--rc-border-strong) !important;
+}
+
+html.dark .rc-toast__title {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .rc-toast__message {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .rc-toast__close:hover {
+  color: var(--rc-ink) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .studio-auth-card {
+  border: 1px solid var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .studio-auth-card h1 {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .studio-auth-subtitle {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .studio-google-button {
+  border: 1px solid var(--rc-border-strong) !important;
+  color: var(--rc-ink) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .studio-auth-security {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .studio-auth-loading p {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .studio-navigation {
+  border: 1px solid var(--rc-border-strong) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .studio-nav-button {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .studio-user-email {
+  color: var(--rc-muted) !important;
+}
+
+html.dark .studio-logout-button {
+  border: 1px solid var(--rc-border-strong) !important;
+  color: var(--rc-muted) !important;
+  background: var(--rc-card) !important;
+}
+
+html.dark .studio-coming-card h2 {
+  color: var(--rc-ink) !important;
+}
+
+html.dark .studio-coming-card p {
+  color: var(--rc-muted) !important;
+}
+

@@ -343,17 +343,17 @@ function buildEpisodeFromSession(
 
     title:
       normalizeText(
-        session.title
+        session.title ?? session.episodeTitle
       ),
 
     date:
       normalizeText(
-        session.date
+        session.date ?? session.episodeDate
       ),
 
     notes:
       String(
-        session.notes ?? ""
+        session.notes ?? session.episodeNotes ?? ""
       ),
 
     elapsedSeconds:
@@ -527,10 +527,10 @@ function archiveCurrentSession() {
         session.episodeNumber
       ) ||
       normalizeText(
-        session.title
+        session.title ?? session.episodeTitle
       ) ||
       normalizeText(
-        session.notes
+        session.notes ?? session.episodeNotes
       ) ||
       normalizeNumber(
         session.elapsedSeconds
@@ -589,6 +589,39 @@ function archiveCurrentSession() {
 
   const saved =
     saveEpisodes();
+
+
+  /*
+    La sesión activa recuerda a qué episodio pertenece,
+    así el próximo guardado actualiza el mismo y no otro
+    con igual número.
+  */
+
+  if (saved) {
+
+    try {
+
+      const raw =
+        localStorage.getItem(CURRENT_SESSION_KEY);
+
+      const active =
+        raw ? JSON.parse(raw) : null;
+
+      if (active && active.episodeId !== episode.id) {
+
+        active.episodeId = episode.id;
+
+        localStorage.setItem(
+          CURRENT_SESSION_KEY,
+          JSON.stringify(active)
+        );
+      }
+
+    }
+    catch {
+      /* Sin acceso al almacenamiento: se usa el número como respaldo. */
+    }
+  }
 
 
   return {
@@ -867,6 +900,16 @@ function episodeToStudioSession(
       episode.date || "",
 
     notes:
+      episode.notes || "",
+
+    /* Nombres que usa studio.js al cargar la sesión */
+    episodeTitle:
+      episode.title || "",
+
+    episodeDate:
+      episode.date || "",
+
+    episodeNotes:
       episode.notes || "",
 
     elapsedSeconds:
