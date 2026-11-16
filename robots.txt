@@ -1,5 +1,0 @@
-User-agent: *
-Disallow: /studio/
-Disallow: /api/
-
-Sitemap: https://www.radioconexionweb.com/sitemap.xml
