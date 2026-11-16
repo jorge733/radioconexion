@@ -7,6 +7,7 @@ Sitio web de Radio Conexión, que se está rehaciendo como comunidad.
 - `inicio.html`: portada provisional mientras se construye la comunidad.
 - `historia.html`: historia de la radio, carta del fundador y museo de logos.
 - `tiempo.html` + `weather.js` + `api/weather.js`: pronóstico desde la Dirección Meteorológica de Chile (DMC).
+- `condiciones.html`: condiciones de uso y política de privacidad (reemplaza al antiguo Google Doc).
 - `site.css`, `site.js`, `assets/`: marca, tipografías y estilos compartidos.
 
 ## Configuración
