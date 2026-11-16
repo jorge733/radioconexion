@@ -573,3 +573,7 @@ h1, h2, h3, .display, .feature-card h3, .empty-state h3, .about-card__head stron
 .display { letter-spacing: .01em; line-height: 1.04; }
 h1 em, h2 em, h3 em, .display em { font-style: normal; font-weight: 400; }
 .site-footer h2 { font: 600 .75rem/1.4 var(--font-body); letter-spacing: .14em; }
+
+/* Aviso de mantención */
+.maintenance-bar { background: var(--accent-soft); color: var(--ink); border-bottom: 1px solid var(--line); font-size: 0.9rem; line-height: 1.45; padding-block: 10px; text-align: center; }
+.maintenance-bar strong { color: var(--accent-ink); }
