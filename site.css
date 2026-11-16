@@ -279,6 +279,14 @@ html.dark .theme-icon-moon { display: none; }
 .on-air__wave span:nth-child(3n) { animation-delay: -1.1s; }
 @keyframes wave { 0%, 100% { height: 25%; } 50% { height: 100%; } }
 
+/* Reproductor en vivo: las ondas solo se mueven mientras suena */
+.live-player .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.live-player:not([data-state="playing"]) .on-air__wave span { animation-play-state: paused; opacity: .45; }
+.live-player:not([data-state="playing"]) .on-air__live::before { animation: none; background: var(--on-night-2); box-shadow: none; }
+.live-player[data-state="error"] [data-live-status] { color: var(--accent); }
+.live-volume { display: inline-flex; align-items: center; flex: 1 1 160px; max-width: 240px; }
+.live-volume input { width: 100%; accent-color: var(--accent); }
+
 .about-card { display: grid; gap: 18px; justify-items: start; }
 .about-card__head { display: flex; align-items: center; gap: 16px; }
 .about-card__head img { width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--line); background: #fff; }
