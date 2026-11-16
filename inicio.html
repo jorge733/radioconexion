@@ -38,6 +38,7 @@
     <link rel="stylesheet" href="site.css">
     <script src="site.js" defer></script>
     <script src="weather.js" defer></script>
+    <script src="home.js" defer></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -164,6 +165,10 @@
                         <a class="btn btn-primary" href="comunidad.html">Solicitar mi ingreso</a>
                         <a class="btn btn-ghost" href="historia.html">Conoce nuestra historia</a>
                     </div>
+                    <dl class="community-stats" id="community-stats" hidden>
+                        <div><dt>miembros</dt><dd data-members>0</dd></div>
+                        <div><dt data-episodes-label>episodios</dt><dd data-episodes>0</dd></div>
+                    </dl>
                 </div>
                 <aside class="card on-air newsletter-sample" aria-labelledby="pasos-title">
                     <p class="eyebrow on-air__live">Así de simple</p>

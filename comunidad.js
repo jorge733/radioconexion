@@ -7,7 +7,7 @@ import {
 
 const $ = selector => document.querySelector(selector);
 const views = ['loading', 'out', 'join', 'pending', 'rejected', 'app'];
-const state = { user: null, member: null, episodes: [], members: [], comments: {}, requests: [] };
+const state = { user: null, member: null, episodes: [], members: [], comments: {}, requests: [], reported: new Set() };
 
 function show(name) {
   views.forEach(view => { const el = $(`#view-${view}`); if (el) el.hidden = view !== name; });
@@ -313,6 +313,11 @@ function renderComments(episodeId) {
                 return `<button type="button" class="reaction" data-react="${field}" data-comment="${escapeHtml(comment.id)}" data-episode="${escapeHtml(episodeId)}" aria-pressed="${mine}" aria-label="${label}${list.length ? `: ${list.length}` : ''}">${emoji}${list.length ? ` <span>${list.length}</span>` : ''}</button>`;
               }).join('')}
               ${canDelete(comment) ? `<button type="button" class="link-btn small" data-delete-comment="${escapeHtml(comment.id)}" data-episode="${escapeHtml(episodeId)}">Borrar</button>` : ''}
+              ${comment.uid !== state.user.uid
+                ? (state.reported.has(comment.id)
+                  ? '<span class="muted small">Reportado. Gracias, lo revisaremos.</span>'
+                  : `<button type="button" class="link-btn small link-btn--quiet" data-report="${escapeHtml(comment.id)}" data-episode="${escapeHtml(episodeId)}">Reportar</button>`)
+                : ''}
             </div>
           </div>
         </li>`).join('') : '<li class="muted small">Aún no hay comentarios. ¡Sé la primera persona en comentar!</li>'}
@@ -360,6 +365,21 @@ async function submitComment(form) {
     setMessage(message, friendlyError(error));
     form.querySelector('button').disabled = false;
   }
+}
+
+async function reportComment(button) {
+  if (!confirm('¿Reportar este comentario? La administración lo revisará. Quien lo escribió no sabrá que fuiste tú.')) return;
+  const { report: id, episode: episodeId } = button.dataset;
+  button.disabled = true;
+  try {
+    await setDoc(doc(db, 'reports', `${id}_${state.user.uid}`), { reporterUid: state.user.uid, episodeId, commentId: id, createdAt: serverTimestamp() });
+    state.reported.add(id);
+  } catch (error) {
+    // Si ya existía un reporte tuyo, las reglas no permiten repetirlo.
+    if (String(error?.code).includes('permission-denied')) state.reported.add(id);
+    else { console.error(error); alert(friendlyError(error)); button.disabled = false; return; }
+  }
+  renderComments(episodeId);
 }
 
 async function deleteComment(button) {
@@ -486,6 +506,8 @@ $('#episode-list').addEventListener('click', event => {
   if (removeComment) return deleteComment(removeComment);
   const reaction = event.target.closest('[data-react]');
   if (reaction) return toggleReaction(reaction);
+  const report = event.target.closest('[data-report]');
+  if (report) return reportComment(report);
 });
 $('#episode-list').addEventListener('submit', event => {
   const form = event.target.closest('[data-comment-form]');

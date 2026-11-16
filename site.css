@@ -683,3 +683,30 @@ h1 em, h2 em, h3 em, .display em { font-style: normal; font-weight: 400; }
 .search input { width: 100%; padding-left: 42px; }
 @media (max-width: 640px) { .search { flex-basis: 100%; } }
 .check-row { display: flex; align-items: center; gap: 10px; margin: 4px 0 18px; font-size: .95rem; cursor: pointer; }
+.link-btn--quiet { color: var(--ink-2); font-weight: 500; }
+
+/* Panel: reportes y estadísticas */
+:root { --chart-bar: #c77f0d; --chart-track: #f0e9da; }
+html.dark { --chart-track: #262b26; }
+.admin-block--alert h2 .count-badge { background: var(--danger); color: #fff; }
+.stat-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat-tile { display: grid; gap: 4px; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+.stat-tile__value { font: 600 2rem/1 var(--font-display); color: var(--ink); }
+.stat-tile__label { font-size: .85rem; color: var(--ink-2); }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.stat-card h3 { margin: 0; font-size: 1.05rem; }
+.stat-card > p { margin: 4px 0 16px; }
+.bar-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: minmax(0, 1fr) 32px; grid-template-areas: "label value" "track track"; gap: 4px 10px; align-items: center; }
+.bar-row__label { grid-area: label; font-size: .88rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-row__value { grid-area: value; font: 600 .88rem var(--font-body); color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+.bar-row__track { grid-area: track; height: 10px; border-radius: 0 4px 4px 0; background: var(--chart-track); overflow: hidden; }
+.bar-row__bar { display: block; height: 100%; background: var(--chart-bar); border-radius: 0 4px 4px 0; }
+.bar-row:hover .bar-row__label { color: var(--accent-ink); }
+
+/* Contador de la portada */
+.community-stats { display: flex; flex-wrap: wrap; gap: 12px 36px; margin: 32px 0 0; }
+.community-stats[hidden] { display: none; }
+.community-stats > div { display: flex; flex-direction: column-reverse; }
+.community-stats dd { margin: 0; font: 600 clamp(2rem, 4vw, 2.6rem)/1 var(--font-title); color: var(--accent-ink); font-variant-numeric: tabular-nums; }
+.community-stats dt { margin-top: 4px; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }

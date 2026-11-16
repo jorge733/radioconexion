@@ -133,6 +133,30 @@ service cloud.firestore {
         || (isApproved() && resource.data.uid == request.auth.uid && resource.data.status == 'nuevo');
     }
 
+    // Reportes de comentarios: un reporte por persona y comentario ("<comentario>_<uid>").
+    // Solo la administración los lee y los resuelve.
+    match /reports/{reportId} {
+      allow read, delete: if isAdmin();
+      allow create: if isApproved()
+        && reportId == request.resource.data.commentId + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['reporterUid', 'episodeId', 'commentId', 'createdAt'])
+        && request.resource.data.reporterUid == request.auth.uid
+        && request.resource.data.episodeId is string && request.resource.data.commentId is string
+        && exists(/databases/$(database)/documents/episodes/$(request.resource.data.episodeId)/comments/$(request.resource.data.commentId))
+        && get(/databases/$(database)/documents/episodes/$(request.resource.data.episodeId)/comments/$(request.resource.data.commentId)).data.uid != request.auth.uid
+        && request.resource.data.createdAt == request.time;
+    }
+
+    // Cifras públicas para la portada (cantidad de miembros y episodios).
+    // Las actualiza el panel de administración.
+    match /public/stats {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.data.keys().hasOnly(['members', 'episodes', 'updatedAt'])
+        && request.resource.data.members is int && request.resource.data.members >= 0
+        && request.resource.data.episodes is int && request.resource.data.episodes >= 0;
+    }
+
     // Todo lo demás queda cerrado.
     match /{document=**} {
       allow read, write: if false;

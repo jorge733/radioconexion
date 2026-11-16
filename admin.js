@@ -1,10 +1,10 @@
 import {
   auth, db, watchUser, signIn, logOut, isAdminUser, driveIdFrom, escapeHtml, formatDate, avatarHtml, friendlyError,
-  doc, getDoc, getDocs, collection, query, orderBy, updateDoc, deleteDoc, addDoc, serverTimestamp, writeBatch
+  doc, getDoc, getDocs, collection, query, orderBy, updateDoc, deleteDoc, addDoc, serverTimestamp, writeBatch, setDoc, getCountFromServer
 } from './community-core.js';
 
 const $ = selector => document.querySelector(selector);
-const state = { members: [], episodes: [], requests: [] };
+const state = { members: [], episodes: [], requests: [], reports: [], commentCounts: {} };
 
 function show(name) {
   ['loading', 'out', 'denied', 'app'].forEach(view => { $(`#view-${view}`).hidden = view !== name; });
@@ -79,6 +79,9 @@ async function loadAll() {
   renderMembers();
   renderEpisodes();
   renderRequests();
+  syncPublicStats();
+  loadReports();
+  loadStats();
 }
 
 async function setStatus(id, status, button) {
@@ -90,6 +93,8 @@ async function setStatus(id, status, button) {
     await updateDoc(doc(db, 'members', id), { status, reviewedAt: serverTimestamp() });
     member.status = status;
     renderMembers();
+    syncPublicStats();
+    loadStats();
     // Correo de bienvenida. Si falla, la aprobación ya quedó hecha.
     if (status === 'approved') {
       auth.currentUser.getIdToken().then(token => fetch('/api/aprobado', {
@@ -112,6 +117,7 @@ async function deleteMember(id, button) {
     await deleteDoc(doc(db, 'members', id));
     state.members = state.members.filter(item => item.id !== id);
     renderMembers();
+    syncPublicStats();
   } catch (error) {
     console.error(error);
     alert(friendlyError(error));
@@ -136,6 +142,8 @@ async function handleEpisode(event) {
     state.episodes.push({ id: ref.id, ...episode });
     state.episodes.sort((a, b) => b.date.localeCompare(a.date));
     renderEpisodes();
+    syncPublicStats();
+    loadStats();
     form.reset();
     form.date.value = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Santiago' });
     form.notify.checked = true;
@@ -169,6 +177,8 @@ async function deleteEpisode(id, button) {
     await deleteDoc(doc(db, 'episodes', id));
     state.episodes = state.episodes.filter(item => item.id !== id);
     renderEpisodes();
+    syncPublicStats();
+    loadStats();
   } catch (error) {
     console.error(error);
     alert(friendlyError(error));
@@ -182,6 +192,134 @@ document.querySelectorAll('[data-signin]').forEach(button => button.addEventList
 document.querySelectorAll('[data-signout]').forEach(button => button.addEventListener('click', () => logOut()));
 $('#episode-form').addEventListener('submit', handleEpisode);
 $('#episode-form').date.value = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Santiago' });
+
+
+// ---------- Cifras públicas para la portada ----------
+async function syncPublicStats() {
+  const members = state.members.filter(item => item.status === 'approved').length;
+  try {
+    await setDoc(doc(db, 'public', 'stats'), { members, episodes: state.episodes.length, updatedAt: serverTimestamp() });
+  } catch (error) {
+    console.warn('No se pudieron actualizar las cifras públicas:', error);
+  }
+}
+
+// ---------- Comentarios reportados ----------
+async function loadReports() {
+  try {
+    const snapshot = await getDocs(collection(db, 'reports'));
+    const groups = new Map();
+    snapshot.docs.forEach(item => {
+      const data = item.data();
+      const group = groups.get(data.commentId) || { commentId: data.commentId, episodeId: data.episodeId, reportIds: [], last: 0 };
+      group.reportIds.push(item.id);
+      group.last = Math.max(group.last, data.createdAt?.seconds || 0);
+      groups.set(data.commentId, group);
+    });
+    state.reports = await Promise.all([...groups.values()].map(async group => {
+      const comment = await getDoc(doc(db, 'episodes', group.episodeId, 'comments', group.commentId)).catch(() => null);
+      return { ...group, comment: comment?.exists() ? comment.data() : null };
+    }));
+    state.reports.sort((a, b) => b.reportIds.length - a.reportIds.length || b.last - a.last);
+    renderReports();
+  } catch (error) {
+    console.error(error);
+    $('#report-list').innerHTML = `<li class="alert">${escapeHtml(friendlyError(error))}</li>`;
+  }
+}
+
+function renderReports() {
+  $('#report-count').textContent = state.reports.length;
+  $('#reports-block').classList.toggle('admin-block--alert', state.reports.length > 0);
+  $('#report-list').innerHTML = state.reports.length ? state.reports.map(group => {
+    const episode = state.episodes.find(item => item.id === group.episodeId);
+    const times = group.reportIds.length === 1 ? '1 reporte' : `${group.reportIds.length} reportes`;
+    return `
+      <li class="admin-row">
+        <div class="admin-row__info">
+          <span class="muted small">${escapeHtml(times)} · en "${escapeHtml(episode?.title || 'episodio eliminado')}"</span>
+          ${group.comment
+            ? `<span><strong>${escapeHtml(group.comment.name)}:</strong> ${escapeHtml(group.comment.text)}</span>`
+            : '<span class="muted">El comentario ya fue borrado.</span>'}
+        </div>
+        <div class="admin-row__actions">
+          ${group.comment ? `<button type="button" class="btn btn-primary btn-sm" data-report-delete="${escapeHtml(group.commentId)}">Borrar comentario</button>` : ''}
+          <button type="button" class="btn btn-ghost btn-sm" data-report-keep="${escapeHtml(group.commentId)}">${group.comment ? 'Mantener' : 'Descartar'}</button>
+        </div>
+      </li>`;
+  }).join('') : '<li class="muted">No hay comentarios reportados.</li>';
+}
+
+async function resolveReport(commentId, removeComment, button) {
+  const group = state.reports.find(item => item.commentId === commentId);
+  if (!group) return;
+  if (removeComment && !confirm('¿Borrar este comentario para todos?')) return;
+  button.disabled = true;
+  try {
+    const batch = writeBatch(db);
+    if (removeComment) batch.delete(doc(db, 'episodes', group.episodeId, 'comments', commentId));
+    group.reportIds.forEach(id => batch.delete(doc(db, 'reports', id)));
+    await batch.commit();
+    state.reports = state.reports.filter(item => item.commentId !== commentId);
+    renderReports();
+    if (removeComment) loadStats();
+  } catch (error) {
+    console.error(error);
+    alert(friendlyError(error));
+    button.disabled = false;
+  }
+}
+
+// ---------- Estadísticas ----------
+// Una sola serie por gráfico: el título dice qué se mide y cada barra lleva su número.
+function barList(rows, emptyText) {
+  const max = Math.max(1, ...rows.map(row => row.value));
+  if (!rows.length || rows.every(row => row.value === 0)) return `<p class="muted small">${escapeHtml(emptyText)}</p>`;
+  return `<ol class="bar-list">${rows.map(row => `
+    <li class="bar-row" title="${escapeHtml(`${row.label}: ${row.value}`)}">
+      <span class="bar-row__label">${escapeHtml(row.label)}</span>
+      <span class="bar-row__track"><span class="bar-row__bar" style="width:${Math.max(row.value ? 2 : 0, (row.value / max) * 100)}%"></span></span>
+      <span class="bar-row__value">${row.value}</span>
+    </li>`).join('')}</ol>`;
+}
+
+async function loadStats() {
+  const approved = state.members.filter(item => item.status === 'approved');
+  // Comentarios por episodio (conteo en el servidor, sin descargar los comentarios).
+  const counts = await Promise.all(state.episodes.map(async episode => {
+    try { return [episode.id, (await getCountFromServer(collection(db, 'episodes', episode.id, 'comments'))).data().count]; }
+    catch (error) { console.warn(error); return [episode.id, 0]; }
+  }));
+  state.commentCounts = Object.fromEntries(counts);
+  const totalComments = counts.reduce((sum, [, count]) => sum + count, 0);
+
+  const favorites = state.episodes.map(episode => ({
+    label: episode.title, value: approved.filter(member => (member.favorites || []).includes(episode.id)).length
+  })).sort((a, b) => b.value - a.value).slice(0, 5);
+  const commented = state.episodes.map(episode => ({ label: episode.title, value: state.commentCounts[episode.id] || 0 }))
+    .sort((a, b) => b.value - a.value).slice(0, 5);
+
+  // Miembros nuevos por mes (últimos 6 meses, según la fecha de su solicitud).
+  const months = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i -= 1) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ key: `${date.getFullYear()}-${date.getMonth()}`, label: date.toLocaleDateString('es-CL', { month: 'short', year: 'numeric' }), value: 0 });
+  }
+  approved.forEach(member => {
+    const date = member.createdAt?.toDate?.();
+    const month = date && months.find(item => item.key === `${date.getFullYear()}-${date.getMonth()}`);
+    if (month) month.value += 1;
+  });
+
+  const waiting = state.requests.filter(item => item.status === 'nuevo').length;
+  $('#stat-tiles').innerHTML = [
+    ['Miembros', approved.length], ['Episodios', state.episodes.length], ['Comentarios', totalComments], ['Pedidos en espera', waiting]
+  ].map(([label, value]) => `<div class="stat-tile"><span class="stat-tile__value">${value}</span><span class="stat-tile__label">${label}</span></div>`).join('');
+  $('#stat-favorites').innerHTML = barList(favorites, 'Aún nadie marca episodios favoritos.');
+  $('#stat-comments').innerHTML = barList(commented, 'Aún no hay comentarios.');
+  $('#stat-months').innerHTML = barList(months, 'Aún no hay miembros aprobados en los últimos 6 meses.');
+}
 
 // ---------- Pedidos de canciones y saludos ----------
 const REQUEST_TYPE = { cancion: '🎵 Canción', saludo: '💌 Saludo' };
@@ -224,6 +362,7 @@ async function markRequestDone(id, button) {
     await batch.commit();
     Object.assign(item, { id: done.id, status: 'hecho' });
     renderRequests();
+    loadStats();
   } catch (error) {
     console.error(error);
     alert(friendlyError(error));
@@ -246,6 +385,10 @@ async function deleteRequest(id, button) {
 }
 
 document.addEventListener('click', event => {
+  const reportDelete = event.target.closest('[data-report-delete]');
+  if (reportDelete) return resolveReport(reportDelete.dataset.reportDelete, true, reportDelete);
+  const reportKeep = event.target.closest('[data-report-keep]');
+  if (reportKeep) return resolveReport(reportKeep.dataset.reportKeep, false, reportKeep);
   const done = event.target.closest('[data-request-done]');
   if (done) return markRequestDone(done.dataset.requestDone, done);
   const removeRequest = event.target.closest('[data-delete-request]');

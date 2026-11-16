@@ -105,9 +105,36 @@
                 <div id="view-app" tabindex="-1" class="view" hidden>
                     <p class="alert" id="admin-message" role="alert"></p>
 
+                    <section class="admin-block" id="reports-block" aria-labelledby="reports-title">
+                        <h2 id="reports-title">Comentarios reportados <span class="count-badge" id="report-count">0</span></h2>
+                        <ul class="admin-list" id="report-list"><li class="muted">Cargando…</li></ul>
+                    </section>
+
                     <section class="admin-block" aria-labelledby="pending-title">
                         <h2 id="pending-title">Solicitudes pendientes <span class="count-badge" id="pending-count">0</span></h2>
                         <ul class="admin-list" id="pending-list"></ul>
+                    </section>
+
+                    <section class="admin-block" aria-labelledby="stats-title">
+                        <h2 id="stats-title">Estadísticas</h2>
+                        <div class="stat-tiles" id="stat-tiles"></div>
+                        <div class="stat-grid">
+                            <div class="card stat-card">
+                                <h3>Episodios más favoritos</h3>
+                                <p class="muted small">Miembros que lo marcaron con ★</p>
+                                <div id="stat-favorites"><p class="muted small">Cargando…</p></div>
+                            </div>
+                            <div class="card stat-card">
+                                <h3>Episodios más comentados</h3>
+                                <p class="muted small">Cantidad de comentarios</p>
+                                <div id="stat-comments"><p class="muted small">Cargando…</p></div>
+                            </div>
+                            <div class="card stat-card">
+                                <h3>Miembros nuevos por mes</h3>
+                                <p class="muted small">Miembros aprobados, según el mes en que lo solicitaron</p>
+                                <div id="stat-months"><p class="muted small">Cargando…</p></div>
+                            </div>
+                        </div>
                     </section>
 
                     <section class="admin-block" aria-labelledby="requests-title">

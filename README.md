@@ -12,7 +12,7 @@ Sitio web de Radio Conexión: una comunidad privada de oyentes, más las página
 | `historia.html` | Historia de la radio, carta del fundador y museo de logos. |
 | `tiempo.html` + `weather.js` | Pronóstico de la Dirección Meteorológica de Chile. |
 
-Código compartido: `community-core.js` (Firebase), `firebase-config.js`, `site.css`, `site.js`.
+Código compartido: `community-core.js` (Firebase), `firebase-config.js`, `site.css`, `site.js`. La portada usa `home.js` para el contador.
 
 ## Cómo funciona la comunidad
 
@@ -25,6 +25,9 @@ Código compartido: `community-core.js` (Firebase), `firebase-config.js`, `site.
 6. En el panel se revisan los pedidos y se marcan como "leído al aire"; el miembro lo ve en su pestaña Pedidos.
 7. Al publicar un episodio, se puede avisar por correo a los miembros (`api/nuevo-episodio.js`). Cada miembro puede
    desactivar estos avisos en Mi perfil.
+8. Los miembros pueden **reportar** comentarios ajenos; en el panel se borran o se mantienen.
+9. El panel muestra **estadísticas** (favoritos, comentarios, miembros nuevos por mes) y actualiza `public/stats`,
+   que la portada lee para mostrar el contador (solo aparece desde 5 miembros).
 
 Los episodios son audios de Google Drive: en el panel se pega el enlace de "Compartir". El archivo debe estar
 compartido como **"Cualquier persona con el enlace"** para que se pueda reproducir.
@@ -38,6 +41,8 @@ compartido como **"Cualquier persona con el enlace"** para que se pueda reproduc
 - `requests/{id}`: `uid`, `name`, `type` (`cancion` | `saludo`), `text`, `to`, `status` (`nuevo` | `hecho`), `createdAt`.
   Los pedidos en espera usan las casillas `<uid>_1`, `<uid>_2` y `<uid>_3` (así las reglas limitan a 3); al leerse al
   aire, el panel los mueve a un documento nuevo con estado `hecho` y la casilla queda libre.
+- `reports/{comentario}_{uid}`: `reporterUid`, `episodeId`, `commentId`, `createdAt` (un reporte por persona).
+- `public/stats`: `members`, `episodes` (lectura pública; lo escribe el panel).
 
 Los permisos están en `firestore.rules`. **Hay que publicarlos** cada vez que cambien:
 
