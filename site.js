@@ -107,7 +107,9 @@
   // Los botones de presintonía son enlaces normales (accesibles con teclado); el dial es un extra.
   const navLinks = [...document.querySelectorAll('#nav-menu a')];
   const main = document.getElementById('contenido');
-  if (main && navLinks.length) {
+  // Inicio y Comunidad ya tienen su propio sintonizador: ahí no se agrega otro.
+  const hasTuner = document.querySelector('[data-tuner], [data-tab-tuner]');
+  if (main && navLinks.length && !hasTuner) {
     const FREQS = [89.5, 94.3, 99.1, 104.3, 106.9];
     const stations = navLinks.slice(0, FREQS.length).map((link, i) => ({
       href: link.getAttribute('href'), label: link.textContent.trim(), freq: FREQS[i],
