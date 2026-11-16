@@ -13,11 +13,15 @@ module.exports = async (request, response) => {
     const uid = String(body.uid || '');
     if (!/^[A-Za-z0-9_-]{1,128}$/.test(uid)) return response.status(400).json({ error: 'Miembro no válido.' });
 
+    // "resend": la administración pide reenviar la bienvenida a propósito desde el panel.
+    const resend = body.resend === true;
     const member = await readDoc(`members/${uid}`, idToken);
-    // Solo para aprobaciones recién hechas, para no repetir la bienvenida.
-    if (!member || member.status !== 'approved' || !isRecent(member.reviewedAt)) return response.status(200).json({ sent: false });
+    if (!member) return response.status(200).json({ sent: false, reason: 'No se pudo leer el miembro.' });
+    if (member.status !== 'approved') return response.status(200).json({ sent: false, reason: 'El miembro no está aprobado.' });
+    // Automáticamente, solo para aprobaciones recién hechas, para no repetir la bienvenida.
+    if (!resend && !isRecent(member.reviewedAt)) return response.status(200).json({ sent: false, reason: 'La aprobación no es reciente.' });
     const contact = await readDoc(`members/${uid}/private/contact`, idToken);
-    if (!contact?.email) return response.status(200).json({ sent: false });
+    if (!contact?.email) return response.status(200).json({ sent: false, reason: 'No encontramos el correo del miembro.' });
 
     const firstName = escapeHtml(String(member.name || '').split(' ')[0] || 'hola');
     const sent = await sendEmail({
@@ -31,9 +35,11 @@ module.exports = async (request, response) => {
         <p style="font-size:14px;color:#545b53">Entra con la misma cuenta de Google con que te registraste.</p>`),
       text: `¡Ya estás dentro! Aprobamos tu solicitud para la comunidad de Radio Conexión. Entra en ${SITE_URL}/comunidad con tu cuenta de Google.`
     });
-    return response.status(200).json({ sent });
+    return response.status(200).json(sent
+      ? { sent: true, to: contact.email }
+      : { sent: false, reason: process.env.RESEND_API_KEY ? 'El servicio de correo (Resend) rechazó el envío.' : 'Falta RESEND_API_KEY en Vercel.' });
   } catch (error) {
     console.error('Bienvenida falló:', error.message);
-    return response.status(200).json({ sent: false });
+    return response.status(200).json({ sent: false, reason: 'Error del servidor al enviar.' });
   }
 };

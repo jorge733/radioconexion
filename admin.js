@@ -25,6 +25,7 @@ function memberRow(member) {
   const actions = [];
   if (member.status !== 'approved') actions.push(`<button type="button" class="btn btn-primary btn-sm" data-status="approved" data-id="${escapeHtml(member.id)}">Aprobar</button>`);
   if (member.status === 'pending') actions.push(`<button type="button" class="btn btn-ghost btn-sm" data-status="rejected" data-id="${escapeHtml(member.id)}">Rechazar</button>`);
+  if (member.status === 'approved') actions.push(`<button type="button" class="btn btn-ghost btn-sm" data-welcome="${escapeHtml(member.id)}">Enviar bienvenida</button>`);
   if (member.status === 'approved') actions.push(`<button type="button" class="btn btn-ghost btn-sm" data-status="rejected" data-id="${escapeHtml(member.id)}">Quitar acceso</button>`);
   if (member.status === 'rejected') actions.push(`<button type="button" class="btn btn-ghost btn-sm" data-delete-member="${escapeHtml(member.id)}" title="Permite que vuelva a solicitar acceso">Borrar solicitud</button>`);
   const created = member.createdAt?.toDate ? member.createdAt.toDate().toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
@@ -95,16 +96,40 @@ async function setStatus(id, status, button) {
     renderMembers();
     syncPublicStats();
     loadStats();
-    // Correo de bienvenida. Si falla, la aprobación ya quedó hecha.
-    if (status === 'approved') {
-      auth.currentUser.getIdToken().then(token => fetch('/api/aprobado', {
-        method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ uid: id })
-      })).catch(error => console.warn('No se pudo enviar la bienvenida:', error));
-    }
+    // Correo de bienvenida. Si falla, la aprobación ya quedó hecha y se puede reenviar.
+    if (status === 'approved') sendWelcome(member, false);
   } catch (error) {
     console.error(error);
     alert(friendlyError(error));
     button.disabled = false;
+  }
+}
+
+async function sendWelcome(member, resend, button) {
+  const message = $('#admin-message');
+  if (button) button.disabled = true;
+  setMessage(message, `Enviando la bienvenida a ${member.name}…`, 'ok');
+  try {
+    const token = await auth.currentUser.getIdToken();
+    // keepalive: el envío sigue aunque cambies de página.
+    const result = await fetch('/api/aprobado', {
+      method: 'POST', keepalive: true,
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: member.id, resend })
+    }).then(response => response.json());
+    if (result.sent) {
+      setMessage(message, `Bienvenida enviada a ${member.name} (${result.to}).`, 'ok');
+      if (button) button.textContent = 'Enviada ✓';
+    } else {
+      const reason = result.reason || result.error || 'motivo desconocido';
+      setMessage(message, `No se envió la bienvenida a ${member.name}: ${reason}`);
+      if (button) alert(`No se envió la bienvenida: ${reason}`);
+    }
+  } catch (error) {
+    console.error(error);
+    setMessage(message, `No se pudo enviar la bienvenida a ${member.name}. Revisa tu conexión e inténtalo con "Enviar bienvenida".`);
+  } finally {
+    if (button) button.disabled = false;
   }
 }
 
@@ -385,6 +410,8 @@ async function deleteRequest(id, button) {
 }
 
 document.addEventListener('click', event => {
+  const welcome = event.target.closest('[data-welcome]');
+  if (welcome) return sendWelcome(state.members.find(item => item.id === welcome.dataset.welcome), true, welcome);
   const reportDelete = event.target.closest('[data-report-delete]');
   if (reportDelete) return resolveReport(reportDelete.dataset.reportDelete, true, reportDelete);
   const reportKeep = event.target.closest('[data-report-keep]');
