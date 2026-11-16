@@ -11,6 +11,7 @@ Sitio web de Radio Conexión: una comunidad privada de oyentes, más las página
 | `admin.html` + `admin.js` | Panel de administración: aprobar solicitudes y publicar episodios. |
 | `historia.html` | Historia de la radio, carta del fundador y museo de logos. |
 | `tiempo.html` + `weather.js` | Pronóstico de la Dirección Meteorológica de Chile. |
+| `condiciones.html` | Condiciones de uso y política de privacidad (reemplaza al antiguo Google Doc). Actualízala si la comunidad empieza a guardar datos nuevos. |
 
 Código compartido: `community-core.js` (Firebase), `firebase-config.js`, `site.css`, `site.js`. La portada usa `home.js` para el contador.
 
