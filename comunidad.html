@@ -137,6 +137,7 @@
                     <div class="tabs" role="tablist" aria-label="Secciones de la comunidad">
                         <button type="button" role="tab" id="tab-episodios" data-tab="episodios" aria-controls="panel-episodios" aria-selected="true">Episodios</button>
                         <button type="button" role="tab" id="tab-miembros" data-tab="miembros" aria-controls="panel-miembros" aria-selected="false" tabindex="-1">Miembros</button>
+                        <button type="button" role="tab" id="tab-pedidos" data-tab="pedidos" aria-controls="panel-pedidos" aria-selected="false" tabindex="-1">Pedidos</button>
                         <button type="button" role="tab" id="tab-perfil" data-tab="perfil" aria-controls="panel-perfil" aria-selected="false" tabindex="-1">Mi perfil</button>
                     </div>
 
@@ -148,6 +149,34 @@
                     <div role="tabpanel" id="panel-miembros" aria-labelledby="tab-miembros" hidden>
                         <p class="muted small" id="member-count"></p>
                         <div class="member-grid" id="member-list"></div>
+                    </div>
+
+                    <div role="tabpanel" id="panel-pedidos" aria-labelledby="tab-pedidos" hidden>
+                        <div class="requests-layout">
+                            <form class="card" id="request-form" novalidate>
+                                <h3>Pide una canción o envía un saludo</h3>
+                                <p class="muted small">Los leemos y elegimos para los próximos episodios.</p>
+                                <fieldset class="choice">
+                                    <legend class="sr-only">Tipo de pedido</legend>
+                                    <label><input type="radio" name="type" value="cancion" checked> 🎵 Canción</label>
+                                    <label><input type="radio" name="type" value="saludo"> 💌 Saludo</label>
+                                </fieldset>
+                                <div class="field">
+                                    <label for="request-text" id="request-text-label">Canción y artista</label>
+                                    <textarea id="request-text" name="text" maxlength="300" rows="2" placeholder="Ej.: Vivir mi vida – Marc Anthony" required></textarea>
+                                </div>
+                                <div class="field">
+                                    <label for="request-to">Dedicado a <span class="muted small">(opcional)</span></label>
+                                    <input type="text" id="request-to" name="to" maxlength="80" placeholder="Ej.: mi familia">
+                                </div>
+                                <p class="alert" id="request-message" role="status"></p>
+                                <button type="submit" class="btn btn-primary">Enviar pedido</button>
+                            </form>
+                            <div>
+                                <h3>Mis pedidos</h3>
+                                <ul class="admin-list" id="request-list"></ul>
+                            </div>
+                        </div>
                     </div>
 
                     <div role="tabpanel" id="panel-perfil" aria-labelledby="tab-perfil" hidden>

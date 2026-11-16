@@ -1,10 +1,10 @@
 import {
-  db, watchUser, signIn, logOut, isAdminUser, driveIdFrom, escapeHtml, formatDate, avatarHtml, friendlyError,
+  auth, db, watchUser, signIn, logOut, isAdminUser, driveIdFrom, escapeHtml, formatDate, avatarHtml, friendlyError,
   doc, getDoc, getDocs, collection, query, orderBy, updateDoc, deleteDoc, addDoc, serverTimestamp
 } from './community-core.js';
 
 const $ = selector => document.querySelector(selector);
-const state = { members: [], episodes: [] };
+const state = { members: [], episodes: [], requests: [] };
 
 function show(name) {
   ['loading', 'out', 'denied', 'app'].forEach(view => { $(`#view-${view}`).hidden = view !== name; });
@@ -64,10 +64,12 @@ function renderEpisodes() {
 }
 
 async function loadAll() {
-  const [members, episodes] = await Promise.all([
+  const [members, episodes, requests] = await Promise.all([
     getDocs(collection(db, 'members')),
-    getDocs(query(collection(db, 'episodes'), orderBy('date', 'desc')))
+    getDocs(query(collection(db, 'episodes'), orderBy('date', 'desc'))),
+    getDocs(query(collection(db, 'requests'), orderBy('createdAt', 'desc')))
   ]);
+  state.requests = requests.docs.map(item => ({ id: item.id, ...item.data() }));
   state.members = await Promise.all(members.docs.map(async item => {
     const contact = await getDoc(doc(db, 'members', item.id, 'private', 'contact')).catch(() => null);
     return { id: item.id, ...item.data(), email: contact?.exists() ? contact.data().email : '' };
@@ -76,6 +78,7 @@ async function loadAll() {
   state.episodes = episodes.docs.map(item => ({ id: item.id, ...item.data() }));
   renderMembers();
   renderEpisodes();
+  renderRequests();
 }
 
 async function setStatus(id, status, button) {
@@ -87,6 +90,12 @@ async function setStatus(id, status, button) {
     await updateDoc(doc(db, 'members', id), { status, reviewedAt: serverTimestamp() });
     member.status = status;
     renderMembers();
+    // Correo de bienvenida. Si falla, la aprobación ya quedó hecha.
+    if (status === 'approved') {
+      auth.currentUser.getIdToken().then(token => fetch('/api/aprobado', {
+        method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ uid: id })
+      })).catch(error => console.warn('No se pudo enviar la bienvenida:', error));
+    }
   } catch (error) {
     console.error(error);
     alert(friendlyError(error));
@@ -158,7 +167,66 @@ document.querySelectorAll('[data-signout]').forEach(button => button.addEventLis
 $('#episode-form').addEventListener('submit', handleEpisode);
 $('#episode-form').date.value = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Santiago' });
 
+// ---------- Pedidos de canciones y saludos ----------
+const REQUEST_TYPE = { cancion: '🎵 Canción', saludo: '💌 Saludo' };
+
+function requestRow(item) {
+  const when = item.createdAt?.toDate ? item.createdAt.toDate().toLocaleDateString('es-CL', { day: 'numeric', month: 'short' }) : '';
+  return `
+    <li class="admin-row">
+      <div class="admin-row__info">
+        <span class="muted small">${escapeHtml(REQUEST_TYPE[item.type] || item.type)} · de <strong>${escapeHtml(item.name)}</strong>${item.to ? ` · para ${escapeHtml(item.to)}` : ''}${when ? ` · ${escapeHtml(when)}` : ''}</span>
+        <span>${escapeHtml(item.text)}</span>
+      </div>
+      <div class="admin-row__actions">
+        ${item.status === 'nuevo'
+          ? `<button type="button" class="btn btn-primary btn-sm" data-request-done="${escapeHtml(item.id)}">Marcar como leído al aire</button>`
+          : '<span class="pill pill--approved">Leído al aire</span>'}
+        <button type="button" class="btn btn-ghost btn-sm" data-delete-request="${escapeHtml(item.id)}">Eliminar</button>
+      </div>
+    </li>`;
+}
+
+function renderRequests() {
+  const pending = state.requests.filter(item => item.status === 'nuevo');
+  const done = state.requests.filter(item => item.status !== 'nuevo');
+  $('#request-count').textContent = pending.length;
+  $('#admin-requests').innerHTML = pending.length ? pending.map(requestRow).join('') : '<li class="muted">No hay pedidos nuevos.</li>';
+  $('#admin-requests-done').innerHTML = done.length ? done.map(requestRow).join('') : '<li class="muted">Ninguno todavía.</li>';
+}
+
+async function markRequestDone(id, button) {
+  button.disabled = true;
+  try {
+    await updateDoc(doc(db, 'requests', id), { status: 'hecho' });
+    state.requests.find(item => item.id === id).status = 'hecho';
+    renderRequests();
+  } catch (error) {
+    console.error(error);
+    alert(friendlyError(error));
+    button.disabled = false;
+  }
+}
+
+async function deleteRequest(id, button) {
+  if (!confirm('¿Eliminar este pedido?')) return;
+  button.disabled = true;
+  try {
+    await deleteDoc(doc(db, 'requests', id));
+    state.requests = state.requests.filter(item => item.id !== id);
+    renderRequests();
+  } catch (error) {
+    console.error(error);
+    alert(friendlyError(error));
+    button.disabled = false;
+  }
+}
+
 document.addEventListener('click', event => {
+  const done = event.target.closest('[data-request-done]');
+  if (done) return markRequestDone(done.dataset.requestDone, done);
+  const removeRequest = event.target.closest('[data-delete-request]');
+  if (removeRequest) return deleteRequest(removeRequest.dataset.deleteRequest, removeRequest);
   const status = event.target.closest('[data-status]');
   if (status) return setStatus(status.dataset.id, status.dataset.status, status);
   const removeMember = event.target.closest('[data-delete-member]');

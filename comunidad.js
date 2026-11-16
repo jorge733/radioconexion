@@ -2,12 +2,12 @@ import {
   auth, db, watchUser, signIn, logOut, isAdminUser, drivePreviewUrl, escapeHtml, formatDate,
   avatarHtml, friendlyError, safePhoto,
   doc, getDoc, getDocs, collection, query, where, orderBy, writeBatch, updateDoc,
-  serverTimestamp, arrayUnion, arrayRemove
+  serverTimestamp, arrayUnion, arrayRemove, addDoc, deleteDoc
 } from './community-core.js';
 
 const $ = selector => document.querySelector(selector);
 const views = ['loading', 'out', 'join', 'pending', 'rejected', 'app'];
-const state = { user: null, member: null, episodes: [], members: [] };
+const state = { user: null, member: null, episodes: [], members: [], comments: {}, requests: [] };
 
 function show(name) {
   views.forEach(view => { const el = $(`#view-${view}`); if (el) el.hidden = view !== name; });
@@ -99,6 +99,8 @@ function renderEpisodes() {
       </div>
       ${episode.description ? `<p class="episode__desc">${escapeHtml(episode.description)}</p>` : ''}
       <div class="episode__player"><button type="button" class="btn btn-primary btn-sm" data-play="${escapeHtml(episode.id)}">▶ Escuchar</button></div>
+      <div><button type="button" class="link-btn" data-comments="${escapeHtml(episode.id)}" aria-expanded="false" aria-controls="comments-${escapeHtml(episode.id)}">💬 Ver comentarios</button></div>
+      <section class="comments" id="comments-${escapeHtml(episode.id)}" aria-label="Comentarios de ${escapeHtml(episode.title)}" hidden></section>
     </article>`).join('');
 }
 
@@ -189,6 +191,7 @@ function selectTab(name) {
     $(`#panel-${tab.dataset.tab}`).hidden = !active;
   });
   if (name === 'perfil') fillProfileForm();
+  if (name === 'pedidos' && !state.requestsLoaded) { state.requestsLoaded = true; loadRequests(); }
 }
 
 async function loadCommunity() {
@@ -228,6 +231,164 @@ async function loadMember(user) {
   else show(state.member.status === 'rejected' ? 'rejected' : 'pending');
 }
 
+
+// ---------- Comentarios ----------
+const timeAgo = timestamp => {
+  const date = timestamp?.toDate ? timestamp.toDate() : null;
+  if (!date) return 'ahora';
+  return date.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' }) + ', ' + date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+};
+
+function renderComments(episodeId) {
+  const box = document.getElementById(`comments-${episodeId}`);
+  const comments = state.comments[episodeId] || [];
+  const canDelete = comment => comment.uid === state.user.uid || isAdminUser(state.user);
+  box.innerHTML = `
+    <ul class="comment-list">
+      ${comments.length ? comments.map(comment => `
+        <li class="comment">
+          ${avatarHtml(comment, 36)}
+          <div class="comment__body">
+            <p class="comment__meta"><strong>${escapeHtml(comment.name)}</strong> <span class="muted small">${escapeHtml(timeAgo(comment.createdAt))}</span></p>
+            <p class="comment__text">${escapeHtml(comment.text)}</p>
+            ${canDelete(comment) ? `<button type="button" class="link-btn small" data-delete-comment="${escapeHtml(comment.id)}" data-episode="${escapeHtml(episodeId)}">Borrar</button>` : ''}
+          </div>
+        </li>`).join('') : '<li class="muted small">Aún no hay comentarios. ¡Sé la primera persona en comentar!</li>'}
+    </ul>
+    <form class="comment-form" data-comment-form="${escapeHtml(episodeId)}" novalidate>
+      <label class="sr-only" for="comment-text-${escapeHtml(episodeId)}">Escribe un comentario</label>
+      <textarea id="comment-text-${escapeHtml(episodeId)}" name="text" maxlength="500" rows="2" placeholder="Escribe un comentario…" required></textarea>
+      <button type="submit" class="btn btn-primary btn-sm">Comentar</button>
+    </form>
+    <p class="alert" role="alert"></p>`;
+}
+
+async function toggleComments(button) {
+  const episodeId = button.dataset.comments;
+  const box = document.getElementById(`comments-${episodeId}`);
+  const open = button.getAttribute('aria-expanded') !== 'true';
+  button.setAttribute('aria-expanded', String(open));
+  button.textContent = open ? '💬 Ocultar comentarios' : '💬 Ver comentarios';
+  box.hidden = !open;
+  if (!open) return;
+  box.innerHTML = '<p class="muted small">Cargando comentarios…</p>';
+  try {
+    const snapshot = await getDocs(query(collection(db, 'episodes', episodeId, 'comments'), orderBy('createdAt', 'asc')));
+    state.comments[episodeId] = snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
+    renderComments(episodeId);
+  } catch (error) {
+    console.error(error);
+    box.innerHTML = `<p class="alert">${escapeHtml(friendlyError(error))}</p>`;
+  }
+}
+
+async function submitComment(form) {
+  const episodeId = form.dataset.commentForm;
+  const text = form.text.value.trim();
+  const message = form.nextElementSibling;
+  if (!text) { setMessage(message, 'Escribe algo antes de comentar.'); return; }
+  form.querySelector('button').disabled = true;
+  try {
+    const comment = { uid: state.user.uid, name: state.member.name, photoURL: state.member.photoURL || '', text: text.slice(0, 500), createdAt: serverTimestamp() };
+    const ref = await addDoc(collection(db, 'episodes', episodeId, 'comments'), comment);
+    (state.comments[episodeId] ||= []).push({ ...comment, id: ref.id, createdAt: null });
+    renderComments(episodeId);
+  } catch (error) {
+    console.error(error);
+    setMessage(message, friendlyError(error));
+    form.querySelector('button').disabled = false;
+  }
+}
+
+async function deleteComment(button) {
+  if (!confirm('¿Borrar este comentario?')) return;
+  const { episode: episodeId, deleteComment: id } = button.dataset;
+  button.disabled = true;
+  try {
+    await deleteDoc(doc(db, 'episodes', episodeId, 'comments', id));
+    state.comments[episodeId] = state.comments[episodeId].filter(item => item.id !== id);
+    renderComments(episodeId);
+  } catch (error) {
+    console.error(error);
+    alert(friendlyError(error));
+    button.disabled = false;
+  }
+}
+
+// ---------- Pedidos de canciones y saludos ----------
+const REQUEST_TYPE = { cancion: 'Canción', saludo: 'Saludo' };
+
+function renderRequests() {
+  const list = $('#request-list');
+  if (!state.requests.length) { list.innerHTML = '<li class="muted small">Todavía no has enviado pedidos.</li>'; return; }
+  list.innerHTML = state.requests.map(item => `
+    <li class="admin-row">
+      <div class="admin-row__info">
+        <span class="muted small">${escapeHtml(REQUEST_TYPE[item.type] || item.type)}${item.to ? ` · para ${escapeHtml(item.to)}` : ''} · ${escapeHtml(timeAgo(item.createdAt))}</span>
+        <span>${escapeHtml(item.text)}</span>
+      </div>
+      <span class="pill ${item.status === 'hecho' ? 'pill--approved' : 'pill--pending'}">${item.status === 'hecho' ? '¡Sonó al aire!' : 'En espera'}</span>
+      ${item.status === 'nuevo' ? `<div class="admin-row__actions"><button type="button" class="btn btn-ghost btn-sm" data-delete-request="${escapeHtml(item.id)}">Retirar</button></div>` : ''}
+    </li>`).join('');
+}
+
+async function loadRequests() {
+  $('#request-list').innerHTML = '<li class="muted small">Cargando tus pedidos…</li>';
+  try {
+    const snapshot = await getDocs(query(collection(db, 'requests'), where('uid', '==', state.user.uid)));
+    state.requests = snapshot.docs.map(item => ({ id: item.id, ...item.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    renderRequests();
+  } catch (error) {
+    console.error(error);
+    $('#request-list').innerHTML = `<li class="alert">${escapeHtml(friendlyError(error))}</li>`;
+  }
+}
+
+function updateRequestForm() {
+  const form = $('#request-form');
+  const song = form.type.value === 'cancion';
+  $('#request-text-label').textContent = song ? 'Canción y artista' : 'Tu saludo';
+  form.text.placeholder = song ? 'Ej.: Vivir mi vida – Marc Anthony' : 'Ej.: Un saludo a mi abuela que siempre escucha la radio';
+  form.text.rows = song ? 2 : 4;
+}
+
+async function handleRequest(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const message = $('#request-message');
+  const text = form.text.value.trim();
+  if (!text) { setMessage(message, form.type.value === 'cancion' ? 'Escribe la canción que quieres escuchar.' : 'Escribe tu saludo.'); return; }
+  form.querySelector('button[type="submit"]').disabled = true;
+  try {
+    const request = { uid: state.user.uid, name: state.member.name, type: form.type.value, text: text.slice(0, 300), to: form.to.value.trim().slice(0, 80), status: 'nuevo', createdAt: serverTimestamp() };
+    const ref = await addDoc(collection(db, 'requests'), request);
+    state.requests.unshift({ ...request, id: ref.id, createdAt: null });
+    renderRequests();
+    form.text.value = ''; form.to.value = '';
+    setMessage(message, '¡Pedido enviado! Te avisaremos aquí cuando suene al aire.', 'ok');
+  } catch (error) {
+    console.error(error);
+    setMessage(message, friendlyError(error));
+  } finally {
+    form.querySelector('button[type="submit"]').disabled = false;
+  }
+}
+
+async function deleteRequest(button) {
+  if (!confirm('¿Retirar este pedido?')) return;
+  button.disabled = true;
+  try {
+    await deleteDoc(doc(db, 'requests', button.dataset.deleteRequest));
+    state.requests = state.requests.filter(item => item.id !== button.dataset.deleteRequest);
+    renderRequests();
+  } catch (error) {
+    console.error(error);
+    alert(friendlyError(error));
+    button.disabled = false;
+  }
+}
+
 // ---------- Eventos ----------
 document.querySelectorAll('[data-signin]').forEach(button => button.addEventListener('click', handleSignIn));
 document.querySelectorAll('[data-signout]').forEach(button => button.addEventListener('click', () => logOut()));
@@ -242,7 +403,23 @@ $('#episode-list').addEventListener('click', event => {
     return;
   }
   const fav = event.target.closest('[data-fav]');
-  if (fav) toggleFavorite(fav.dataset.fav, fav);
+  if (fav) return toggleFavorite(fav.dataset.fav, fav);
+  const comments = event.target.closest('[data-comments]');
+  if (comments) return toggleComments(comments);
+  const removeComment = event.target.closest('[data-delete-comment]');
+  if (removeComment) return deleteComment(removeComment);
+});
+$('#episode-list').addEventListener('submit', event => {
+  const form = event.target.closest('[data-comment-form]');
+  if (!form) return;
+  event.preventDefault();
+  submitComment(form);
+});
+$('#request-form').addEventListener('submit', handleRequest);
+$('#request-form').addEventListener('change', event => { if (event.target.name === 'type') updateRequestForm(); });
+$('#request-list').addEventListener('click', event => {
+  const remove = event.target.closest('[data-delete-request]');
+  if (remove) deleteRequest(remove);
 });
 $('#member-list').addEventListener('click', event => {
   const card = event.target.closest('[data-member]');

@@ -642,3 +642,29 @@ h1 em, h2 em, h3 em, .display em { font-style: normal; font-weight: 400; }
 .pill--rejected { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); }
 @media (max-width: 640px) { #episode-form .grid-2 { grid-template-columns: 1fr; gap: 0; } }
 .view:focus { outline: none; }
+
+/* Comentarios y pedidos */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.link-btn { appearance: none; background: none; border: 0; padding: 4px 0; font: 600 .9rem var(--font-body); color: var(--accent-ink); cursor: pointer; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.link-btn:hover { color: var(--accent); }
+.link-btn.small { font-size: .8rem; }
+.comments { border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 14px; }
+.comment-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.comment { display: flex; gap: 12px; align-items: flex-start; }
+.comment__body { min-width: 0; flex: 1; }
+.comment__meta { margin: 0 0 2px; }
+.comment__text { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.comment-form { display: flex; gap: 10px; align-items: flex-end; }
+.comment-form textarea { min-height: 0; flex: 1; }
+@media (max-width: 560px) { .comment-form { flex-direction: column; align-items: stretch; } }
+
+.requests-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.requests-layout h3 { margin: 0 0 6px; }
+.requests-layout > div h3 { margin-bottom: 12px; }
+@media (max-width: 860px) { .requests-layout { grid-template-columns: 1fr; } }
+.choice { border: 0; padding: 0; margin: 16px 0; display: flex; gap: 10px; flex-wrap: wrap; }
+.choice label { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; font-weight: 600; font-size: .92rem; }
+.choice label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-ink); }
+.choice input { accent-color: var(--accent); }
+.admin-details { margin-top: 16px; }
+.admin-details summary { cursor: pointer; font-weight: 600; color: var(--accent-ink); margin-bottom: 10px; }
