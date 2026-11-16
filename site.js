@@ -83,6 +83,7 @@
     ];
     const targets = [...new Set(document.querySelectorAll(selectors.join(',')))]
       // Evita animar dos veces un bloque cuyo contenedor ya aparece
+      .filter(el => !el.closest('[data-no-reveal]'))
       .filter((el, _, all) => !all.some(other => other !== el && other.contains(el)));
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
