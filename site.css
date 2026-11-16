@@ -1078,3 +1078,17 @@ html { scrollbar-color: color-mix(in srgb, var(--accent) 60%, var(--line)) trans
   .legal { grid-template-columns: 1fr; }
   .legal__toc { position: static; }
 }
+
+/* ---------- Logo horizontal en el encabezado ---------- */
+.brand--logo { flex-shrink: 1; }
+@media (min-width: 861px) { .site-header__bar { min-height: 80px; } }
+.brand--logo .brand__logo {
+  width: auto; height: 64px; max-width: 100%; border: 0; border-radius: 0; background: none; object-fit: contain;
+  transition: transform .3s ease, filter .3s ease;
+}
+.brand--logo:hover .brand__logo { transform: none; box-shadow: none; filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--accent) 30%, transparent)); }
+.brand__logo--dark { display: none; }
+html.dark .brand__logo--light { display: none; }
+html.dark .brand__logo--dark { display: block; }
+@media (max-width: 860px) { .brand--logo .brand__logo { height: 46px; } }
+@media (max-width: 380px) { .brand--logo .brand__logo { height: 40px; width: auto; } }
