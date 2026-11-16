@@ -225,6 +225,7 @@ function selectTab(name) {
     tab.tabIndex = active ? 0 : -1;
     $(`#panel-${tab.dataset.tab}`).hidden = !active;
   });
+  tabTuner?.tuneTo(name);
   if (name === 'perfil') fillProfileForm();
   if (name === 'pedidos' && !state.requestsLoaded) { state.requestsLoaded = true; loadRequests(); }
 }
@@ -527,6 +528,80 @@ $('#member-list').addEventListener('click', event => {
   if (card) openMember(card.dataset.member);
 });
 $('#member-detail-close').addEventListener('click', () => $('#member-detail').close?.() ?? $('#member-detail').removeAttribute('open'));
+
+// Sintonizador de secciones: cada pestaña es una emisora del dial. Arrastrar la aguja
+// muestra estática entre emisoras y, al soltarla, se engancha a la más cercana y abre esa sección.
+// Las pestañas siguen siendo el control accesible (teclado y lector de pantalla); el dial es extra.
+function createTabTuner(root) {
+  if (!root) return null;
+  const range = root.querySelector('.tuner__range');
+  const freqOut = root.querySelector('[data-tuner-freq]');
+  const nameOut = root.querySelector('[data-tuner-name]');
+  const canvas = root.querySelector('.tuner__static');
+  const ctx = canvas.getContext('2d');
+  const image = ctx.createImageData(canvas.width, canvas.height);
+  const stations = [...root.querySelectorAll('[role="tab"]')].map(tab => ({
+    tab, name: tab.dataset.tab, freq: Number(tab.dataset.freq), label: tab.querySelector('.preset__name').textContent
+  }));
+  const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  let noise = 0, frame = 0, glide = 0;
+
+  const drawStatic = () => {
+    frame = 0;
+    if (noise < 0.02) { ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
+    const data = image.data;
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = data[i + 1] = data[i + 2] = Math.random() * 255;
+      data[i + 3] = 255;
+    }
+    ctx.putImageData(image, 0, 0);
+    if (!reduceMotion) frame = requestAnimationFrame(drawStatic);
+  };
+  const nearest = () => {
+    const freq = Number(range.value);
+    return stations.reduce((best, st) => (Math.abs(st.freq - freq) < Math.abs(best.freq - freq) ? st : best));
+  };
+  const update = () => {
+    const freq = Number(range.value);
+    const near = nearest();
+    const signal = Math.max(0, 1 - Math.abs(near.freq - freq) / 1.8);
+    noise = 1 - signal;
+    freqOut.textContent = freq.toFixed(1);
+    nameOut.textContent = signal > 0.3 ? near.label : 'Sin señal';
+    root.style.setProperty('--signal', signal.toFixed(3));
+    root.dataset.bars = String(Math.round(signal * 4));
+    if (!frame) drawStatic();
+  };
+  const glideTo = target => {
+    cancelAnimationFrame(glide);
+    if (reduceMotion) { range.value = target; update(); return; }
+    const start = Number(range.value);
+    if (Math.abs(start - target) < 0.05) { range.value = target; update(); return; }
+    const t0 = performance.now();
+    const step = now => {
+      const k = Math.min(1, (now - t0) / 600);
+      range.value = (start + (target - start) * (1 - Math.pow(1 - k, 3))).toFixed(1);
+      update();
+      if (k < 1) glide = requestAnimationFrame(step);
+    };
+    glide = requestAnimationFrame(step);
+  };
+
+  range.addEventListener('input', () => { cancelAnimationFrame(glide); update(); });
+  const snap = () => selectTab(nearest().name);
+  range.addEventListener('pointerup', snap);
+  range.addEventListener('touchend', snap, { passive: true });
+
+  root.classList.add('is-ready');
+  update();
+  return {
+    tuneTo(name) {
+      const station = stations.find(st => st.name === name);
+      if (station) glideTo(station.freq);
+    }
+  };
+}
+const tabTuner = createTabTuner(document.querySelector('[data-tab-tuner]'));
 
 const tabs = [...document.querySelectorAll('[role="tab"]')];
 tabs.forEach((tab, index) => {

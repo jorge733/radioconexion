@@ -131,11 +131,27 @@
 
                 <div id="view-app" tabindex="-1" class="view" hidden>
                     <h2 class="welcome">Hola, <span id="welcome-name"></span> 👋</h2>
-                    <div class="tabs" role="tablist" aria-label="Secciones de la comunidad">
-                        <button type="button" role="tab" id="tab-episodios" data-tab="episodios" aria-controls="panel-episodios" aria-selected="true">Episodios</button>
-                        <button type="button" role="tab" id="tab-miembros" data-tab="miembros" aria-controls="panel-miembros" aria-selected="false" tabindex="-1">Miembros</button>
-                        <button type="button" role="tab" id="tab-pedidos" data-tab="pedidos" aria-controls="panel-pedidos" aria-selected="false" tabindex="-1">Pedidos</button>
-                        <button type="button" role="tab" id="tab-perfil" data-tab="perfil" aria-controls="panel-perfil" aria-selected="false" tabindex="-1">Mi perfil</button>
+                    <div class="tuner tuner--tabs" data-tab-tuner>
+                        <div class="tuner__screen tuner__screen--compact" aria-hidden="true">
+                            <div class="tuner__readout">
+                                <span class="tuner__band">FM</span>
+                                <span class="tuner__freq" data-tuner-freq>89.5</span>
+                                <span class="tuner__mhz">MHz</span>
+                                <span class="tuner__now" data-tuner-name>Episodios</span>
+                                <span class="tuner__signal"><i></i><i></i><i></i><i></i></span>
+                            </div>
+                            <canvas class="tuner__static" width="160" height="40"></canvas>
+                        </div>
+                        <div class="tuner__dial" aria-hidden="true">
+                            <div class="tuner__scale"><span style="--pos:0%">88</span><span style="--pos:20%">92</span><span style="--pos:40%">96</span><span style="--pos:60%">100</span><span style="--pos:80%">104</span><span style="--pos:100%">108</span><span class="tuner__mark" style="--pos:7.5%"></span><span class="tuner__mark" style="--pos:31.5%"></span><span class="tuner__mark" style="--pos:55.5%"></span><span class="tuner__mark" style="--pos:81.5%"></span></div>
+                            <input class="tuner__range" type="range" min="88" max="108" step="0.1" value="89.5" tabindex="-1">
+                        </div>
+                        <div class="tabs tabs--presets" role="tablist" aria-label="Secciones de la comunidad">
+                            <button type="button" role="tab" id="tab-episodios" data-tab="episodios" data-freq="89.5" aria-controls="panel-episodios" aria-selected="true"><span class="preset__freq" aria-hidden="true">89.5</span><span class="preset__name">Episodios</span></button>
+                            <button type="button" role="tab" id="tab-miembros" data-tab="miembros" data-freq="94.3" aria-controls="panel-miembros" aria-selected="false" tabindex="-1"><span class="preset__freq" aria-hidden="true">94.3</span><span class="preset__name">Miembros</span></button>
+                            <button type="button" role="tab" id="tab-pedidos" data-tab="pedidos" data-freq="99.1" aria-controls="panel-pedidos" aria-selected="false" tabindex="-1"><span class="preset__freq" aria-hidden="true">99.1</span><span class="preset__name">Pedidos</span></button>
+                            <button type="button" role="tab" id="tab-perfil" data-tab="perfil" data-freq="104.3" aria-controls="panel-perfil" aria-selected="false" tabindex="-1"><span class="preset__freq" aria-hidden="true">104.3</span><span class="preset__name">Mi perfil</span></button>
+                        </div>
                     </div>
 
                     <div role="tabpanel" id="panel-episodios" aria-labelledby="tab-episodios">

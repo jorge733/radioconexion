@@ -7,7 +7,7 @@ Sitio web de Radio Conexión: una comunidad privada de oyentes, más las página
 | Página | Para qué |
 | --- | --- |
 | `inicio.html` + `home.js` | Portada de bienvenida: sintonizador interactivo, reloj de Chile y contador de la comunidad. |
-| `comunidad.html` + `comunidad.js` | Comunidad: solicitar ingreso con Google, episodios, miembros y perfil. |
+| `comunidad.html` + `comunidad.js` | Comunidad: solicitar ingreso con Google, episodios, miembros y perfil. Las secciones se eligen con un sintonizador. |
 | `admin.html` + `admin.js` | Panel de administración: aprobar solicitudes y publicar episodios. |
 | `historia.html` | Historia de la radio, carta del fundador y museo de logos. |
 | `tiempo.html` + `weather.js` | Pronóstico de la Dirección Meteorológica de Chile. |
