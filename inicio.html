@@ -152,11 +152,12 @@
     </header>
 
     <main id="contenido" tabindex="-1">
-        <section class="hero">
+        <section class="hero hero--sintonia">
+            <div class="hero__waves" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
             <div class="wrap hero__grid">
                 <div>
-                    <p class="eyebrow">Comunidad Radio Conexión · Desde 2020</p>
-                    <h1 class="display">Conectados con tus <em>sentidos.</em></h1>
+                    <p class="on-air-pill"><span class="on-air-pill__lamp" aria-hidden="true"></span>En sintonía<span class="on-air-pill__sep" aria-hidden="true">·</span><span>Chile <time data-clock>--:--</time></span></p>
+                    <h1 class="display display--xl">Conectados con tus <em>sentidos.</em></h1>
                     <p class="lead">Radio Conexión ahora es una comunidad: episodios exclusivos, conversaciones y pedidos que suenan al aire, para quienes nos acompañan desde siempre y para quienes recién llegan.</p>
                     <div class="actions">
                         <a class="btn btn-primary" href="comunidad.html">Solicitar mi ingreso</a>
@@ -168,6 +169,7 @@
                     </dl>
                 </div>
                 <aside class="card on-air newsletter-sample" aria-labelledby="pasos-title">
+                    <div class="on-air__readout" aria-hidden="true"><span>FM</span><strong>104.3</strong><i></i><i></i><i></i><i></i></div>
                     <p class="eyebrow on-air__live">Así de simple</p>
                     <h2 id="pasos-title">Únete en tres pasos</h2>
                     <ol class="newsletter-sample__list">
@@ -181,32 +183,57 @@
             </div>
         </section>
 
-        <section class="section section--tight" aria-labelledby="dentro-title">
+        <div class="ticker" aria-hidden="true">
+            <div class="ticker__track"><span>Periodismo positivo</span><b>✦</b><span>Historias que inspiran</span><b>✦</b><span>Tu canción, al aire</span><b>✦</b><span>Saludos para tu gente</span><b>✦</b><span>Episodios exclusivos</span><b>✦</b><span>Desde 2020</span><b>✦</b><span>Periodismo positivo</span><b>✦</b><span>Historias que inspiran</span><b>✦</b><span>Tu canción, al aire</span><b>✦</b><span>Saludos para tu gente</span><b>✦</b><span>Episodios exclusivos</span><b>✦</b><span>Desde 2020</span><b>✦</b></div>
+        </div>
+
+        <section class="section" aria-labelledby="dentro-title">
             <div class="wrap">
                 <div class="section-head">
                     <p class="eyebrow">Qué hay dentro</p>
                     <h2 id="dentro-title">Una radio que se escucha, se comenta y se hace <em>juntos.</em></h2>
+                    <p class="muted tuner-hint">Gira el dial y sintoniza cada rincón de la comunidad.</p>
                 </div>
-                <div class="grid-2">
-                    <div class="card feature-card">
-                        <span class="feature-card__num">01 · Episodios</span>
-                        <h3>Episodios exclusivos</h3>
-                        <p>Escucha todos los episodios de Radio Conexión cuando quieras y guarda tus favoritos.</p>
+                <div class="tuner" data-tuner>
+                    <div class="tuner__screen">
+                        <div class="tuner__readout">
+                            <span class="tuner__band">FM</span>
+                            <output class="tuner__freq" data-tuner-freq>89.5</output>
+                            <span class="tuner__mhz">MHz</span>
+                            <span class="tuner__signal" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                        </div>
+                        <canvas class="tuner__static" width="160" height="90" aria-hidden="true"></canvas>
+                        <div class="tuner__stations" aria-live="polite">
+                            <article class="tuner__station" data-freq="89.5">
+                                <span class="feature-card__num">01 · Episodios</span>
+                                <h3>Episodios exclusivos</h3>
+                                <p>Escucha todos los episodios de Radio Conexión cuando quieras y guarda tus favoritos.</p>
+                            </article>
+                            <article class="tuner__station" data-freq="94.3">
+                                <span class="feature-card__num">02 · Comentarios</span>
+                                <h3>Conversa en cada episodio</h3>
+                                <p>Comenta lo que escuchaste, reacciona y comparte con otros miembros de la comunidad.</p>
+                            </article>
+                            <article class="tuner__station" data-freq="99.1">
+                                <span class="feature-card__num">03 · Pedidos</span>
+                                <h3>Tu canción, al aire</h3>
+                                <p>Pide canciones y envía saludos para tu gente: los elegimos para los próximos episodios.</p>
+                            </article>
+                            <article class="tuner__station" data-freq="104.3">
+                                <span class="feature-card__num">04 · Perfiles</span>
+                                <h3>Conoce a la comunidad</h3>
+                                <p>Arma tu perfil, muestra tus episodios favoritos y descubre quiénes más escuchan.</p>
+                            </article>
+                        </div>
                     </div>
-                    <div class="card feature-card">
-                        <span class="feature-card__num">02 · Comentarios</span>
-                        <h3>Conversa en cada episodio</h3>
-                        <p>Comenta lo que escuchaste y comparte con otros miembros de la comunidad.</p>
+                    <div class="tuner__dial">
+                        <div class="tuner__scale" aria-hidden="true"><span style="--pos:0%">88</span><span style="--pos:20%">92</span><span style="--pos:40%">96</span><span style="--pos:60%">100</span><span style="--pos:80%">104</span><span style="--pos:100%">108</span><span class="tuner__mark" style="--pos:7.5%"></span><span class="tuner__mark" style="--pos:31.5%"></span><span class="tuner__mark" style="--pos:55.5%"></span><span class="tuner__mark" style="--pos:81.5%"></span></div>
+                        <input class="tuner__range" type="range" min="88" max="108" step="0.1" value="89.5" aria-label="Sintonizar el dial">
                     </div>
-                    <div class="card feature-card">
-                        <span class="feature-card__num">03 · Pedidos</span>
-                        <h3>Tu canción, al aire</h3>
-                        <p>Pide canciones y envía saludos para tu gente: los elegimos para los próximos episodios.</p>
-                    </div>
-                    <div class="card feature-card">
-                        <span class="feature-card__num">04 · Perfiles</span>
-                        <h3>Conoce a la comunidad</h3>
-                        <p>Arma tu perfil, muestra tus episodios favoritos y descubre quiénes más escuchan.</p>
+                    <div class="tuner__seek">
+                        <button type="button" class="btn btn-ghost btn-sm" data-seek="-1" aria-label="Emisora anterior">‹ Anterior</button>
+                        <span class="tuner__help">Arrastra la aguja</span>
+                        <button type="button" class="btn btn-ghost btn-sm" data-seek="1" aria-label="Emisora siguiente">Siguiente ›</button>
                     </div>
                 </div>
             </div>
