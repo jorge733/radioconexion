@@ -38,6 +38,50 @@ async function readDoc(path, idToken) {
   return out;
 }
 
+const firestoreBase = () => `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
+
+// Miembros aprobados (requiere token de administración).
+async function approvedMemberIds(idToken) {
+  const result = await fetch(`${firestoreBase()}:runQuery`, {
+    method: 'POST', headers: { Authorization: `Bearer ${idToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ structuredQuery: {
+      from: [{ collectionId: 'members' }],
+      where: { fieldFilter: { field: { fieldPath: 'status' }, op: 'EQUAL', value: { stringValue: 'approved' } } }
+    } })
+  });
+  if (!result.ok) throw new Error(`Firestore respondió ${result.status}.`);
+  const rows = await result.json();
+  return rows.filter(row => row.document).map(row => row.document.name.split('/').pop());
+}
+
+// Marca un campo de fecha (por ejemplo, notifiedAt) en un documento.
+async function stampDoc(path, field, idToken) {
+  const result = await fetch(`${firestoreBase()}/${path}?updateMask.fieldPaths=${field}&currentDocument.exists=true`, {
+    method: 'PATCH', headers: { Authorization: `Bearer ${idToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fields: { [field]: { timestampValue: new Date().toISOString() } } })
+  });
+  return result.ok;
+}
+
+// Envía varios correos individuales (cada persona solo ve su propia dirección).
+async function sendEmails(messages) {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY no está configurada; no se enviaron correos.');
+    return 0;
+  }
+  let sent = 0;
+  for (let i = 0; i < messages.length; i += 100) {
+    const chunk = messages.slice(i, i + 100).map(message => ({ from: FROM, ...message, to: [message.to] }));
+    const result = await fetch('https://api.resend.com/emails/batch', {
+      method: 'POST', headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(chunk)
+    });
+    if (result.ok) sent += chunk.length;
+    else console.error('Resend (lote) respondió', result.status, await result.text().catch(() => ''));
+  }
+  return sent;
+}
+
 const isRecent = timestamp => Boolean(timestamp) && Date.now() - timestamp <= RECENT_MS;
 
 async function sendEmail({ to, subject, html, text }) {
@@ -71,4 +115,4 @@ function onlyPost(request, response) {
   return false;
 }
 
-module.exports = { ADMIN_EMAIL, SITE_URL, escapeHtml, bearer, verifiedUser, isAdmin, readDoc, isRecent, sendEmail, emailLayout, button, onlyPost };
+module.exports = { ADMIN_EMAIL, SITE_URL, escapeHtml, bearer, verifiedUser, isAdmin, readDoc, isRecent, sendEmail, sendEmails, approvedMemberIds, stampDoc, emailLayout, button, onlyPost };

@@ -142,8 +142,16 @@
                     </div>
 
                     <div role="tabpanel" id="panel-episodios" aria-labelledby="tab-episodios">
-                        <p class="muted small">Marca con ★ tus episodios favoritos: aparecerán en tu perfil.</p>
+                        <div class="episode-tools">
+                            <p class="muted small">Marca con ★ tus episodios favoritos: aparecerán en tu perfil.</p>
+                            <div class="search" id="episode-search-wrap" hidden>
+                                <label class="sr-only" for="episode-search">Buscar episodios</label>
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+                                <input type="search" id="episode-search" placeholder="Buscar episodios…" autocomplete="off">
+                            </div>
+                        </div>
                         <div class="episode-list" id="episode-list"></div>
+                        <p class="muted" id="episode-empty" role="status" hidden>No encontramos episodios con esa búsqueda.</p>
                     </div>
 
                     <div role="tabpanel" id="panel-miembros" aria-labelledby="tab-miembros" hidden>
@@ -155,7 +163,7 @@
                         <div class="requests-layout">
                             <form class="card" id="request-form" novalidate>
                                 <h3>Pide una canción o envía un saludo</h3>
-                                <p class="muted small">Los leemos y elegimos para los próximos episodios.</p>
+                                <p class="muted small">Los leemos y elegimos para los próximos episodios. Puedes tener hasta 3 pedidos en espera.</p>
                                 <fieldset class="choice">
                                     <legend class="sr-only">Tipo de pedido</legend>
                                     <label><input type="radio" name="type" value="cancion" checked> 🎵 Canción</label>
@@ -174,6 +182,8 @@
                             </form>
                             <div>
                                 <h3>Mis pedidos</h3>
+                                <p class="muted small" id="request-slots"></p>
+                                <p class="notice" id="request-full" hidden>Tienes 3 pedidos en espera. Cuando suenen al aire (o retires uno) podrás enviar otro.</p>
                                 <ul class="admin-list" id="request-list"></ul>
                             </div>
                         </div>
@@ -193,6 +203,10 @@
                                 <label for="profile-bio">Sobre ti</label>
                                 <textarea id="profile-bio" name="bio" maxlength="280"></textarea>
                             </div>
+                            <label class="check-row">
+                                <input type="checkbox" id="profile-episode-emails" checked disabled>
+                                <span>Avisarme por correo cuando haya un episodio nuevo</span>
+                            </label>
                             <p class="alert" id="profile-message" role="status"></p>
                             <button type="submit" class="btn btn-primary">Guardar perfil</button>
                         </form>

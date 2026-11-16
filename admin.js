@@ -1,6 +1,6 @@
 import {
   auth, db, watchUser, signIn, logOut, isAdminUser, driveIdFrom, escapeHtml, formatDate, avatarHtml, friendlyError,
-  doc, getDoc, getDocs, collection, query, orderBy, updateDoc, deleteDoc, addDoc, serverTimestamp
+  doc, getDoc, getDocs, collection, query, orderBy, updateDoc, deleteDoc, addDoc, serverTimestamp, writeBatch
 } from './community-core.js';
 
 const $ = selector => document.querySelector(selector);
@@ -127,6 +127,8 @@ async function handleEpisode(event) {
   const title = form.title.value.trim();
   if (!driveId) { setMessage(message, 'Ese enlace de Google Drive no es válido. Copia el enlace de "Compartir" del archivo.'); return; }
   if (!title) { setMessage(message, 'Escribe el título del episodio.'); return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(form.date.value)) { setMessage(message, 'Elige la fecha del episodio.'); return; }
+  const notify = form.notify.checked;
   const episode = { title: title.slice(0, 140), description: form.description.value.trim().slice(0, 2000), date: form.date.value, driveId, createdAt: serverTimestamp() };
   form.querySelector('button[type="submit"]').disabled = true;
   try {
@@ -136,7 +138,21 @@ async function handleEpisode(event) {
     renderEpisodes();
     form.reset();
     form.date.value = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Santiago' });
-    setMessage(message, 'Episodio publicado. Recuerda que el archivo en Drive debe estar compartido como "Cualquier persona con el enlace".', 'ok');
+    form.notify.checked = true;
+    let note = '';
+    if (notify) {
+      try {
+        const token = await auth.currentUser.getIdToken();
+        const result = await fetch('/api/nuevo-episodio', {
+          method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ episodeId: ref.id })
+        }).then(res => res.json());
+        note = result.sent ? ` Avisamos por correo a ${result.sent} ${result.sent === 1 ? 'miembro' : 'miembros'}.` : ' No se envió el aviso por correo.';
+      } catch (error) {
+        console.warn('Aviso de episodio falló:', error);
+        note = ' No se pudo enviar el aviso por correo.';
+      }
+    }
+    setMessage(message, `Episodio publicado.${note} Recuerda que el archivo en Drive debe estar compartido como "Cualquier persona con el enlace".`, 'ok');
   } catch (error) {
     console.error(error);
     setMessage(message, friendlyError(error));
@@ -198,8 +214,15 @@ function renderRequests() {
 async function markRequestDone(id, button) {
   button.disabled = true;
   try {
-    await updateDoc(doc(db, 'requests', id), { status: 'hecho' });
-    state.requests.find(item => item.id === id).status = 'hecho';
+    // El pedido pasa al historial y su casilla queda libre para que el miembro envíe otro.
+    const item = state.requests.find(request => request.id === id);
+    const { id: _slot, ...data } = item;
+    const done = doc(collection(db, 'requests'));
+    const batch = writeBatch(db);
+    batch.set(done, { ...data, status: 'hecho' });
+    batch.delete(doc(db, 'requests', id));
+    await batch.commit();
+    Object.assign(item, { id: done.id, status: 'hecho' });
     renderRequests();
   } catch (error) {
     console.error(error);

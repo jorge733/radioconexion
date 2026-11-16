@@ -2,7 +2,7 @@ import {
   auth, db, watchUser, signIn, logOut, isAdminUser, drivePreviewUrl, escapeHtml, formatDate,
   avatarHtml, friendlyError, safePhoto,
   doc, getDoc, getDocs, collection, query, where, orderBy, writeBatch, updateDoc,
-  serverTimestamp, arrayUnion, arrayRemove, addDoc, deleteDoc
+  serverTimestamp, arrayUnion, arrayRemove, addDoc, deleteDoc, setDoc
 } from './community-core.js';
 
 const $ = selector => document.querySelector(selector);
@@ -104,6 +104,23 @@ function renderEpisodes() {
     </article>`).join('');
 }
 
+// Busca sin importar mayúsculas ni tildes.
+const normalize = text => String(text || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+function filterEpisodes() {
+  const terms = normalize($('#episode-search').value).split(/\s+/).filter(Boolean);
+  let visible = 0;
+  document.querySelectorAll('#episode-list .episode').forEach(card => {
+    const episode = state.episodes.find(item => item.id === card.dataset.id);
+    const haystack = normalize(`${episode?.title} ${episode?.description} ${formatDate(episode?.date)}`);
+    const match = terms.every(term => haystack.includes(term));
+    card.hidden = !match;
+    if (match) visible += 1;
+  });
+  const empty = $('#episode-empty');
+  empty.hidden = !(terms.length && visible === 0);
+}
+
 function renderMembers() {
   const list = $('#member-list');
   $('#member-count').textContent = state.members.length === 1 ? '1 miembro' : `${state.members.length} miembros`;
@@ -135,8 +152,21 @@ function openMember(id) {
   if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open', '');
 }
 
+async function loadEmailPreference() {
+  const box = $('#profile-episode-emails');
+  try {
+    const contact = await getDoc(doc(db, 'members', state.user.uid, 'private', 'contact'));
+    state.contact = contact.exists() ? contact.data() : { email: state.user.email };
+    box.checked = state.contact.episodeEmails !== false;
+    box.disabled = false;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 function fillProfileForm() {
   const form = $('#profile-form');
+  if (!state.contact) loadEmailPreference();
   form.name.value = state.member.name || '';
   form.bio.value = state.member.bio || '';
   $('#profile-preview').innerHTML = avatarHtml({ ...state.member, photoURL: state.user.photoURL || state.member.photoURL }, 72);
@@ -152,6 +182,11 @@ async function handleProfile(event) {
   form.querySelector('button[type="submit"]').disabled = true;
   try {
     await updateDoc(doc(db, 'members', state.user.uid), changes);
+    if (state.contact) {
+      const episodeEmails = $('#profile-episode-emails').checked;
+      await setDoc(doc(db, 'members', state.user.uid, 'private', 'contact'), { email: state.user.email, episodeEmails });
+      state.contact.episodeEmails = episodeEmails;
+    }
     Object.assign(state.member, changes);
     const own = state.members.find(item => item.id === state.user.uid);
     if (own) Object.assign(own, changes);
@@ -206,6 +241,7 @@ async function loadCommunity() {
   if (episodes.status === 'fulfilled') {
     state.episodes = episodes.value.docs.map(item => ({ id: item.id, ...item.data() }));
     renderEpisodes();
+    $('#episode-search-wrap').hidden = state.episodes.length < 2;
   } else {
     $('#episode-list').innerHTML = `<p class="alert">${escapeHtml(friendlyError(episodes.reason))}</p>`;
   }
@@ -233,6 +269,25 @@ async function loadMember(user) {
 
 
 // ---------- Comentarios ----------
+const REACTIONS = [['hearts', '❤️', 'Me encanta'], ['claps', '👏', 'Aplausos']];
+
+async function toggleReaction(button) {
+  const { react: field, comment: id, episode: episodeId } = button.dataset;
+  const comment = state.comments[episodeId]?.find(item => item.id === id);
+  if (!comment) return;
+  const adding = !(comment[field] || []).includes(state.user.uid);
+  button.disabled = true;
+  try {
+    await updateDoc(doc(db, 'episodes', episodeId, 'comments', id), { [field]: adding ? arrayUnion(state.user.uid) : arrayRemove(state.user.uid) });
+    comment[field] = adding ? [...(comment[field] || []), state.user.uid] : comment[field].filter(uid => uid !== state.user.uid);
+    renderComments(episodeId);
+  } catch (error) {
+    console.error(error);
+    alert(friendlyError(error));
+    button.disabled = false;
+  }
+}
+
 const timeAgo = timestamp => {
   const date = timestamp?.toDate ? timestamp.toDate() : null;
   if (!date) return 'ahora';
@@ -251,7 +306,14 @@ function renderComments(episodeId) {
           <div class="comment__body">
             <p class="comment__meta"><strong>${escapeHtml(comment.name)}</strong> <span class="muted small">${escapeHtml(timeAgo(comment.createdAt))}</span></p>
             <p class="comment__text">${escapeHtml(comment.text)}</p>
-            ${canDelete(comment) ? `<button type="button" class="link-btn small" data-delete-comment="${escapeHtml(comment.id)}" data-episode="${escapeHtml(episodeId)}">Borrar</button>` : ''}
+            <div class="comment__actions">
+              ${REACTIONS.map(([field, emoji, label]) => {
+                const list = comment[field] || [];
+                const mine = list.includes(state.user.uid);
+                return `<button type="button" class="reaction" data-react="${field}" data-comment="${escapeHtml(comment.id)}" data-episode="${escapeHtml(episodeId)}" aria-pressed="${mine}" aria-label="${label}${list.length ? `: ${list.length}` : ''}">${emoji}${list.length ? ` <span>${list.length}</span>` : ''}</button>`;
+              }).join('')}
+              ${canDelete(comment) ? `<button type="button" class="link-btn small" data-delete-comment="${escapeHtml(comment.id)}" data-episode="${escapeHtml(episodeId)}">Borrar</button>` : ''}
+            </div>
           </div>
         </li>`).join('') : '<li class="muted small">Aún no hay comentarios. ¡Sé la primera persona en comentar!</li>'}
     </ul>
@@ -318,8 +380,15 @@ async function deleteComment(button) {
 // ---------- Pedidos de canciones y saludos ----------
 const REQUEST_TYPE = { cancion: 'Canción', saludo: 'Saludo' };
 
+const MAX_WAITING = 3;
+const waitingRequests = () => state.requests.filter(item => item.status === 'nuevo');
+
 function renderRequests() {
   const list = $('#request-list');
+  const waiting = waitingRequests().length;
+  $('#request-slots').textContent = `${waiting} de ${MAX_WAITING} pedidos en espera`;
+  $('#request-form button[type="submit"]').disabled = waiting >= MAX_WAITING;
+  $('#request-full').hidden = waiting < MAX_WAITING;
   if (!state.requests.length) { list.innerHTML = '<li class="muted small">Todavía no has enviado pedidos.</li>'; return; }
   list.innerHTML = state.requests.map(item => `
     <li class="admin-row">
@@ -333,11 +402,13 @@ function renderRequests() {
 }
 
 async function loadRequests() {
+  state.requestsReady = false;
   $('#request-list').innerHTML = '<li class="muted small">Cargando tus pedidos…</li>';
   try {
     const snapshot = await getDocs(query(collection(db, 'requests'), where('uid', '==', state.user.uid)));
     state.requests = snapshot.docs.map(item => ({ id: item.id, ...item.data() }))
       .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    state.requestsReady = true;
     renderRequests();
   } catch (error) {
     console.error(error);
@@ -359,11 +430,16 @@ async function handleRequest(event) {
   const message = $('#request-message');
   const text = form.text.value.trim();
   if (!text) { setMessage(message, form.type.value === 'cancion' ? 'Escribe la canción que quieres escuchar.' : 'Escribe tu saludo.'); return; }
+  if (!state.requestsReady) { setMessage(message, 'Espera un momento: estamos cargando tus pedidos.'); return; }
+  // Cada miembro tiene tres casillas para pedidos en espera.
+  const used = new Set(waitingRequests().map(item => item.id));
+  const slot = Array.from({ length: MAX_WAITING }, (_, i) => `${state.user.uid}_${i + 1}`).find(id => !used.has(id));
+  if (!slot) { setMessage(message, `Ya tienes ${MAX_WAITING} pedidos en espera. Cuando suenen al aire podrás enviar más.`); return; }
   form.querySelector('button[type="submit"]').disabled = true;
   try {
     const request = { uid: state.user.uid, name: state.member.name, type: form.type.value, text: text.slice(0, 300), to: form.to.value.trim().slice(0, 80), status: 'nuevo', createdAt: serverTimestamp() };
-    const ref = await addDoc(collection(db, 'requests'), request);
-    state.requests.unshift({ ...request, id: ref.id, createdAt: null });
+    await setDoc(doc(db, 'requests', slot), request);
+    state.requests.unshift({ ...request, id: slot, createdAt: null });
     renderRequests();
     form.text.value = ''; form.to.value = '';
     setMessage(message, '¡Pedido enviado! Te avisaremos aquí cuando suene al aire.', 'ok');
@@ -371,7 +447,7 @@ async function handleRequest(event) {
     console.error(error);
     setMessage(message, friendlyError(error));
   } finally {
-    form.querySelector('button[type="submit"]').disabled = false;
+    form.querySelector('button[type="submit"]').disabled = waitingRequests().length >= MAX_WAITING;
   }
 }
 
@@ -408,6 +484,8 @@ $('#episode-list').addEventListener('click', event => {
   if (comments) return toggleComments(comments);
   const removeComment = event.target.closest('[data-delete-comment]');
   if (removeComment) return deleteComment(removeComment);
+  const reaction = event.target.closest('[data-react]');
+  if (reaction) return toggleReaction(reaction);
 });
 $('#episode-list').addEventListener('submit', event => {
   const form = event.target.closest('[data-comment-form]');
@@ -416,6 +494,7 @@ $('#episode-list').addEventListener('submit', event => {
   submitComment(form);
 });
 $('#request-form').addEventListener('submit', handleRequest);
+$('#episode-search').addEventListener('input', filterEpisodes);
 $('#request-form').addEventListener('change', event => { if (event.target.name === 'type') updateRequestForm(); });
 $('#request-list').addEventListener('click', event => {
   const remove = event.target.closest('[data-delete-request]');
