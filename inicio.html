@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Radio Conexión · Conectados con tus sentidos</title>
-    <meta name="description" content="Radio Conexión se convierte en una comunidad. Muy pronto, un nuevo espacio para conectar con nuestra audiencia.">
+    <meta name="description" content="Radio Conexión es una comunidad: episodios exclusivos, comentarios, pedidos de canciones y saludos. Solicita tu ingreso con Google.">
     <link rel="canonical" href="https://www.radioconexionweb.com/inicio">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <meta name="author" content="Radio Conexión">
@@ -13,7 +13,7 @@
     <meta property="og:site_name" content="Radio Conexión">
     <meta property="og:locale" content="es_CL">
     <meta property="og:title" content="Radio Conexión · Conectados con tus sentidos">
-    <meta property="og:description" content="Radio Conexión se convierte en una comunidad. Muy pronto, un nuevo espacio para conectar con nuestra audiencia.">
+    <meta property="og:description" content="Radio Conexión es una comunidad: episodios exclusivos, comentarios, pedidos de canciones y saludos. Solicita tu ingreso con Google.">
     <meta property="og:url" content="https://www.radioconexionweb.com/inicio">
     <meta property="og:image" content="https://www.radioconexionweb.com/assets/marca/og-imagen.jpg">
     <meta property="og:image:secure_url" content="https://www.radioconexionweb.com/assets/marca/og-imagen.jpg">
@@ -23,7 +23,7 @@
     <meta property="og:image:alt" content="Radio Conexión · Conectados con tus sentidos. Periodismo positivo desde 2020.">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Radio Conexión · Conectados con tus sentidos">
-    <meta name="twitter:description" content="Radio Conexión se convierte en una comunidad. Muy pronto, un nuevo espacio para conectar con nuestra audiencia.">
+    <meta name="twitter:description" content="Radio Conexión es una comunidad: episodios exclusivos, comentarios, pedidos de canciones y saludos. Solicita tu ingreso con Google.">
     <meta name="twitter:image" content="https://www.radioconexionweb.com/assets/marca/og-imagen.jpg">
     <meta name="twitter:image:alt" content="Radio Conexión · Conectados con tus sentidos.">
     <link rel="icon" type="image/png" sizes="96x96" href="assets/marca/logo-96.png">
@@ -37,6 +37,8 @@
     <link rel="preload" href="assets/fuentes/UnicaOne-Regular.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="site.css">
     <script src="site.js" defer></script>
+    <script src="weather.js" defer></script>
+    <script src="home.js" defer></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -84,7 +86,7 @@
           "@id": "https://www.radioconexionweb.com/inicio#pagina",
           "url": "https://www.radioconexionweb.com/inicio",
           "name": "Radio Conexión · Conectados con tus sentidos",
-          "description": "Radio Conexión se convierte en una comunidad. Muy pronto, un nuevo espacio para conectar con nuestra audiencia.",
+          "description": "Radio Conexión es una comunidad: episodios exclusivos, comentarios, pedidos de canciones y saludos. Solicita tu ingreso con Google.",
           "inLanguage": "es-CL",
           "isPartOf": {
             "@id": "https://www.radioconexionweb.com/#sitio"
@@ -122,9 +124,6 @@
 </head>
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
-    <div class="maintenance-bar" role="status">
-        <div class="wrap"><strong>Sitio en mantención.</strong> Estamos renovando Radio Conexión para convertirla en una comunidad. Algunas secciones pueden no estar disponibles.</div>
-    </div>
     <header class="site-header" id="main-header">
         <div class="wrap site-header__bar">
             <a class="brand" href="inicio.html" aria-label="Radio Conexión, ir al inicio">
@@ -134,6 +133,7 @@
             <nav class="site-nav" id="nav-menu" aria-label="Principal">
                 <ul>
                     <li><a href="inicio.html" aria-current="page">Inicio</a></li>
+                    <li><a href="comunidad.html">Comunidad</a></li>
                     <li><a href="tiempo.html">Tiempo</a></li>
                     <li><a href="historia.html">Historia</a></li>
                 </ul>
@@ -152,14 +152,123 @@
     </header>
 
     <main id="contenido" tabindex="-1">
-        <section class="page-hero">
+        <section class="hero hero--sintonia">
+            <div class="hero__waves" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <div class="wrap hero__grid">
+                <div>
+                    <p class="on-air-pill"><span class="on-air-pill__lamp" aria-hidden="true"></span>En sintonía<span class="on-air-pill__sep" aria-hidden="true">·</span><span>Chile <time data-clock>--:--</time></span></p>
+                    <h1 class="display display--xl">Conectados con tus <em>sentidos.</em></h1>
+                    <p class="lead">Radio Conexión ahora es una comunidad: episodios exclusivos, conversaciones y pedidos que suenan al aire, para quienes nos acompañan desde siempre y para quienes recién llegan.</p>
+                    <div class="actions">
+                        <a class="btn btn-primary" href="comunidad.html">Solicitar mi ingreso</a>
+                        <a class="btn btn-ghost" href="historia.html">Conoce nuestra historia</a>
+                    </div>
+                    <dl class="community-stats" id="community-stats" hidden>
+                        <div><dt>miembros</dt><dd data-members>0</dd></div>
+                        <div><dt data-episodes-label>episodios</dt><dd data-episodes>0</dd></div>
+                    </dl>
+                </div>
+                <aside class="card on-air newsletter-sample" aria-labelledby="pasos-title">
+                    <div class="on-air__readout" aria-hidden="true"><span>FM</span><strong>104.3</strong><i></i><i></i><i></i><i></i></div>
+                    <p class="eyebrow on-air__live">Así de simple</p>
+                    <h2 id="pasos-title">Únete en tres pasos</h2>
+                    <ol class="newsletter-sample__list">
+                        <li><span>01</span>Entra con tu cuenta de Google y cuéntanos de ti</li>
+                        <li><span>02</span>Revisamos tu solicitud personalmente</li>
+                        <li><span>03</span>Te avisamos por correo y ya eres parte</li>
+                    </ol>
+                    <p class="on-air__meta">Es gratis. Una comunidad cuidada, solo para miembros.</p>
+                    <a class="btn btn-primary" href="comunidad.html">Quiero unirme</a>
+                </aside>
+            </div>
+        </section>
+
+        <div class="ticker" aria-hidden="true">
+            <div class="ticker__track"><span>Periodismo positivo</span><b>✦</b><span>Historias que inspiran</span><b>✦</b><span>Tu canción, al aire</span><b>✦</b><span>Saludos para tu gente</span><b>✦</b><span>Episodios exclusivos</span><b>✦</b><span>Desde 2020</span><b>✦</b><span>Periodismo positivo</span><b>✦</b><span>Historias que inspiran</span><b>✦</b><span>Tu canción, al aire</span><b>✦</b><span>Saludos para tu gente</span><b>✦</b><span>Episodios exclusivos</span><b>✦</b><span>Desde 2020</span><b>✦</b></div>
+        </div>
+
+        <section class="section" aria-labelledby="dentro-title">
             <div class="wrap">
-                <p class="eyebrow">Sitio en mantención</p>
-                <h1 class="display">Estamos renovando <em>Radio Conexión.</em></h1>
-                <p class="lead">Muy pronto seremos una comunidad: un nuevo espacio para encontrarnos, conversar y compartir. Gracias por la paciencia. Mientras tanto, revisa el tiempo o conoce nuestra historia.</p>
-                <div class="actions">
-                    <a class="btn btn-primary" href="historia.html">Conoce nuestra historia</a>
-                    <a class="btn btn-ghost" href="tiempo.html">Ver el tiempo</a>
+                <div class="section-head">
+                    <p class="eyebrow">Qué hay dentro</p>
+                    <h2 id="dentro-title">Una radio que se escucha, se comenta y se hace <em>juntos.</em></h2>
+                    <p class="muted tuner-hint">Gira el dial y sintoniza cada rincón de la comunidad.</p>
+                </div>
+                <div class="tuner" data-tuner>
+                    <div class="tuner__screen">
+                        <div class="tuner__readout">
+                            <span class="tuner__band">FM</span>
+                            <output class="tuner__freq" data-tuner-freq>89.5</output>
+                            <span class="tuner__mhz">MHz</span>
+                            <span class="tuner__signal" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                        </div>
+                        <canvas class="tuner__static" width="160" height="90" aria-hidden="true"></canvas>
+                        <div class="tuner__stations" aria-live="polite">
+                            <article class="tuner__station" data-freq="89.5">
+                                <span class="feature-card__num">01 · Episodios</span>
+                                <h3>Episodios exclusivos</h3>
+                                <p>Escucha todos los episodios de Radio Conexión cuando quieras y guarda tus favoritos.</p>
+                            </article>
+                            <article class="tuner__station" data-freq="94.3">
+                                <span class="feature-card__num">02 · Comentarios</span>
+                                <h3>Conversa en cada episodio</h3>
+                                <p>Comenta lo que escuchaste, reacciona y comparte con otros miembros de la comunidad.</p>
+                            </article>
+                            <article class="tuner__station" data-freq="99.1">
+                                <span class="feature-card__num">03 · Pedidos</span>
+                                <h3>Tu canción, al aire</h3>
+                                <p>Pide canciones y envía saludos para tu gente: los elegimos para los próximos episodios.</p>
+                            </article>
+                            <article class="tuner__station" data-freq="104.3">
+                                <span class="feature-card__num">04 · Perfiles</span>
+                                <h3>Conoce a la comunidad</h3>
+                                <p>Arma tu perfil, muestra tus episodios favoritos y descubre quiénes más escuchan.</p>
+                            </article>
+                        </div>
+                    </div>
+                    <div class="tuner__dial">
+                        <div class="tuner__scale" aria-hidden="true"><span style="--pos:0%">88</span><span style="--pos:20%">92</span><span style="--pos:40%">96</span><span style="--pos:60%">100</span><span style="--pos:80%">104</span><span style="--pos:100%">108</span><span class="tuner__mark" style="--pos:7.5%"></span><span class="tuner__mark" style="--pos:31.5%"></span><span class="tuner__mark" style="--pos:55.5%"></span><span class="tuner__mark" style="--pos:81.5%"></span></div>
+                        <input class="tuner__range" type="range" min="88" max="108" step="0.1" value="89.5" aria-label="Sintonizar el dial">
+                    </div>
+                    <div class="tuner__seek">
+                        <button type="button" class="btn btn-ghost btn-sm" data-seek="-1" aria-label="Emisora anterior">‹ Anterior</button>
+                        <span class="tuner__help">Arrastra la aguja</span>
+                        <button type="button" class="btn btn-ghost btn-sm" data-seek="1" aria-label="Emisora siguiente">Siguiente ›</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section--tint" aria-labelledby="mirada-title">
+            <div class="wrap split">
+                <div>
+                    <p class="eyebrow">Nuestra mirada</p>
+                    <h2 id="mirada-title">Queremos darle luz al <em>lado bueno</em> del mundo.</h2>
+                    <p class="lead" style="margin-top:18px">Periodismo positivo, historias que inspiran y la mejor música. Lo que partió en 2020 como un experimento en casa hoy es una comunidad que sigue creciendo.</p>
+                    <div class="actions">
+                        <a class="btn btn-dark" href="https://www.instagram.com/radioconexionweb/" target="_blank" rel="noopener noreferrer">Seguir en Instagram</a>
+                        <a class="btn btn-ghost" href="historia.html">Nuestra historia</a>
+                    </div>
+                </div>
+                <div class="card weather-card" data-weather-current aria-live="polite">
+                    <span class="weather-kicker">Ahora · Tiempo oficial</span>
+                    <strong>—°</strong>
+                    <span>Cargando datos de la Dirección Meteorológica de Chile</span>
+                    <a href="tiempo.html">Ver pronóstico →</a>
+                    <p data-weather-message></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" aria-labelledby="unete-title">
+            <div class="wrap">
+                <div class="cta-band">
+                    <div>
+                        <p class="eyebrow">Comunidad</p>
+                        <h2 id="unete-title">¿Listo para conectarte?</h2>
+                        <p>Solicita tu ingreso con tu cuenta de Google. Revisamos cada solicitud y te avisamos por correo cuando estés dentro.</p>
+                    </div>
+                    <a class="btn btn-primary" href="comunidad.html">Solicitar mi ingreso</a>
                 </div>
             </div>
         </section>
@@ -176,6 +285,7 @@
                 <h2 id="footer-secciones">Secciones</h2>
                 <ul>
                     <li><a href="inicio.html">Inicio</a></li>
+                    <li><a href="comunidad.html">Comunidad</a></li>
                     <li><a href="tiempo.html">Tiempo</a></li>
                     <li><a href="historia.html">Historia</a></li>
                 </ul>

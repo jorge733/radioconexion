@@ -1,0 +1,165 @@
+rules_version = '2';
+
+// Reglas de la comunidad de Radio Conexión.
+// Publicar con: firebase deploy --only firestore:rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+
+    // Si cambias la cuenta administradora, cámbiala también en firebase-config.js.
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email == 'sabenedettoa@benedettowebs.cl'
+        && request.auth.token.email_verified == true;
+    }
+
+    function memberPath(uid) { return /databases/$(database)/documents/members/$(uid); }
+
+    function isApproved() {
+      return signedIn()
+        && exists(memberPath(request.auth.uid))
+        && get(memberPath(request.auth.uid)).data.status == 'approved';
+    }
+
+    function validProfile(d) {
+      return d.name is string && d.name.size() > 0 && d.name.size() <= 60
+        && d.bio is string && d.bio.size() <= 280
+        && d.photoURL is string && d.photoURL.size() <= 2000
+        && d.favorites is list && d.favorites.size() <= 100;
+    }
+
+    function onlyChanges(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    // Perfil público dentro de la comunidad (sin correo).
+    match /members/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid) || isApproved();
+
+      // Cada persona solo puede crear su propia solicitud, siempre como pendiente.
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'bio', 'photoURL', 'favorites', 'status', 'createdAt'])
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && validProfile(request.resource.data);
+
+      // El miembro edita su perfil; solo la administración cambia el estado.
+      allow update: if (signedIn() && request.auth.uid == uid
+                        && onlyChanges(['name', 'bio', 'photoURL', 'favorites'])
+                        && validProfile(request.resource.data))
+                    || (isAdmin()
+                        && onlyChanges(['status', 'reviewedAt'])
+                        && request.resource.data.status in ['pending', 'approved', 'rejected']);
+
+      allow delete: if isAdmin();
+
+      // Datos privados: solo el propio miembro y la administración.
+      match /private/contact {
+        allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+        allow create, update: if signedIn() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['email', 'episodeEmails'])
+          && request.resource.data.email == request.auth.token.email
+          && (!('episodeEmails' in request.resource.data) || request.resource.data.episodeEmails is bool);
+        allow delete: if isAdmin();
+      }
+    }
+
+    // Episodios: solo para miembros aprobados; solo la administración publica.
+    match /episodes/{episodeId} {
+      allow read: if isAdmin() || isApproved();
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['title', 'description', 'date', 'driveId', 'createdAt', 'notifiedAt'])
+        && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 140
+        && request.resource.data.description is string && request.resource.data.description.size() <= 2000
+        && request.resource.data.date is string && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.driveId is string && request.resource.data.driveId.matches('^[A-Za-z0-9_-]{20,100}$');
+      allow delete: if isAdmin();
+    }
+
+    function myProfile() { return get(memberPath(request.auth.uid)).data; }
+
+    function onlyOwnToggle(field) {
+      let before = resource.data.get(field, []).toSet();
+      let after = request.resource.data.get(field, []);
+      return after is list && after.size() <= 1000
+        && after.toSet().difference(before).hasOnly([request.auth.uid])
+        && before.difference(after.toSet()).hasOnly([request.auth.uid]);
+    }
+
+    function validRequest(d) {
+      return d.keys().hasOnly(['uid', 'name', 'type', 'text', 'to', 'status', 'createdAt'])
+        && d.type in ['cancion', 'saludo']
+        && d.text is string && d.text.size() > 0 && d.text.size() <= 300
+        && d.to is string && d.to.size() <= 80;
+    }
+
+    // Comentarios de los episodios: los escriben miembros aprobados con su propio nombre.
+    match /episodes/{episodeId}/comments/{commentId} {
+      allow read: if isAdmin() || isApproved();
+      allow create: if isApproved()
+        && exists(/databases/$(database)/documents/episodes/$(episodeId))
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'photoURL', 'text', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.name == myProfile().name
+        && request.resource.data.photoURL == myProfile().photoURL
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 500
+        && request.resource.data.createdAt == request.time;
+      // Reacciones: cada miembro solo agrega o quita su propio uid de cada lista.
+      allow update: if isApproved()
+        && onlyChanges(['hearts', 'claps'])
+        && onlyOwnToggle('hearts') && onlyOwnToggle('claps');
+      // Cada miembro borra sus comentarios; la administración puede borrar cualquiera.
+      allow delete: if isAdmin() || (isApproved() && resource.data.uid == request.auth.uid);
+    }
+
+    // Pedidos de canciones y saludos: cada miembro ve solo los suyos.
+    // Pedidos en espera: máximo 3 por miembro, en las casillas "<uid>_1", "<uid>_2" y "<uid>_3".
+    // Al leerse al aire, la administración los mueve a un documento nuevo (estado "hecho")
+    // y borra la casilla, que queda libre para otro pedido.
+    match /requests/{requestId} {
+      allow read: if isAdmin() || (isApproved() && resource.data.uid == request.auth.uid);
+      allow create: if (isApproved()
+          && requestId in [request.auth.uid + '_1', request.auth.uid + '_2', request.auth.uid + '_3']
+          && validRequest(request.resource.data)
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.name == myProfile().name
+          && request.resource.data.status == 'nuevo'
+          && request.resource.data.createdAt == request.time)
+        || (isAdmin() && validRequest(request.resource.data) && request.resource.data.status == 'hecho');
+      // El miembro puede retirar un pedido mientras no se haya leído al aire.
+      allow delete: if isAdmin()
+        || (isApproved() && resource.data.uid == request.auth.uid && resource.data.status == 'nuevo');
+    }
+
+    // Reportes de comentarios: un reporte por persona y comentario ("<comentario>_<uid>").
+    // Solo la administración los lee y los resuelve.
+    match /reports/{reportId} {
+      allow read, delete: if isAdmin();
+      allow create: if isApproved()
+        && reportId == request.resource.data.commentId + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['reporterUid', 'episodeId', 'commentId', 'createdAt'])
+        && request.resource.data.reporterUid == request.auth.uid
+        && request.resource.data.episodeId is string && request.resource.data.commentId is string
+        && exists(/databases/$(database)/documents/episodes/$(request.resource.data.episodeId)/comments/$(request.resource.data.commentId))
+        && get(/databases/$(database)/documents/episodes/$(request.resource.data.episodeId)/comments/$(request.resource.data.commentId)).data.uid != request.auth.uid
+        && request.resource.data.createdAt == request.time;
+    }
+
+    // Cifras públicas para la portada (cantidad de miembros y episodios).
+    // Las actualiza el panel de administración.
+    match /public/stats {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.data.keys().hasOnly(['members', 'episodes', 'updatedAt'])
+        && request.resource.data.members is int && request.resource.data.members >= 0
+        && request.resource.data.episodes is int && request.resource.data.episodes >= 0;
+    }
+
+    // Todo lo demás queda cerrado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
