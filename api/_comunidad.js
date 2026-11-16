@@ -98,12 +98,19 @@ async function sendEmail({ to, subject, html, text }) {
   return result.ok;
 }
 
-// Plantilla sencilla con los colores de la marca.
+// Plantilla sencilla con el logo y los colores de la marca.
 const emailLayout = body => `
-  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1d211d;background:#f7f3ea;border-radius:16px">
-    <p style="margin:0 0 16px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#8a5605;font-weight:600">Radio Conexión · Comunidad</p>
-    ${body}
-    <p style="margin:24px 0 0;font-size:13px;color:#545b53">Conectados con tus sentidos.</p>
+  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;color:#1d211d;background:#f7f3ea;border-radius:16px;overflow:hidden;border:1px solid #e2dac8">
+    <div style="background:#ffffff;padding:20px 24px;text-align:center;border-bottom:3px solid #c77f0d">
+      <a href="${SITE_URL}/inicio" style="text-decoration:none">
+        <img src="${SITE_URL}/assets/marca/logo-correo.png" width="320" height="104" alt="Radio Conexión · Conectados con tus sentidos" style="display:inline-block;width:320px;max-width:100%;height:auto;border:0">
+      </a>
+    </div>
+    <div style="padding:24px">
+      <p style="margin:0 0 16px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#8a5605;font-weight:600">Comunidad</p>
+      ${body}
+      <p style="margin:24px 0 0;font-size:13px;color:#545b53">Conectados con tus sentidos.</p>
+    </div>
   </div>`;
 
 const button = (href, label) => `<p style="margin:20px 0"><a href="${href}" style="display:inline-block;background:#c77f0d;color:#1d1606;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px">${label}</a></p>`;
