@@ -216,7 +216,6 @@ html.dark .theme-icon-moon { display: none; }
 .site-footer a { color: var(--on-night); text-decoration: none; }
 .site-footer a:hover { color: var(--accent); }
 .site-footer__grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 40px; padding-block: 56px 40px; }
-.site-footer__brand .brand__name { color: var(--accent); font-size: 1.6rem; }
 .site-footer__brand p { max-width: 36ch; margin-top: 14px; }
 .site-footer h2 { margin-bottom: 14px; font: 600 .75rem/1.4 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--on-night); }
 .site-footer ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
@@ -791,7 +790,6 @@ html { scrollbar-color: color-mix(in srgb, var(--accent) 60%, var(--line)) trans
   --needle-at: 18%;
 }
 .site-footer { position: relative; }
-.site-footer__brand .brand__name { font-size: clamp(2rem, 5vw, 3.2rem); letter-spacing: .05em; text-shadow: 0 0 28px color-mix(in srgb, var(--accent) 35%, transparent); }
 
 /* ---------- Encabezados, botones y tarjetas ---------- */
 .eyebrow::before {
@@ -1092,3 +1090,8 @@ html.dark .brand__logo--light { display: none; }
 html.dark .brand__logo--dark { display: block; }
 @media (max-width: 860px) { .brand--logo .brand__logo { height: 46px; } }
 @media (max-width: 380px) { .brand--logo .brand__logo { height: 40px; width: auto; } }
+
+/* ---------- Logo horizontal en el pie (fondo siempre oscuro) ---------- */
+.footer-logo { display: inline-block; }
+.footer-logo img { width: auto; height: clamp(64px, 9vw, 84px); transition: filter .3s ease; }
+.footer-logo:hover img { filter: drop-shadow(0 4px 16px color-mix(in srgb, var(--accent) 35%, transparent)); }
