@@ -73,7 +73,7 @@ body {
   font: 400 16px/1.65 var(--font-body);
   overflow-x: hidden;
 }
-main { flex: 1; outline: none; }
+main { flex: 1; outline: none; overflow-x: clip; } /* recorta la cinta inclinada (.ticker) que sobresale del viewport */
 img { max-width: 100%; height: auto; display: block; }
 a { color: inherit; }
 p { margin: 0 0 1em; }
