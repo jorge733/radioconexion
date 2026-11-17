@@ -37,7 +37,7 @@
     <link rel="preload" href="assets/fuentes/UnicaOne-Regular.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="site.css">
     <script src="site.js" defer></script>
-    <script src="envivo.js" defer></script>
+    <script src="https://cdn.cloud.caster.fm/widgets/embed.js" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -82,19 +82,14 @@
 
         <section class="section section--tight" aria-labelledby="live-heading" style="padding-top:0">
             <div class="wrap">
-                <div class="card on-air live-player" data-live data-state="off">
-                    <p class="eyebrow"><span class="on-air__live" data-live-badge>Señal en directo</span></p>
+                <div class="card on-air live-player">
+                    <p class="eyebrow"><span class="on-air__live">Señal en directo</span></p>
                     <h2 id="live-heading">Radio Conexión</h2>
-                    <p class="on-air__meta" data-live-status aria-live="polite">Preparando la señal…</p>
-                    <div class="on-air__wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-                    <div class="actions">
-                        <button type="button" class="btn btn-primary" data-live-toggle disabled>▶ Escuchar en vivo</button>
-                        <label class="live-volume">
-                            <span class="visually-hidden">Volumen</span>
-                            <input type="range" min="0" max="1" step="0.05" value="0.9" data-live-volume aria-label="Volumen">
-                        </label>
+                    <p class="on-air__meta">Presiona play para escucharnos. Si no estamos al aire, el reproductor te lo indicará.</p>
+                    <div class="live-embed">
+                        <!-- Reproductor de Caster.fm (plan gratuito). El publicToken es público y está pensado para insertarse en sitios web. -->
+                        <div data-type="newStreamPlayer" data-publicToken="7b9b3912-7175-4843-86a9-11547afa4e76" data-theme="light" data-color="c77f0d" data-channelId="" data-rendered="false" class="cstrEmbed"><a href="https://www.caster.fm">Shoutcast Hosting</a> <a href="https://www.caster.fm">Stream Hosting</a> <a href="https://www.caster.fm">Radio Server Hosting</a></div>
                     </div>
-                    <audio preload="none" data-live-audio></audio>
                 </div>
                 <p class="muted small" style="margin-top:20px">Si no estamos transmitiendo en este momento, vuelve más tarde o síguenos en <a class="text-link" href="https://www.instagram.com/radioconexionweb/" target="_blank" rel="noopener noreferrer">Instagram</a> para enterarte de la próxima emisión.</p>
             </div>
