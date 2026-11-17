@@ -15,17 +15,17 @@
     <meta property="og:title" content="Historia · Radio Conexión">
     <meta property="og:description" content="Conoce la historia de Radio Conexión, las palabras de su fundador y el museo de logos de la radio.">
     <meta property="og:url" content="https://www.radioconexionweb.com/historia">
-    <meta property="og:image" content="https://www.radioconexionweb.com/assets/marca/og-imagen.jpg">
-    <meta property="og:image:secure_url" content="https://www.radioconexionweb.com/assets/marca/og-imagen.jpg">
+    <meta property="og:image" content="https://www.radioconexionweb.com/assets/marca/og-imagen.jpg?v=2">
+    <meta property="og:image:secure_url" content="https://www.radioconexionweb.com/assets/marca/og-imagen.jpg?v=2">
     <meta property="og:image:type" content="image/jpeg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Radio Conexión · Conectados con tus sentidos. Periodismo positivo desde 2020.">
+    <meta property="og:image:alt" content="Radio Conexión · Conectados con tus sentidos. Una comunidad con episodios exclusivos, conversaciones y tus canciones al aire.">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Historia · Radio Conexión">
     <meta name="twitter:description" content="Conoce la historia de Radio Conexión, las palabras de su fundador y el museo de logos de la radio.">
-    <meta name="twitter:image" content="https://www.radioconexionweb.com/assets/marca/og-imagen.jpg">
-    <meta name="twitter:image:alt" content="Radio Conexión · Conectados con tus sentidos.">
+    <meta name="twitter:image" content="https://www.radioconexionweb.com/assets/marca/og-imagen.jpg?v=2">
+    <meta name="twitter:image:alt" content="Radio Conexión · Conectados con tus sentidos. Una comunidad con episodios exclusivos, conversaciones y tus canciones al aire.">
     <link rel="icon" type="image/png" sizes="96x96" href="assets/marca/logo-96.png">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/marca/logo-192.png">
     <link rel="apple-touch-icon" href="assets/marca/logo-192.png">
@@ -58,7 +58,7 @@
             "width": 512,
             "height": 512
           },
-          "image": "https://www.radioconexionweb.com/assets/marca/og-imagen.jpg",
+          "image": "https://www.radioconexionweb.com/assets/marca/og-imagen.jpg?v=2",
           "foundingDate": "2020",
           "inLanguage": "es-CL",
           "areaServed": {
@@ -94,7 +94,7 @@
           },
           "primaryImageOfPage": {
             "@type": "ImageObject",
-            "url": "https://www.radioconexionweb.com/assets/marca/og-imagen.jpg",
+            "url": "https://www.radioconexionweb.com/assets/marca/og-imagen.jpg?v=2",
             "width": 1200,
             "height": 630
           },
@@ -122,19 +122,18 @@
 </head>
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
-    <div class="maintenance-bar" role="status">
-        <div class="wrap"><strong>Sitio en mantención.</strong> Estamos renovando Radio Conexión para convertirla en una comunidad. Algunas secciones pueden no estar disponibles.</div>
-    </div>
     <header class="site-header" id="main-header">
         <div class="wrap site-header__bar">
-            <a class="brand" href="inicio.html" aria-label="Radio Conexión, ir al inicio">
-                <img src="assets/marca/logo-96.png" width="44" height="44" alt="">
-                <span class="brand__text"><span class="brand__name">Radio Conexión</span><span class="brand__tag">Conectados con tus sentidos</span></span>
+            <a class="brand brand--logo" href="inicio.html" aria-label="Radio Conexión, ir al inicio">
+                <img class="brand__logo brand__logo--light" src="assets/marca/logo-horizontal.png" width="640" height="211" alt="">
+                <img class="brand__logo brand__logo--dark" src="assets/marca/logo-horizontal-oscuro.png" width="640" height="211" alt="">
             </a>
             <nav class="site-nav" id="nav-menu" aria-label="Principal">
                 <ul>
                     <li><a href="inicio.html">Inicio</a></li>
                     <li><a href="envivo.html">En vivo</a></li>
+                    <li><a href="comunidad.html">Comunidad</a></li>
+                    <li><a href="participa.html">Participa</a></li>
                     <li><a href="tiempo.html">Tiempo</a></li>
                     <li><a href="historia.html" aria-current="page">Historia</a></li>
                 </ul>
@@ -249,12 +248,34 @@
                 </ol>
             </div>
         </section>
+        <section class="section section--tight" aria-labelledby="voces-title">
+            <div class="wrap">
+                <div class="voice-banner">
+                    <div class="voice-banner__body">
+                        <p class="voice-banner__sign"><span class="voice-banner__lamp" aria-hidden="true"></span>Buscamos voces</p>
+                        <h2 id="voces-title">¿Y si el próximo episodio <em>lo cuentas tú?</em></h2>
+                        <p>Tu historia, tu música o esa idea que inspira merecen sonar. Postula en un par de minutos: es gratis y no necesitas experiencia en radio.</p>
+                        <ul class="voice-banner__tags" aria-label="Formas de participar">
+                            <li>Historias</li><li>Entrevistas</li><li>Música y talento</li><li>Temas positivos</li>
+                        </ul>
+                    </div>
+                    <div class="voice-banner__cta">
+                        <div class="voice-banner__mic" aria-hidden="true">
+                            <span class="voice-banner__ring"></span><span class="voice-banner__ring"></span><span class="voice-banner__ring"></span>
+                            <svg viewBox="0 0 48 48"><rect x="17" y="5" width="14" height="24" rx="7"/><path d="M11 22a13 13 0 0 0 26 0M24 35v8M17 43h14"/><path class="voice-banner__grill" d="M17 13h5M17 18h5M17 23h5"/></svg>
+                        </div>
+                        <a class="btn btn-dark voice-banner__btn" href="participa.html">Quiero participar <span aria-hidden="true">→</span></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <footer class="site-footer">
         <div class="wrap site-footer__grid">
             <div class="site-footer__brand">
-                <a class="brand__name" href="inicio.html">Radio Conexión</a>
+                <a class="footer-logo" href="inicio.html" aria-label="Radio Conexión, ir al inicio"><img src="assets/marca/logo-horizontal-oscuro.png" width="640" height="211" alt="" loading="lazy"></a>
                 <p>Conectados con tus sentidos. Periodismo positivo e historias que inspiran desde 2020.</p>
                 <a class="text-link" href="https://www.instagram.com/radioconexionweb/" target="_blank" rel="noopener noreferrer">@radioconexionweb en Instagram ↗</a>
             </div>
@@ -263,6 +284,8 @@
                 <ul>
                     <li><a href="inicio.html">Inicio</a></li>
                     <li><a href="envivo.html">En vivo</a></li>
+                    <li><a href="comunidad.html">Comunidad</a></li>
+                    <li><a href="participa.html">Participa</a></li>
                     <li><a href="tiempo.html">Tiempo</a></li>
                     <li><a href="historia.html">Historia</a></li>
                 </ul>
@@ -270,7 +293,7 @@
             <nav aria-labelledby="footer-comunidad">
                 <h2 id="footer-comunidad">Comunidad</h2>
                 <ul>
-                    <li><a href="https://docs.google.com/document/d/1lDV4lXvJRvKY-jV-HnYbBzAtuWayx_yOnCAoZhyC7Lw/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Condiciones y privacidad ↗</a></li>
+                    <li><a href="condiciones.html">Condiciones y privacidad</a></li>
                 </ul>
             </nav>
         </div>

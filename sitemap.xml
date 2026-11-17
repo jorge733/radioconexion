@@ -4,7 +4,15 @@
   <url>
     <loc>https://www.radioconexionweb.com/inicio</loc>
     <lastmod>2026-11-10</lastmod>
-    <image:image><image:loc>https://www.radioconexionweb.com/assets/marca/og-imagen.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.radioconexionweb.com/assets/marca/og-imagen.jpg?v=2</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://www.radioconexionweb.com/comunidad</loc>
+    <lastmod>2026-11-16</lastmod>
+  </url>
+  <url>
+    <loc>https://www.radioconexionweb.com/participa</loc>
+    <lastmod>2026-11-17</lastmod>
   </url>
   <url>
     <loc>https://www.radioconexionweb.com/envivo</loc>
@@ -17,5 +25,9 @@
   <url>
     <loc>https://www.radioconexionweb.com/tiempo</loc>
     <lastmod>2026-11-10</lastmod>
+  </url>
+  <url>
+    <loc>https://www.radioconexionweb.com/condiciones</loc>
+    <lastmod>2026-11-17</lastmod>
   </url>
 </urlset>
