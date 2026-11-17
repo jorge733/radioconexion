@@ -1170,3 +1170,55 @@ input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--
 .participa__done .actions { justify-content: center; margin-top: 20px; }
 .participa__done-icon { display: inline-grid; place-items: center; width: 64px; height: 64px; margin-bottom: 18px; border-radius: 50%; background: var(--accent-soft); }
 .participa__done-icon svg { width: 30px; height: 30px; fill: none; stroke: var(--accent-ink); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- Banner "Buscamos voces" (invita a participar) ---------- */
+.voice-banner {
+  --vb-ink: #1d1606;
+  position: relative; overflow: hidden; isolation: isolate;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: clamp(24px, 5vw, 64px); align-items: center;
+  padding: clamp(28px, 5vw, 56px); border-radius: calc(var(--radius) + 6px);
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(255, 255, 255, .35), transparent 55%),
+    linear-gradient(135deg, #e3a02a, #c77f0d);
+  color: var(--vb-ink);
+  box-shadow: 0 18px 40px rgba(199, 127, 13, .28);
+}
+/* Escala de dial al pie del banner */
+.voice-banner::after {
+  content: ''; position: absolute; inset: auto 0 0; height: 14px; z-index: -1; opacity: .35;
+  background:
+    repeating-linear-gradient(90deg, var(--vb-ink) 0 1px, transparent 1px 10px) bottom / 100% 6px no-repeat,
+    repeating-linear-gradient(90deg, var(--vb-ink) 0 1px, transparent 1px 50px) bottom / 100% 14px no-repeat;
+}
+.voice-banner h2 { color: var(--vb-ink); font-size: clamp(1.8rem, 4vw, 2.8rem); max-width: none; }
+.voice-banner h2 em { color: #fffaf0; font-weight: 500; }
+.voice-banner p { margin: 14px 0 0; max-width: 56ch; color: color-mix(in srgb, var(--vb-ink) 82%, transparent); font-size: 1.05rem; }
+.voice-banner .voice-banner__sign {
+  display: inline-flex; align-items: center; gap: 10px; margin: 0 0 16px;
+  padding: 6px 14px 6px 10px; border-radius: 999px; background: var(--vb-ink); color: #f6c766;
+  font: 400 .95rem/1.2 var(--font-title); letter-spacing: .14em; text-transform: uppercase;
+}
+.voice-banner__lamp { width: 10px; height: 10px; border-radius: 50%; background: #ff5a3c; box-shadow: 0 0 0 3px rgba(255, 90, 60, .25), 0 0 12px #ff5a3c; animation: lamp 2.2s ease-in-out infinite; }
+.voice-banner__tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; padding: 0; list-style: none; }
+.voice-banner__tags li { padding: 4px 12px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--vb-ink) 30%, transparent); background: rgba(255, 255, 255, .22); font-size: .85rem; font-weight: 600; }
+.voice-banner__cta { display: grid; justify-items: center; gap: 20px; }
+.voice-banner__mic { position: relative; display: grid; place-items: center; width: 132px; height: 132px; }
+.voice-banner__mic svg { position: relative; width: 64px; height: 64px; padding: 18px; box-sizing: content-box; border-radius: 50%; background: var(--vb-ink); fill: none; stroke: #f6c766; stroke-width: 2.4; stroke-linecap: round; }
+.voice-banner__mic svg rect { fill: rgba(246, 199, 102, .12); }
+.voice-banner__grill { stroke-width: 1.6; opacity: .7; }
+.voice-banner__ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--vb-ink); opacity: 0; animation: voice-ring 3s ease-out infinite; }
+.voice-banner__ring:nth-child(2) { animation-delay: 1s; }
+.voice-banner__ring:nth-child(3) { animation-delay: 2s; }
+@keyframes voice-ring { 0% { transform: scale(.55); opacity: .5; } 100% { transform: scale(1.15); opacity: 0; } }
+html .voice-banner .voice-banner__btn { background: var(--vb-ink); color: #fffaf0; border-color: transparent; box-shadow: 0 8px 20px rgba(29, 22, 6, .3); }
+html .voice-banner .voice-banner__btn:hover { background: #2c2210; }
+.voice-banner__btn span { transition: transform .2s ease; }
+.voice-banner__btn:hover span { transform: translateX(3px); }
+html.dark .voice-banner { box-shadow: 0 18px 40px rgba(0, 0, 0, .35); }
+@media (max-width: 760px) {
+  .voice-banner { grid-template-columns: 1fr; }
+  .voice-banner__cta { grid-template-columns: auto 1fr; justify-items: start; align-items: center; }
+  .voice-banner__mic { width: 88px; height: 88px; }
+  .voice-banner__mic svg { width: 40px; height: 40px; padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .voice-banner__ring:first-child { opacity: .25; transform: scale(.95); } }
