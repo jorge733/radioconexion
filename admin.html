@@ -51,6 +51,7 @@
                 <ul>
                     <li><a href="inicio.html">Inicio</a></li>
                     <li><a href="comunidad.html">Comunidad</a></li>
+                    <li><a href="participa.html">Participa</a></li>
                     <li><a href="tiempo.html">Tiempo</a></li>
                     <li><a href="historia.html">Historia</a></li>
                 </ul>
@@ -73,7 +74,7 @@
             <div class="wrap">
                 <p class="eyebrow">Administración</p>
                 <h1 class="display">Panel de la <em>comunidad.</em></h1>
-                <p class="lead">Aprueba solicitudes, revisa los pedidos de canciones y saludos, y publica los episodios desde Google Drive.</p>
+                <p class="lead">Aprueba solicitudes, revisa quién quiere participar y los pedidos de canciones y saludos, y publica los episodios desde Google Drive.</p>
                 <div class="session-bar">
                     <button type="button" class="btn btn-ghost btn-sm" data-signout>Cerrar sesión</button>
                     <a class="text-link small" href="comunidad.html">Ir a la comunidad</a>
@@ -110,6 +111,16 @@
                     <section class="admin-block" aria-labelledby="pending-title">
                         <h2 id="pending-title">Solicitudes pendientes <span class="count-badge" id="pending-count">0</span></h2>
                         <ul class="admin-list" id="pending-list"></ul>
+                    </section>
+
+                    <section class="admin-block" aria-labelledby="participations-title">
+                        <h2 id="participations-title">Quieren participar <span class="count-badge" id="participation-count">0</span></h2>
+                        <p class="muted small">Postulaciones del formulario <a class="text-link" href="participa.html">Participa</a>. Escríbeles a su correo y márcalas como contactadas.</p>
+                        <ul class="admin-list" id="admin-participations"><li class="muted">Cargando…</li></ul>
+                        <details class="admin-details">
+                            <summary>Ya contactadas</summary>
+                            <ul class="admin-list" id="admin-participations-done"></ul>
+                        </details>
                     </section>
 
                     <section class="admin-block" aria-labelledby="stats-title">
@@ -202,6 +213,7 @@
                 <ul>
                     <li><a href="inicio.html">Inicio</a></li>
                     <li><a href="comunidad.html">Comunidad</a></li>
+                    <li><a href="participa.html">Participa</a></li>
                     <li><a href="tiempo.html">Tiempo</a></li>
                     <li><a href="historia.html">Historia</a></li>
                 </ul>

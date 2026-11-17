@@ -147,6 +147,31 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
     }
 
+    // Postulaciones para participar en la radio (formulario público de /participa).
+    // Cualquiera puede enviar una, siempre como "nuevo" y con su autorización; solo la administración las lee.
+    function validParticipation(d) {
+      return d.keys().hasOnly(['name', 'email', 'phone', 'place', 'type', 'idea', 'format', 'links', 'consent', 'status', 'createdAt'])
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 80
+        && d.email is string && d.email.size() <= 254 && d.email.matches('^[^@\\s]+@[^@\\s]+\\.[A-Za-z]{2,24}$')
+        && d.phone is string && d.phone.size() <= 30
+        && d.place is string && d.place.size() <= 80
+        && d.type in ['historia', 'entrevista', 'talento', 'tema', 'seccion', 'otro']
+        && d.idea is string && d.idea.size() >= 20 && d.idea.size() <= 1500
+        && d.format in ['distancia', 'estudio', 'cualquiera']
+        && d.links is string && d.links.size() <= 300
+        && d.consent == true;
+    }
+
+    match /participations/{participationId} {
+      allow read, delete: if isAdmin();
+      allow create: if validParticipation(request.resource.data)
+        && request.resource.data.status == 'nuevo'
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin()
+        && onlyChanges(['status', 'contactedAt'])
+        && request.resource.data.status in ['nuevo', 'contactado'];
+    }
+
     // Cifras públicas para la portada (cantidad de miembros y episodios).
     // Las actualiza el panel de administración.
     match /public/stats {

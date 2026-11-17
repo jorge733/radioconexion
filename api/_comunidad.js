@@ -84,7 +84,7 @@ async function sendEmails(messages) {
 
 const isRecent = timestamp => Boolean(timestamp) && Date.now() - timestamp <= RECENT_MS;
 
-async function sendEmail({ to, subject, html, text }) {
+async function sendEmail({ to, subject, html, text, replyTo }) {
   if (!process.env.RESEND_API_KEY) {
     console.warn('RESEND_API_KEY no está configurada; no se envió el correo.');
     return false;
@@ -92,14 +92,14 @@ async function sendEmail({ to, subject, html, text }) {
   const result = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: FROM, to: [to], subject, html, text })
+    body: JSON.stringify({ from: FROM, to: [to], subject, html, text, ...(replyTo ? { reply_to: replyTo } : {}) })
   });
   if (!result.ok) console.error('Resend respondió', result.status, await result.text().catch(() => ''));
   return result.ok;
 }
 
 // Plantilla sencilla con el logo y los colores de la marca.
-const emailLayout = body => `
+const emailLayout = (body, kicker = 'Comunidad') => `
   <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;color:#1d211d;background:#f7f3ea;border-radius:16px;overflow:hidden;border:1px solid #e2dac8">
     <div style="background:#ffffff;padding:20px 24px;text-align:center;border-bottom:3px solid #c77f0d">
       <a href="${SITE_URL}/inicio" style="text-decoration:none">
@@ -107,7 +107,7 @@ const emailLayout = body => `
       </a>
     </div>
     <div style="padding:24px">
-      <p style="margin:0 0 16px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#8a5605;font-weight:600">Comunidad</p>
+      <p style="margin:0 0 16px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#8a5605;font-weight:600">${kicker}</p>
       ${body}
       <p style="margin:24px 0 0;font-size:13px;color:#545b53">Conectados con tus sentidos.</p>
     </div>
@@ -122,4 +122,4 @@ function onlyPost(request, response) {
   return false;
 }
 
-module.exports = { ADMIN_EMAIL, SITE_URL, escapeHtml, bearer, verifiedUser, isAdmin, readDoc, isRecent, sendEmail, sendEmails, approvedMemberIds, stampDoc, emailLayout, button, onlyPost };
+module.exports = { ADMIN_EMAIL, SITE_URL, firestoreBase, escapeHtml, bearer, verifiedUser, isAdmin, readDoc, isRecent, sendEmail, sendEmails, approvedMemberIds, stampDoc, emailLayout, button, onlyPost };

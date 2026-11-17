@@ -4,7 +4,7 @@ import {
 } from './community-core.js';
 
 const $ = selector => document.querySelector(selector);
-const state = { members: [], episodes: [], requests: [], reports: [], commentCounts: {} };
+const state = { members: [], episodes: [], requests: [], reports: [], participations: [], commentCounts: {} };
 
 function show(name) {
   ['loading', 'out', 'denied', 'app'].forEach(view => { $(`#view-${view}`).hidden = view !== name; });
@@ -82,6 +82,7 @@ async function loadAll() {
   renderRequests();
   syncPublicStats();
   loadReports();
+  loadParticipations();
   loadStats();
 }
 
@@ -409,7 +410,96 @@ async function deleteRequest(id, button) {
   }
 }
 
+// ---------- Postulaciones para participar en la radio ----------
+const PARTICIPATION_TYPE = {
+  historia: '📖 Contar su historia', entrevista: '🎙️ Entrevista', talento: '🎶 Música o talento',
+  tema: '💡 Propone un tema', seccion: '📻 Hacer una sección', otro: '✨ Otra idea'
+};
+const PARTICIPATION_FORMAT = { distancia: 'A distancia', estudio: 'En el estudio', cualquiera: 'A distancia o en estudio' };
+
+async function loadParticipations() {
+  try {
+    const snapshot = await getDocs(query(collection(db, 'participations'), orderBy('createdAt', 'desc')));
+    state.participations = snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
+    renderParticipations();
+  } catch (error) {
+    console.error(error);
+    $('#admin-participations').innerHTML = `<li class="alert">${escapeHtml(friendlyError(error))}</li>`;
+  }
+}
+
+// Solo enlazamos direcciones http(s); el resto se muestra como texto.
+const linkify = text => escapeHtml(text).replace(/https?:\/\/[^\s<>"']+/g, url => `<a class="text-link" href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+
+function participationRow(item) {
+  const when = item.createdAt?.toDate ? item.createdAt.toDate().toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  const subject = encodeURIComponent('Tu postulación para Radio Conexión');
+  const phoneDigits = String(item.phone || '').replace(/[^0-9]/g, '');
+  const details = [
+    `<a class="text-link" href="mailto:${escapeHtml(item.email)}?subject=${subject}">${escapeHtml(item.email)}</a>`,
+    item.phone ? (phoneDigits.length >= 8 ? `<a class="text-link" href="https://wa.me/${escapeHtml(phoneDigits)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.phone)}</a>` : escapeHtml(item.phone)) : '',
+    item.place ? escapeHtml(item.place) : '',
+    escapeHtml(PARTICIPATION_FORMAT[item.format] || item.format || '')
+  ].filter(Boolean).join(' · ');
+  return `
+    <li class="admin-row">
+      <div class="admin-row__info">
+        <span class="muted small">${escapeHtml(PARTICIPATION_TYPE[item.type] || item.type)} · <strong>${escapeHtml(item.name)}</strong>${when ? ` · ${escapeHtml(when)}` : ''}</span>
+        <span class="comment__text">${escapeHtml(item.idea)}</span>
+        <span class="small">${details}</span>
+        ${item.links ? `<span class="small">${linkify(item.links)}</span>` : ''}
+      </div>
+      <div class="admin-row__actions">
+        ${item.status === 'contactado'
+          ? '<span class="pill pill--approved">Contactado</span>'
+          : `<button type="button" class="btn btn-primary btn-sm" data-participation-done="${escapeHtml(item.id)}">Marcar como contactado</button>`}
+        <button type="button" class="btn btn-ghost btn-sm" data-delete-participation="${escapeHtml(item.id)}">Eliminar</button>
+      </div>
+    </li>`;
+}
+
+function renderParticipations() {
+  const fresh = state.participations.filter(item => item.status !== 'contactado');
+  const contacted = state.participations.filter(item => item.status === 'contactado');
+  $('#participation-count').textContent = fresh.length;
+  $('#admin-participations').innerHTML = fresh.length ? fresh.map(participationRow).join('') : '<li class="muted">No hay postulaciones nuevas.</li>';
+  $('#admin-participations-done').innerHTML = contacted.length ? contacted.map(participationRow).join('') : '<li class="muted">Ninguna todavía.</li>';
+}
+
+async function markParticipationContacted(id, button) {
+  button.disabled = true;
+  try {
+    await updateDoc(doc(db, 'participations', id), { status: 'contactado', contactedAt: serverTimestamp() });
+    const item = state.participations.find(entry => entry.id === id);
+    if (item) item.status = 'contactado';
+    renderParticipations();
+  } catch (error) {
+    console.error(error);
+    alert(friendlyError(error));
+    button.disabled = false;
+  }
+}
+
+async function deleteParticipation(id, button) {
+  const item = state.participations.find(entry => entry.id === id);
+  if (!confirm(`¿Eliminar la postulación de ${item?.name || 'esta persona'}? Sus datos se borran del sitio.`)) return;
+  button.disabled = true;
+  try {
+    await deleteDoc(doc(db, 'participations', id));
+    state.participations = state.participations.filter(entry => entry.id !== id);
+    renderParticipations();
+  } catch (error) {
+    console.error(error);
+    alert(friendlyError(error));
+    button.disabled = false;
+  }
+}
+
 document.addEventListener('click', event => {
+  const participationDone = event.target.closest('[data-participation-done]');
+  if (participationDone) return markParticipationContacted(participationDone.dataset.participationDone, participationDone);
+  const removeParticipation = event.target.closest('[data-delete-participation]');
+  if (removeParticipation) return deleteParticipation(removeParticipation.dataset.deleteParticipation, removeParticipation);
   const welcome = event.target.closest('[data-welcome]');
   if (welcome) return sendWelcome(state.members.find(item => item.id === welcome.dataset.welcome), true, welcome);
   const reportDelete = event.target.closest('[data-report-delete]');

@@ -11,6 +11,7 @@ Sitio web de Radio Conexión: una comunidad privada de oyentes, más las página
 | `admin.html` + `admin.js` | Panel de administración: aprobar solicitudes y publicar episodios. |
 | `historia.html` | Historia de la radio, carta del fundador y museo de logos. |
 | `tiempo.html` + `weather.js` | Pronóstico de la Dirección Meteorológica de Chile. |
+| `participa.html` + `participa.js` | Formulario público "Participa en la radio": cualquiera (sin cuenta) postula para salir en un episodio. |
 | `condiciones.html` | Condiciones de uso y política de privacidad (reemplaza al antiguo Google Doc). Actualízala si la comunidad empieza a guardar datos nuevos. |
 
 Código compartido: `community-core.js` (Firebase), `firebase-config.js`, `site.css`, `site.js`. La portada usa `home.js` para el contador.
@@ -30,6 +31,15 @@ Código compartido: `community-core.js` (Firebase), `firebase-config.js`, `site.
 9. El panel muestra **estadísticas** (favoritos, comentarios, miembros nuevos por mes) y actualiza `public/stats`,
    que la portada lee para mostrar el contador (solo aparece desde 5 miembros).
 
+## Formulario "Participa en la radio"
+
+1. La persona completa `/participa` (no necesita cuenta): cómo quiere participar, su idea, nombre, correo y,
+   si quiere, teléfono, ciudad y enlaces. Debe aceptar que la contacten.
+2. `api/participa.js` valida los datos, descarta robots (campo trampa oculto y un tiempo mínimo de llenado),
+   guarda la postulación en Firestore y avisa por correo a la administración. Ese correo se puede **responder
+   directamente** para escribirle a la persona.
+3. En `/admin`, sección **Quieren participar**, se ven las postulaciones y se marcan como "contactado" o se eliminan.
+
 Los episodios son audios de Google Drive: en el panel se pega el enlace de "Compartir". El archivo debe estar
 compartido como **"Cualquier persona con el enlace"** para que se pueda reproducir.
 
@@ -43,6 +53,9 @@ compartido como **"Cualquier persona con el enlace"** para que se pueda reproduc
   Los pedidos en espera usan las casillas `<uid>_1`, `<uid>_2` y `<uid>_3` (así las reglas limitan a 3); al leerse al
   aire, el panel los mueve a un documento nuevo con estado `hecho` y la casilla queda libre.
 - `reports/{comentario}_{uid}`: `reporterUid`, `episodeId`, `commentId`, `createdAt` (un reporte por persona).
+- `participations/{id}`: `name`, `email`, `phone`, `place`, `type` (`historia` | `entrevista` | `talento` | `tema` |
+  `seccion` | `otro`), `idea`, `format` (`distancia` | `estudio` | `cualquiera`), `links`, `consent`,
+  `status` (`nuevo` | `contactado`), `createdAt`, `contactedAt`. Creación pública validada por las reglas; solo la administración lee.
 - `public/stats`: `members`, `episodes` (lectura pública; lo escribe el panel).
 
 Los permisos están en `firestore.rules`. **Hay que publicarlos** cada vez que cambien:
