@@ -2,7 +2,7 @@
 // ▶ CONFIGURACIÓN: pega aquí el enlace del stream que entrega tu servicio
 //   (por ejemplo, Zeno.fm: "https://stream.zeno.fm/abc123xyz").
 //   Mientras esté vacío, la página muestra "Muy pronto al aire".
-const STREAM_URL = '';
+const STREAM_URL = 'https://sapircast.caster.fm:16637/YGHrl';
 
 (() => {
   const box = document.querySelector('[data-live]');
