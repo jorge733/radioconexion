@@ -72,3 +72,9 @@ Para cambiar la cuenta administradora, edita `firestore.rules` y `firebase-confi
 ## Configuración en Vercel
 
 Ver `.env.example`: `DMC_API_USER`, `DMC_API_TOKEN` (tiempo) y `RESEND_API_KEY` (correos de solicitud, bienvenida, episodios nuevos y postulaciones para participar).
+
+## Transmisión en vivo
+
+- `envivo.html` muestra el widget de reproductor de Caster.fm (plan gratuito; el `publicToken` del widget es público).
+- Para salir al aire: abrir **Caster.fm Broadcaster**, elegir micrófono (Deck 1) y audio del computador (Deck 2) y presionar **Go Live**.
+- Las credenciales de transmisión (contraseña y token privado) van solo en ese programa, nunca en este repositorio.
