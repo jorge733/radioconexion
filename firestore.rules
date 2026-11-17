@@ -148,7 +148,8 @@ service cloud.firestore {
     }
 
     // Postulaciones para participar en la radio (formulario público de /participa).
-    // Cualquiera puede enviar una, siempre como "nuevo" y con su autorización; solo la administración las lee.
+    // Cualquiera puede enviar una, siempre como "nuevo" y con su autorización; solo la administración las lee
+    // y decide si la acepta.
     function validParticipation(d) {
       return d.keys().hasOnly(['name', 'email', 'phone', 'place', 'type', 'idea', 'format', 'links', 'consent', 'status', 'createdAt'])
         && d.name is string && d.name.size() > 0 && d.name.size() <= 80
@@ -167,9 +168,10 @@ service cloud.firestore {
       allow create: if validParticipation(request.resource.data)
         && request.resource.data.status == 'nuevo'
         && request.resource.data.createdAt == request.time;
+      // La administración la acepta o no; notifiedAt marca cuándo se le avisó por correo.
       allow update: if isAdmin()
-        && onlyChanges(['status', 'contactedAt'])
-        && request.resource.data.status in ['nuevo', 'contactado'];
+        && onlyChanges(['status', 'reviewedAt', 'notifiedAt'])
+        && request.resource.data.status in ['nuevo', 'aceptada', 'rechazada'];
     }
 
     // Cifras públicas para la portada (cantidad de miembros y episodios).

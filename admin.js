@@ -431,6 +431,8 @@ async function loadParticipations() {
 // Solo enlazamos direcciones http(s); el resto se muestra como texto.
 const linkify = text => escapeHtml(text).replace(/https?:\/\/[^\s<>"']+/g, url => `<a class="text-link" href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
 
+const PARTICIPATION_STATUS = { aceptada: ['Aceptada', 'approved'], rechazada: ['No aceptada', 'rejected'] };
+
 function participationRow(item) {
   const when = item.createdAt?.toDate ? item.createdAt.toDate().toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
   const subject = encodeURIComponent('Tu postulación para Radio Conexión');
@@ -441,6 +443,14 @@ function participationRow(item) {
     item.place ? escapeHtml(item.place) : '',
     escapeHtml(PARTICIPATION_FORMAT[item.format] || item.format || '')
   ].filter(Boolean).join(' · ');
+  const id = escapeHtml(item.id);
+  const decided = PARTICIPATION_STATUS[item.status];
+  const actions = decided
+    ? `<span class="pill pill--${decided[1]}">${decided[0]}</span>
+       <span class="muted small">${item.notifiedAt ? 'Correo enviado ✓' : 'Sin aviso por correo'}</span>
+       <button type="button" class="btn btn-ghost btn-sm" data-participation-notify="${id}">${item.notifiedAt ? 'Reenviar correo' : 'Enviar correo'}</button>`
+    : `<button type="button" class="btn btn-primary btn-sm" data-participation-status="aceptada" data-id="${id}">Aceptar</button>
+       <button type="button" class="btn btn-ghost btn-sm" data-participation-status="rechazada" data-id="${id}">No aceptar</button>`;
   return `
     <li class="admin-row">
       <div class="admin-row__info">
@@ -450,34 +460,77 @@ function participationRow(item) {
         ${item.links ? `<span class="small">${linkify(item.links)}</span>` : ''}
       </div>
       <div class="admin-row__actions">
-        ${item.status === 'contactado'
-          ? '<span class="pill pill--approved">Contactado</span>'
-          : `<button type="button" class="btn btn-primary btn-sm" data-participation-done="${escapeHtml(item.id)}">Marcar como contactado</button>`}
-        <button type="button" class="btn btn-ghost btn-sm" data-delete-participation="${escapeHtml(item.id)}">Eliminar</button>
+        ${actions}
+        <button type="button" class="btn btn-ghost btn-sm" data-delete-participation="${id}">Eliminar</button>
       </div>
     </li>`;
 }
 
 function renderParticipations() {
-  const fresh = state.participations.filter(item => item.status !== 'contactado');
-  const contacted = state.participations.filter(item => item.status === 'contactado');
+  const fresh = state.participations.filter(item => !PARTICIPATION_STATUS[item.status]);
+  const answered = state.participations.filter(item => PARTICIPATION_STATUS[item.status]);
   $('#participation-count').textContent = fresh.length;
   $('#admin-participations').innerHTML = fresh.length ? fresh.map(participationRow).join('') : '<li class="muted">No hay postulaciones nuevas.</li>';
-  $('#admin-participations-done').innerHTML = contacted.length ? contacted.map(participationRow).join('') : '<li class="muted">Ninguna todavía.</li>';
+  $('#admin-participations-done').innerHTML = answered.length ? answered.map(participationRow).join('') : '<li class="muted">Ninguna todavía.</li>';
 }
 
-async function markParticipationContacted(id, button) {
+// Pide un mensaje opcional para el correo. Devuelve null si se cancela.
+function askNote(item, status) {
+  const text = status === 'aceptada'
+    ? `Aceptar la postulación de ${item.name}.\n\nMensaje opcional para su correo (por ejemplo, cuándo y cómo grabarán). Déjalo vacío para usar el texto de siempre:`
+    : `No aceptar la postulación de ${item.name}.\n\nMensaje opcional para su correo. Déjalo vacío para usar el texto de siempre:`;
+  return prompt(text, '');
+}
+
+async function setParticipationStatus(id, status, button) {
+  const item = state.participations.find(entry => entry.id === id);
+  if (!item) return;
+  const note = askNote(item, status);
+  if (note === null) return;
   button.disabled = true;
   try {
-    await updateDoc(doc(db, 'participations', id), { status: 'contactado', contactedAt: serverTimestamp() });
-    const item = state.participations.find(entry => entry.id === id);
-    if (item) item.status = 'contactado';
+    await updateDoc(doc(db, 'participations', id), { status, reviewedAt: serverTimestamp() });
+    item.status = status;
     renderParticipations();
+    await notifyParticipation(item, note);
   } catch (error) {
     console.error(error);
     alert(friendlyError(error));
     button.disabled = false;
   }
+}
+
+async function notifyParticipation(item, note, button) {
+  const message = $('#admin-message');
+  if (button) button.disabled = true;
+  setMessage(message, `Enviando la respuesta a ${item.name}…`, 'ok');
+  try {
+    const token = await auth.currentUser.getIdToken();
+    const result = await fetch('/api/participa-respuesta', {
+      method: 'POST', keepalive: true,
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: item.id, message: note || '' })
+    }).then(response => response.json());
+    if (result.sent) {
+      item.notifiedAt = new Date();
+      setMessage(message, `Le avisamos por correo a ${item.name} (${result.to}).`, 'ok');
+    } else {
+      setMessage(message, `No se envió el correo a ${item.name}: ${result.reason || result.error || 'motivo desconocido'}. Puedes intentarlo de nuevo con "Enviar correo".`);
+    }
+  } catch (error) {
+    console.error(error);
+    setMessage(message, `No se pudo enviar el correo a ${item.name}. Revisa tu conexión e inténtalo con "Enviar correo".`);
+  } finally {
+    renderParticipations();
+  }
+}
+
+async function resendParticipation(id, button) {
+  const item = state.participations.find(entry => entry.id === id);
+  if (!item) return;
+  const note = askNote(item, item.status);
+  if (note === null) return;
+  await notifyParticipation(item, note, button);
 }
 
 async function deleteParticipation(id, button) {
@@ -496,8 +549,10 @@ async function deleteParticipation(id, button) {
 }
 
 document.addEventListener('click', event => {
-  const participationDone = event.target.closest('[data-participation-done]');
-  if (participationDone) return markParticipationContacted(participationDone.dataset.participationDone, participationDone);
+  const participationStatus = event.target.closest('[data-participation-status]');
+  if (participationStatus) return setParticipationStatus(participationStatus.dataset.id, participationStatus.dataset.participationStatus, participationStatus);
+  const participationNotify = event.target.closest('[data-participation-notify]');
+  if (participationNotify) return resendParticipation(participationNotify.dataset.participationNotify, participationNotify);
   const removeParticipation = event.target.closest('[data-delete-participation]');
   if (removeParticipation) return deleteParticipation(removeParticipation.dataset.deleteParticipation, removeParticipation);
   const welcome = event.target.closest('[data-welcome]');

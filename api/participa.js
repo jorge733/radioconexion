@@ -78,7 +78,30 @@ module.exports = async (request, response) => {
     return response.status(500).json({ error: 'No pudimos guardar tu postulación. Inténtalo de nuevo en unos minutos.' });
   }
 
-  // El aviso por correo es un extra: si falla, la postulación ya quedó guardada en el panel.
+  // Los correos son un extra: si fallan, la postulación ya quedó guardada en el panel.
+  // Confirmación para quien postula. No repetimos su idea para que el formulario no sirva
+  // para mandar textos arbitrarios a correos ajenos.
+  const firstName = escapeHtml(data.name.split(' ')[0].slice(0, 40));
+  try {
+    await sendEmail({
+      to: data.email,
+      replyTo: ADMIN_EMAIL,
+      subject: 'Recibimos tu postulación para Radio Conexión',
+      html: emailLayout(`
+        <h1 style="margin:0 0 12px;font-size:24px">¡Gracias, ${firstName}!</h1>
+        <p>Recibimos tu postulación para participar en un próximo episodio de Radio Conexión
+        (<strong>${escapeHtml(TYPES[data.type])}</strong>).</p>
+        <p>Leemos cada propuesta con cariño. Cuando la revisemos te escribiremos a este mismo correo para contarte
+        si fue aceptada y, si es así, coordinar la grabación.</p>
+        <p style="font-size:14px;color:#545b53">¿No enviaste esta postulación? Puedes ignorar este correo o responderlo para que borremos tus datos.</p>`,
+        'Participa en la radio'),
+      text: `¡Gracias! Recibimos tu postulación para participar en Radio Conexión (${TYPES[data.type]}). Cuando la revisemos te escribiremos a este correo para contarte si fue aceptada. Si no la enviaste tú, ignora este correo o respóndelo para que borremos tus datos.`
+    });
+  } catch (mailError) {
+    console.error('Confirmación de postulación falló:', mailError.message);
+  }
+
+  // Aviso a la administración.
   try {
     const rows = [
       ['Cómo quiere participar', TYPES[data.type]],

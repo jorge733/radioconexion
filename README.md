@@ -36,9 +36,11 @@ Código compartido: `community-core.js` (Firebase), `firebase-config.js`, `site.
 1. La persona completa `/participa` (no necesita cuenta): cómo quiere participar, su idea, nombre, correo y,
    si quiere, teléfono, ciudad y enlaces. Debe aceptar que la contacten.
 2. `api/participa.js` valida los datos, descarta robots (campo trampa oculto y un tiempo mínimo de llenado),
-   guarda la postulación en Firestore y avisa por correo a la administración. Ese correo se puede **responder
-   directamente** para escribirle a la persona.
-3. En `/admin`, sección **Quieren participar**, se ven las postulaciones y se marcan como "contactado" o se eliminan.
+   guarda la postulación en Firestore, le envía a la persona un **correo de confirmación** y avisa a la administración
+   (ese aviso se puede **responder directamente** para escribirle a la persona).
+3. En `/admin`, sección **Quieren participar**, cada postulación se **acepta** o **no se acepta**. Se puede agregar un
+   mensaje opcional, y `api/participa-respuesta.js` le avisa a la persona por correo con la respuesta.
+   Si el correo falla, se puede reenviar desde el panel.
 
 Los episodios son audios de Google Drive: en el panel se pega el enlace de "Compartir". El archivo debe estar
 compartido como **"Cualquier persona con el enlace"** para que se pueda reproducir.
@@ -55,7 +57,7 @@ compartido como **"Cualquier persona con el enlace"** para que se pueda reproduc
 - `reports/{comentario}_{uid}`: `reporterUid`, `episodeId`, `commentId`, `createdAt` (un reporte por persona).
 - `participations/{id}`: `name`, `email`, `phone`, `place`, `type` (`historia` | `entrevista` | `talento` | `tema` |
   `seccion` | `otro`), `idea`, `format` (`distancia` | `estudio` | `cualquiera`), `links`, `consent`,
-  `status` (`nuevo` | `contactado`), `createdAt`, `contactedAt`. Creación pública validada por las reglas; solo la administración lee.
+  `status` (`nuevo` | `aceptada` | `rechazada`), `createdAt`, `reviewedAt`, `notifiedAt`. Creación pública validada por las reglas; solo la administración lee.
 - `public/stats`: `members`, `episodes` (lectura pública; lo escribe el panel).
 
 Los permisos están en `firestore.rules`. **Hay que publicarlos** cada vez que cambien:
@@ -69,4 +71,4 @@ Para cambiar la cuenta administradora, edita `firestore.rules` y `firebase-confi
 
 ## Configuración en Vercel
 
-Ver `.env.example`: `DMC_API_USER`, `DMC_API_TOKEN` (tiempo) y `RESEND_API_KEY` (correos de solicitud, bienvenida y episodios nuevos).
+Ver `.env.example`: `DMC_API_USER`, `DMC_API_TOKEN` (tiempo) y `RESEND_API_KEY` (correos de solicitud, bienvenida, episodios nuevos y postulaciones para participar).
