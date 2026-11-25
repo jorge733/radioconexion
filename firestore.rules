@@ -7,10 +7,10 @@ service cloud.firestore {
 
     function signedIn() { return request.auth != null; }
 
-    // Si cambias la cuenta administradora, cámbiala también en firebase-config.js.
+    // Si cambias las cuentas administradoras, cámbialas también en firebase-config.js y api/_comunidad.js.
     function isAdmin() {
       return signedIn()
-        && request.auth.token.email == 'sabenedettoa@benedettowebs.cl'
+        && request.auth.token.email in ['sabenedettoa@benedettowebs.cl', 'sabenedettoa@radioconexionweb.com']
         && request.auth.token.email_verified == true;
     }
 

@@ -4,7 +4,7 @@ import {
   getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { firebaseConfig, ADMIN_EMAIL } from './firebase-config.js';
+import { firebaseConfig, ADMIN_EMAILS } from './firebase-config.js';
 
 export * from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
@@ -13,7 +13,7 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 auth.languageCode = 'es';
 
-export const isAdminUser = user => Boolean(user && user.emailVerified && user.email?.toLowerCase() === ADMIN_EMAIL);
+export const isAdminUser = user => Boolean(user && user.emailVerified && ADMIN_EMAILS.includes(user.email?.toLowerCase()));
 
 export function watchUser(callback) {
   return onAuthStateChanged(auth, callback);

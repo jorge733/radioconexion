@@ -20,7 +20,7 @@ Código compartido: `community-core.js` (Firebase), `firebase-config.js`, `site.
 
 1. La persona entra con su cuenta de Google y envía su solicitud (nombre y una breve descripción).
 2. Llega un correo de aviso a la administración (`api/solicitud.js`, vía Resend).
-3. En `/admin` se aprueba o rechaza. Solo la cuenta `sabenedettoa@benedettowebs.cl` tiene acceso.
+3. En `/admin` se aprueba o rechaza. Solo las cuentas `sabenedettoa@benedettowebs.cl` y `sabenedettoa@radioconexionweb.com` tienen acceso.
 4. Al aprobar, el miembro recibe un correo de bienvenida (`api/aprobado.js`).
 5. Los miembros aprobados escuchan y **buscan** episodios, marcan favoritos, **comentan** y **reaccionan** (❤️ 👏),
    envían **pedidos de canciones y saludos** (máximo 3 en espera), editan su perfil y ven a los demás miembros.

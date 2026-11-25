@@ -3,6 +3,8 @@
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyDn9VYTp8VfsxWQADAtozRmrCySzlETwas';
 const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'radio-conexion-e924e';
 const ADMIN_EMAIL = (process.env.COMMUNITY_ADMIN_EMAIL || 'sabenedettoa@benedettowebs.cl').toLowerCase();
+// Cuentas con acceso a /admin (las mismas que en firebase-config.js y firestore.rules).
+const ADMIN_EMAILS = [ADMIN_EMAIL, 'sabenedettoa@benedettowebs.cl', 'sabenedettoa@radioconexionweb.com'];
 const FROM = process.env.COMMUNITY_EMAIL_FROM || 'Radio Conexión <comunidad@radioconexionweb.com>';
 const SITE_URL = process.env.SITE_URL || 'https://www.radioconexionweb.com';
 const RECENT_MS = 10 * 60 * 1000;
@@ -22,7 +24,7 @@ async function verifiedUser(idToken) {
   return data.users?.[0] || null;
 }
 
-const isAdmin = user => Boolean(user?.emailVerified && String(user.email || '').toLowerCase() === ADMIN_EMAIL);
+const isAdmin = user => Boolean(user?.emailVerified && ADMIN_EMAILS.includes(String(user.email || '').toLowerCase()));
 
 // Lee un documento con el token de quien llama: las reglas de Firestore deciden si puede.
 async function readDoc(path, idToken) {

@@ -11,3 +11,5 @@ export const firebaseConfig = {
 // Única cuenta que aprueba miembros y publica episodios.
 // Si la cambias, cámbiala también en firestore.rules.
 export const ADMIN_EMAIL = 'sabenedettoa@benedettowebs.cl';
+// Cuentas con acceso a /admin. Si cambias esta lista, cámbiala también en firestore.rules y api/_comunidad.js.
+export const ADMIN_EMAILS = [ADMIN_EMAIL, 'sabenedettoa@radioconexionweb.com'];
