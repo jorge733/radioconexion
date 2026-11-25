@@ -5,6 +5,11 @@
       "source": "/",
       "destination": "/inicio",
       "permanent": false
+    },
+    {
+      "source": "/envivo",
+      "destination": "/comunidad",
+      "permanent": true
     }
   ]
 }
